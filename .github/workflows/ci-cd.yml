@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI  # deployment is handled by the Vercel Git integration
 
 on:
   push:
@@ -50,29 +50,3 @@ jobs:
           JWT_SECRET: ci-build-placeholder
       - run: npm audit --omit=dev --audit-level=critical
         continue-on-error: true
-
-  deploy:
-    name: Deploy ${{ matrix.app }} (${{ github.event_name == 'push' && 'production' || 'preview' }})
-    needs: [backend, frontend]
-    runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'push' && 'production' || 'preview' }}
-    strategy:
-      max-parallel: 1 # backend first, so the frontend always points at a live API
-      matrix:
-        app: [backend, frontend]
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ matrix.app == 'backend' && secrets.VERCEL_BACKEND_PROJECT_ID || secrets.VERCEL_FRONTEND_PROJECT_ID }}
-      TARGET: ${{ github.event_name == 'push' && 'production' || 'preview' }}
-    defaults:
-      run:
-        working-directory: ${{ matrix.app }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm install --global vercel@latest
-      - run: vercel pull --yes --environment=$TARGET --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel build ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
-      - run: vercel deploy --prebuilt ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}

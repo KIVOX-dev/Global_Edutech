@@ -55,15 +55,9 @@ Create **two** Vercel projects from this repo:
 
 MongoDB Atlas must allow connections from `0.0.0.0/0` (Vercel IPs change).
 
-### CI/CD
+### CI
 
-[.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) runs on every push/PR to `main`:
-
-1. **backend** – install, syntax check, audit
-2. **frontend** – install, type check, build, audit
-3. **deploy** – backend then frontend: preview for pull requests, production for pushes to `main`
-
-Add these GitHub repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_BACKEND_PROJECT_ID`, `VERCEL_FRONTEND_PROJECT_ID` (IDs come from `vercel link` → `.vercel/project.json` in each folder). If you prefer Vercel's own Git integration, delete the `deploy` job.
+[.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) runs on every push/PR to `main`: backend install + syntax check, frontend install + type check + build, and a non-blocking dependency audit. Deployment is done by Vercel's Git integration (each push to `main` deploys production, each PR gets a preview), so no Vercel token is needed in GitHub.
 
 ## More docs
 
