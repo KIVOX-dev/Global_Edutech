@@ -1,0 +1,61 @@
+{
+  "name": "global-edutech-frontend",
+  "version": "1.0.0",
+  "description": "AIDA-based landing page for Global Edutech with summer-inspired design",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "education",
+    "preschool",
+    "after-school",
+    "home-tuition",
+    "nextjs",
+    "tailwindcss",
+    "aida",
+    "landing-page"
+  ],
+  "author": "Global Edutech Academy",
+  "license": "MIT",
+  "dependencies": {
+    "@headlessui/react": "^1.7.19",
+    "@heroicons/react": "^2.2.0",
+    "@next/bundle-analyzer": "^15.5.3",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-toast": "^1.2.15",
+    "@react-google-maps/api": "^2.20.7",
+    "autoprefixer": "^10.4.21",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^10.18.0",
+    "jose": "^6.1.0",
+    "lucide-react": "^0.543.0",
+    "next": "14.2.35",
+    "next-themes": "^0.4.6",
+    "postcss": "^8.5.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.62.0",
+    "react-icons": "^5.5.0",
+    "swiper": "^10.3.1",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/google.maps": "^3.58.1",
+    "@types/node": "^20.19.13",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.9.2"
+  },
+  "private": true
+}

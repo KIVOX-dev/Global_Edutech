@@ -1,0 +1,78 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm audit --omit=dev --audit-level=critical
+        continue-on-error: true
+
+  frontend:
+    name: Frontend typecheck & build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+        env:
+          BACKEND_URL: https://example.invalid
+          JWT_SECRET: ci-build-placeholder
+      - run: npm audit --omit=dev --audit-level=critical
+        continue-on-error: true
+
+  deploy:
+    name: Deploy ${{ matrix.app }} (${{ github.event_name == 'push' && 'production' || 'preview' }})
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+    strategy:
+      max-parallel: 1 # backend first, so the frontend always points at a live API
+      matrix:
+        app: [backend, frontend]
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ matrix.app == 'backend' && secrets.VERCEL_BACKEND_PROJECT_ID || secrets.VERCEL_FRONTEND_PROJECT_ID }}
+      TARGET: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --global vercel@latest
+      - run: vercel pull --yes --environment=$TARGET --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel build ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+      - run: vercel deploy --prebuilt ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}

@@ -1,0 +1,22 @@
+{
+  "name": "global-edutech-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Express API for the Global Edutech website (enquiries, admin auth, exports)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/server.js",
+    "start": "node src/server.js",
+    "init-db": "node --env-file-if-exists=.env scripts/init-db.cjs",
+    "check": "node --check src/app.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "jose": "^6.1.0",
+    "mongodb": "^6.19.0",
+    "nodemailer": "^6.10.1"
+  }
+}

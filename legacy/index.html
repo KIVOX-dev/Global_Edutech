@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Transform your future with Global EduTech Academy - AI-powered education for the modern world">
+    <meta name="keywords" content="education, online courses, AI learning, career development, professional training">
+    <title>Global EduTech Academy - Transform Your Future with AI-Powered Education</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/images/globaleducation.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <div class="logo-placeholder">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <span class="logo-text">Global EduTech</span>
+                </div>
+                
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#home" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#courses" class="nav-link">Courses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#about" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#testimonials" class="nav-link">Success Stories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#contact" class="nav-link">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-primary" onclick="openChatbot()">
+                            <i class="fas fa-robot"></i> AI Assistant
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Transform Your Future with 
+                    <span class="highlight">AI-Powered Education</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Learn from industry experts, advance your career, and unlock your potential 
+                    with our cutting-edge courses powered by artificial intelligence.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary btn-large" onclick="scrollToSection('courses')">
+                        <i class="fas fa-graduation-cap"></i> Explore Courses
+                    </button>
+                    <button class="btn btn-secondary btn-large" onclick="getPersonalizedRecommendations()">
+                        <i class="fas fa-magic"></i> Get AI Recommendations
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="10000">0</span>
+                        <span class="stat-label">Students Enrolled</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="150">0</span>
+                        <span class="stat-label">Expert Instructors</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="95">0</span>
+                        <span class="stat-label">Success Rate %</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-img-placeholder">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>AI-Powered Education</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Choose Global EduTech Academy?</h2>
+                <p class="section-subtitle">
+                    Experience the future of education with our AI-enhanced learning platform
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">AI-Powered Learning</h3>
+                    <p class="feature-description">
+                        Personalized learning paths and content recommendations powered by advanced AI algorithms.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Expert Instructors</h3>
+                    <p class="feature-description">
+                        Learn from industry professionals with years of experience and proven track records.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3 class="feature-title">Industry Certifications</h3>
+                    <p class="feature-description">
+                        Earn recognized certifications that boost your career prospects and professional credibility.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="feature-title">Flexible Learning</h3>
+                    <p class="feature-description">
+                        Study at your own pace with 24/7 access to course materials and AI tutoring support.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3 class="feature-title">Career Support</h3>
+                    <p class="feature-description">
+                        Get job placement assistance, resume building, and interview preparation support.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3 class="feature-title">Modern Platform</h3>
+                    <p class="feature-description">
+                        Access cutting-edge learning tools, virtual labs, and interactive simulations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Courses Section -->
+    <section id="courses" class="courses">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Featured Courses</h2>
+                <p class="section-subtitle">
+                    Discover our most popular AI-enhanced courses designed for career advancement
+                </p>
+                <button class="btn btn-secondary" onclick="generateAICourses()">
+                    <i class="fas fa-magic"></i> Generate AI Courses
+                </button>
+            </div>
+            
+            <div class="courses-grid" id="coursesContainer">
+                <!-- Courses will be loaded here dynamically -->
+                <div class="course-card loading">
+                    <div class="loading-shimmer"></div>
+                    <p>Loading AI-generated courses...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Success Stories</h2>
+                <p class="section-subtitle">
+                    Hear from our graduates who transformed their careers with AI-powered education
+                </p>
+                <button class="btn btn-secondary" onclick="generateAITestimonials()">
+                    <i class="fas fa-magic"></i> Generate AI Testimonials
+                </button>
+            </div>
+            
+            <div class="testimonials-slider" id="testimonialsContainer">
+                <!-- Testimonials will be loaded here dynamically -->
+                <div class="testimonial-card loading">
+                    <div class="loading-shimmer"></div>
+                    <p>Loading AI-generated testimonials...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Get Started Today</h2>
+                <p class="section-subtitle">
+                    Ready to transform your future? Get in touch with our AI-powered enrollment assistant
+                </p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>123 Education Street, Learning City, LC 12345</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>info@globaledutech.academy</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <span>24/7 AI Support Available</span>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container">
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="interests">Areas of Interest</label>
+                            <select id="interests" name="interests" required>
+                                <option value="">Select your interests</option>
+                                <option value="ai-ml">Artificial Intelligence & Machine Learning</option>
+                                <option value="data-science">Data Science & Analytics</option>
+                                <option value="web-development">Web Development</option>
+                                <option value="cybersecurity">Cybersecurity</option>
+                                <option value="digital-marketing">Digital Marketing</option>
+                                <option value="business-analytics">Business Analytics</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="experience">Experience Level</label>
+                            <select id="experience" name="experience" required>
+                                <option value="">Select your level</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="goals">Career Goals</label>
+                            <textarea id="goals" name="goals" rows="4" placeholder="Tell us about your career aspirations..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <i class="fas fa-paper-plane"></i> Get AI Recommendations
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Global EduTech Academy</h3>
+                    <p>Empowering learners worldwide with AI-enhanced education and cutting-edge technology.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#courses">Courses</a></li>
+                        <li><a href="#testimonials">Success Stories</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Student Portal</a></li>
+                        <li><a href="#">Technical Support</a></li>
+                        <li><a href="#">AI Assistant</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Newsletter</h4>
+                    <p>Get the latest updates on new courses and AI-powered features.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Global EduTech Academy. All rights reserved. | Powered by Google AI & Genkit</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chatbot -->
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <h4><i class="fas fa-robot"></i> AI Learning Assistant</h4>
+            <button class="chatbot-close" onclick="closeChatbot()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot-message">
+                <p>Hi! I'm your AI learning assistant. How can I help you find the perfect course today?</p>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Ask me about courses, enrollment, or anything else...">
+            <button onclick="sendChatbotMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Personalization Modal -->
+    <div id="personalizationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-magic"></i> AI-Powered Recommendations</h3>
+                <button class="modal-close" onclick="closePersonalizationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="personalizationContent">
+                <!-- Content will be populated by AI -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/ai-features.js"></script>
+    <script src="/js/forms.js"></script>
+</body>
+</html>
