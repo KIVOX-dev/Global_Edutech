@@ -32,12 +32,11 @@ function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[
   const isActive = (href: string) => (href === `/${role.toLowerCase()}` ? pathname === href : pathname.startsWith(href))
   const sidebar = (
     <nav className="flex h-full flex-col" aria-label="Main">
-      <div className="flex items-center gap-3 px-4 py-5">
-        <img src="/images/logo.png" alt="" className="h-9 w-9 rounded-lg bg-white p-1" />
-        <div>
-          <p className="font-display text-base font-bold leading-tight text-white">Global Edutech</p>
-          <p className="text-[11px] uppercase tracking-wider text-white/70">{role === 'ADMIN' ? 'Admin panel' : 'Staff portal'}</p>
-        </div>
+      <div className="px-4 pb-3 pt-5">
+        <Link href="/" aria-label="Global Edutech website" className="block rounded-2xl bg-white p-2 shadow-md">
+          <img src="/images/logo-banner.png" alt="Global Edutech" width={2014} height={438} className="h-10 w-full object-contain" />
+        </Link>
+        <p className="mt-2 px-1 text-[11px] uppercase tracking-wider text-white/75">{role === 'ADMIN' ? 'Admin panel' : 'Staff portal'}</p>
       </div>
       <ul className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
         {nav.map((n) => (

@@ -10,8 +10,7 @@ import {
   signAccessToken, signRefreshToken, verifyRefreshToken, setAuthCookies, clearAuthCookies, sha256, randomToken, REFRESH_COOKIE,
 } from '../services/token.service.js';
 import { emailService } from '../services/email/email.service.js';
-import { brandedHtml, htmlToText } from '../services/email/templates.js';
-import { escapeHtml } from '../utils/sanitize.js';
+import { passwordResetMessage } from '../services/email/templates.js';
 import { audit } from '../services/audit.service.js';
 
 export const BCRYPT_COST = 12;
@@ -115,10 +114,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     const token = randomToken();
     await User.updateOne({ _id: user._id }, { resetTokenHash: sha256(token), resetTokenExpires: new Date(Date.now() + 60 * 60 * 1000) });
     const link = `${config.appUrl}/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
-    const inner = `<p>Hello ${escapeHtml(user.name)},</p><p>Use the button below to reset your password. The link is valid for 1 hour.</p>
-      <p><a href="${link}" style="background:#7c4dcc;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Reset password</a></p>
-      <p>If you did not request this, you can ignore this email.</p>`;
-    emailService.send({ to: user.email, subject: `Reset your ${config.instituteName} password`, html: brandedHtml(inner), text: htmlToText(inner) })
+    emailService.send({ to: user.email, ...passwordResetMessage({ name: user.name, link, minutes: 60 }) })
       .catch((err) => logger.warn({ err: err.message }, 'Password reset email not sent'));
   }
   ok(res, generic);

@@ -8,6 +8,9 @@ describe('allowed origins', () => {
     expect(buildAllowedOrigins('https://www.globaledutech.co.in/').sort()).toEqual(['https://globaledutech.co.in', 'https://www.globaledutech.co.in']);
     expect(buildAllowedOrigins('https://globaledutech.co.in').sort()).toEqual(['https://globaledutech.co.in', 'https://www.globaledutech.co.in']);
     expect(buildAllowedOrigins('http://localhost:5173')).toEqual(['http://localhost:5173']);
+    // APP_URL may list several addresses
+    expect(buildAllowedOrigins('https://x.vercel.app,https://www.globaledutech.co.in').sort()).toContain('https://www.globaledutech.co.in');
+    expect(buildAllowedOrigins('https://x.vercel.app,https://www.globaledutech.co.in')).toContain('https://x.vercel.app');
     expect(buildAllowedOrigins('https://a.example.com', 'https://b.vercel.app, not a url').sort()).toEqual(['https://a.example.com', 'https://b.vercel.app', 'https://www.a.example.com']);
   });
 

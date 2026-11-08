@@ -40,3 +40,19 @@ export function buildMessage({ subject, html }, vars) {
     text: htmlToText(body),
   };
 }
+
+// Password reset email: branded layout, big button, plain link fallback, expiry and safety note
+export function passwordResetMessage({ name, link, minutes = 60 }) {
+  const safeName = escapeHtml(String(name || 'there').trim().split(/\s+/)[0] || 'there');
+  const safeLink = escapeHtml(link);
+  const inner = `<h2 style="margin:0 0 12px;font-size:24px;color:#2d1466">Reset your password</h2>
+<p style="margin:0 0 14px">Hello ${safeName},</p>
+<p style="margin:0 0 20px">We received a request to reset the password for your ${escapeHtml(config.instituteName)} account. Press the button below to choose a new one. This link works for <strong>${minutes} minutes</strong> and can be used once.</p>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px"><tr><td align="center" bgcolor="#763dcb" style="border-radius:12px;background:#763dcb"><a href="${safeLink}" target="_blank" style="display:inline-block;padding:14px 32px;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:12px">Reset password</a></td></tr></table>
+<p style="margin:0 0 6px;font-size:13px;color:#666">Button not working? Copy this address into your browser:</p>
+<p style="margin:0 0 20px;font-size:13px;word-break:break-all"><a href="${safeLink}" style="color:#763dcb">${safeLink}</a></p>
+<div style="background:#fff7e6;border-left:4px solid #f5a524;padding:12px 14px;border-radius:8px;font-size:14px;color:#5a4300">
+<strong>Did not ask for this?</strong> You can safely ignore this email: your password will stay the same. If it keeps happening, tell us on ${escapeHtml(config.contactPhone || '+91 93630 42019')}.</div>`;
+  const text = `Hello ${String(name || 'there').trim().split(/\s+/)[0] || 'there'},\n\nWe received a request to reset your ${config.instituteName} password. Open this link to choose a new one (valid for ${minutes} minutes, one use):\n\n${link}\n\nIf you did not ask for this, ignore this email and your password stays the same.\n\n- ${config.instituteName} team`;
+  return { subject: `Reset your ${config.instituteName} password`, html: brandedHtml(inner), text };
+}

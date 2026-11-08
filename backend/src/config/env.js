@@ -38,6 +38,7 @@ const schema = z.object({
 
 // APP_URL plus its www / non-www twin, plus anything listed in ALLOWED_ORIGINS (all normalised, no trailing slash)
 export function buildAllowedOrigins(appUrl, extra = '') {
+  const mains = (Array.isArray(appUrl) ? appUrl : String(appUrl || '').split(','));
   const out = new Set();
   const add = (raw, twin = false) => {
     try {
@@ -48,7 +49,7 @@ export function buildAllowedOrigins(appUrl, extra = '') {
       else if (u.hostname.includes('.') && !/^\d+\.\d+\.\d+\.\d+$/.test(u.hostname) && u.hostname !== 'localhost') out.add(`${u.protocol}//www.${u.hostname}${u.port ? `:${u.port}` : ''}`);
     } catch { /* ignore malformed entries */ }
   };
-  add(appUrl, true); // only the main site address gets its www / non-www twin
+  mains.filter((x) => x.trim()).forEach((m) => add(m, true)); // main site addresses get their www / non-www twin
   String(extra || '').split(',').filter((x) => x.trim()).forEach(add);
   return [...out];
 }
@@ -103,7 +104,8 @@ export function loadConfig(env = process.env) {
     isTest,
     port: Number(e.X_ZOHO_CATALYST_LISTEN_PORT || e.PORT || 9000),
     host: '0.0.0.0',
-    appUrl: e.APP_URL.replace(/\/$/, ''),
+    // APP_URL may list several addresses separated by commas: the first is the main one (used in email links)
+    appUrl: e.APP_URL.split(',')[0].trim().replace(/\/$/, ''),
     allowedOrigins: buildAllowedOrigins(e.APP_URL, e.ALLOWED_ORIGINS),
     timezone: e.APP_TIMEZONE,
     instituteName: e.INSTITUTE_NAME,

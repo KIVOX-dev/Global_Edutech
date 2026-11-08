@@ -31,7 +31,18 @@ async function main() {
   if (!admin) {
     admin = await User.create({ name: 'Administrator', email: adminEmail, role: 'ADMIN', passwordHash: await hashPassword(adminPassword), mustChangePassword: false });
     console.log(`+ admin created: ${adminEmail}`);
-  } else console.log(`= admin exists: ${adminEmail}`);
+  } else if (process.argv.includes('--reset-password')) {
+    // npm run admin:reset-password : sets the admin password to ADMIN_SEED_PASSWORD and signs the admin out everywhere
+    const user = await User.findOne({ email: adminEmail }).select('+passwordHash +sessions +failedLogins +lockUntil');
+    user.passwordHash = await hashPassword(adminPassword);
+    user.mustChangePassword = false;
+    user.sessions = [];
+    user.failedLogins = 0;
+    user.lockUntil = undefined;
+    user.isActive = true;
+    await user.save();
+    console.log(`~ admin password reset: ${adminEmail}`);
+  } else console.log(`= admin exists: ${adminEmail} (use "npm run admin:reset-password" to change its password)`);
 
   await getSettings();
   await getReminderSettings();
