@@ -143,7 +143,11 @@ export const assignStudents = asyncHandler(async (req, res) => {
 });
 
 // ===================== HOLIDAYS =====================
-export const holidaySchemas = { create: z.object({ date: dateStr, title: reqText(120), type: z.enum(['PUBLIC', 'INSTITUTE', 'OTHER']).default('INSTITUTE') }) };
+const holidayBody = { date: dateStr, title: reqText(120), type: z.enum(['PUBLIC', 'INSTITUTE', 'OTHER']).default('INSTITUTE') };
+export const holidaySchemas = {
+  create: z.object(holidayBody),
+  bulk: z.object({ holidays: z.array(z.object({ ...holidayBody, type: z.enum(['PUBLIC', 'INSTITUTE', 'OTHER']).default('PUBLIC') })).min(1).max(100) }),
+};
 
 export const listHolidays = asyncHandler(async (req, res) => {
   const f = {};
@@ -156,6 +160,17 @@ export const createHoliday = asyncHandler(async (req, res) => {
   const h = await Holiday.create(req.body);
   await audit(req, { action: 'CREATE_HOLIDAY', entity: 'Holiday', entityId: h._id, after: h });
   created(res, h);
+});
+
+// Adds many holidays at once (e.g. the government list); dates that already exist are skipped, never duplicated
+export const bulkHolidays = asyncHandler(async (req, res) => {
+  const items = req.body.holidays;
+  const existing = new Set((await Holiday.find({ date: { $in: items.map((h) => h.date) } }).select('date').lean()).map((h) => h.date));
+  const seen = new Set();
+  const fresh = items.filter((h) => { if (existing.has(h.date) || seen.has(h.date)) return false; seen.add(h.date); return true; });
+  const docs = fresh.length ? await Holiday.insertMany(fresh) : [];
+  await audit(req, { action: 'BULK_ADD_HOLIDAYS', entity: 'Holiday', after: { created: docs.length, skipped: items.length - docs.length } });
+  ok(res, { created: docs.length, skipped: items.length - docs.length });
 });
 
 export const deleteHoliday = asyncHandler(async (req, res) => {

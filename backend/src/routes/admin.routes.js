@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/core.js';
 import { adminOnly } from '../middleware/auth.js';
-import { reminderTriggerLimiter, aiLimiter } from '../middleware/rateLimit.js';
+import { reminderTriggerLimiter, aiLimiter, replySendLimiter } from '../middleware/rateLimit.js';
 import { idParams, pagingQuery, objectId } from '../validators/common.js';
 import * as people from '../controllers/admin.people.controller.js';
 import * as acad from '../controllers/admin.academics.controller.js';
@@ -54,6 +54,7 @@ r.post('/batches/:id/assign-students', id, validate({ body: acad.batchSchemas.as
 // holidays, settings, audit
 r.get('/holidays', q, acad.listHolidays);
 r.post('/holidays', validate({ body: acad.holidaySchemas.create }), acad.createHoliday);
+r.post('/holidays/bulk', validate({ body: acad.holidaySchemas.bulk }), acad.bulkHolidays);
 r.delete('/holidays/:id', id, acad.deleteHoliday);
 r.get('/settings', acad.getSettingsHandler);
 r.patch('/settings', validate({ body: acad.settingsSchema }), acad.updateSettings);
@@ -82,6 +83,7 @@ r.get('/payments/:id/receipt', id, fees.receipt);
 r.get('/enquiries', q, enq.list);
 r.patch('/enquiries/:id', id, validate({ body: enq.schemas.update }), enq.update);
 r.delete('/enquiries/:id', id, enq.remove);
+r.post('/enquiries/:id/send-reply', replySendLimiter, id, validate({ body: enq.schemas.reply }), enq.sendReply);
 r.post('/enquiries/:id/draft-reply', aiLimiter, id, validate({ body: aic.schemas.draft }), aic.draftReply);
 
 // AI helpers (Groq with built-in fallbacks)

@@ -19,7 +19,19 @@ export const balanceOf = (fee) => round2(fee.amountDue - fee.amountPaid);
 
 // ---------- fee generation ----------
 
-export async function generateFees(req, { studentId, batchId, courseId, startDate }) {
+// Splits a custom total into equal monthly installments (last one takes the rounding remainder)
+const STEP_DAYS = { MONTHLY: 30, QUARTERLY: 91, YEARLY: 365 };
+function customInstallments(totalFee, count, frequency = 'MONTHLY') {
+  const each = Math.floor((totalFee / count) * 100) / 100;
+  const word = { MONTHLY: 'Month', QUARTERLY: 'Quarter', YEARLY: 'Year' }[frequency] || 'Installment';
+  return Array.from({ length: count }, (_, i) => ({
+    label: count === 1 ? 'Full fee' : `${word} ${i + 1}`,
+    amount: i === count - 1 ? round2(totalFee - each * (count - 1)) : each,
+    dueOffsetDays: i * (STEP_DAYS[frequency] || 30),
+  }));
+}
+
+export async function generateFees(req, { studentId, batchId, courseId, startDate, totalFee, installmentCount, frequency }) {
   const students = studentId
     ? await Student.find({ _id: studentId })
     : await Student.find({ batch: batchId, status: 'ACTIVE' });
@@ -35,7 +47,8 @@ export async function generateFees(req, { studentId, batchId, courseId, startDat
     const cid = String(courseId || s.course || '');
     if (!cid) { problems.push({ student: s.name, error: 'Student has no course' }); continue; }
     if (!courses.has(cid)) courses.set(cid, await Course.findById(cid).lean());
-    const course = courses.get(cid);
+    const found = courses.get(cid);
+    const course = found && totalFee ? { ...found, installments: customInstallments(totalFee, installmentCount || 1, frequency) } : found;
     if (!course?.installments?.length) { problems.push({ student: s.name, error: 'Course has no installments' }); continue; }
 
     const have = new Set((await StudentFee.find({ student: s._id, course: course._id }).select('installmentLabel').lean()).map((f) => f.installmentLabel));

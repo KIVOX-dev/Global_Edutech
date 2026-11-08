@@ -79,7 +79,11 @@ export function loadConfig(env = process.env) {
   const problems = [];
   if (!services.mongodb) problems.push('MONGODB_URI (database features disabled)');
   if (!services.jwt) problems.push('JWT_ACCESS_SECRET / JWT_REFRESH_SECRET (using insecure dev secrets)');
-  if (!services.b2) problems.push('B2_* (file uploads, receipts and CSV exports disabled)');
+  if (!services.b2) {
+    // name the exact variables that are missing or still placeholders (never their values)
+    const missing = Object.entries({ B2_KEY_ID: e.B2_KEY_ID, B2_APPLICATION_KEY: e.B2_APPLICATION_KEY, B2_BUCKET: e.B2_BUCKET, B2_ENDPOINT: e.B2_ENDPOINT }).filter(([, v]) => isPlaceholder(v)).map(([k]) => k);
+    problems.push(`${missing.join(',')} (file uploads, receipts and CSV exports disabled)`);
+  }
   if (!services.google) problems.push('GOOGLE_CLIENT_ID (optional: "Sign in with Google" button hidden)');
   if (!services.groq) problems.push('GROQ_API_KEY (optional: AI features use built-in fallbacks)');
   if (!services.brevo) problems.push('BREVO_* (email disabled: no reminders, reset links or credentials emails)');

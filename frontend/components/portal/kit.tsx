@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, ChevronLeft, ChevronRight, Download, Inbox, Loader2, Search, X } from 'lucide-react'
 import { Meta, downloadCsv, errorMessage } from '@/lib/portal/api'
+import FancySelect from '@/components/forms/FancySelect'
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
@@ -105,10 +106,10 @@ export function SearchBox({ value, onChange, placeholder = 'Search…' }: { valu
 
 export function FilterSelect({ value, onChange, options, label }: { value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; label: string }) {
   return (
-    <select className={cx(inputCls, 'sm:w-auto sm:min-w-[8rem]')} value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}>
-      <option value="">{label}</option>
-      {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-    </select>
+    <div className="w-full sm:w-auto sm:min-w-[9rem]">
+      <FancySelect id={`fs-${label.replace(/\W+/g, '-')}`} label={label} className={cx(inputCls, 'w-full')} value={value} onChange={onChange} placeholder={label}
+        options={[{ value: '', label }, ...options]} />
+    </div>
   )
 }
 
@@ -136,7 +137,7 @@ export type Column<T> = {
 }
 
 export function DataTable<T extends { _id?: string; id?: string }>({
-  columns, rows, loading, error, onRetry, meta, onPage, emptyTitle, emptyHint, exportName, rowKey,
+  columns, rows, loading, error, onRetry, meta, onPage, emptyTitle, emptyHint, exportName, rowKey, renderCard,
 }: {
   columns: Column<T>[]
   rows: T[]
@@ -149,6 +150,7 @@ export function DataTable<T extends { _id?: string; id?: string }>({
   emptyHint?: string
   exportName?: string
   rowKey?: (r: T) => string
+  renderCard?: (row: T) => React.ReactNode // custom phone layout; the table is still used on desktop
 }) {
   const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null)
   const sorted = useMemo(() => {
@@ -182,6 +184,7 @@ export function DataTable<T extends { _id?: string; id?: string }>({
             {loading && rows.length === 0 && <div className="flex justify-center py-10"><Spinner /></div>}
             <ul className={cx('space-y-3', loading && rows.length > 0 && 'opacity-60')}>
               {sorted.map((r, i) => {
+                if (renderCard) return <li key={rowKey ? rowKey(r) : r._id || r.id || i} className="rounded-2xl border bg-card p-4 shadow-sm">{renderCard(r)}</li>
                 const data = columns.filter((c) => c.header !== '')
                 const actions = columns.filter((c) => c.header === '')
                 const [first, ...rest] = data
@@ -336,10 +339,11 @@ export function FormModal({ open, title, fields, initial, submitLabel = 'Save', 
               <>
                 <span className="font-medium">{f.label}{f.required && <span className="text-red-600"> *</span>}</span>
                 {f.type === 'select' ? (
-                  <select className={inputCls} required={f.required} value={String(values[f.name] ?? '')} onChange={(e) => setValues((s) => ({ ...s, [f.name]: e.target.value }))}>
-                    <option value="">{f.placeholder || 'Select…'}</option>
-                    {f.options?.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
+                  <FancySelect
+                    id={`f-${f.name}`} label={f.label} className={inputCls} required={f.required}
+                    value={String(values[f.name] ?? '')} onChange={(v) => setValues((s) => ({ ...s, [f.name]: v }))}
+                    options={[{ value: '', label: f.placeholder || 'Select…' }, ...(f.options || [])]} placeholder={f.placeholder || 'Select…'}
+                  />
                 ) : f.type === 'textarea' ? (
                   <textarea className={cx(inputCls, 'h-24 py-2')} required={f.required} placeholder={f.placeholder} value={String(values[f.name] ?? '')} onChange={(e) => setValues((s) => ({ ...s, [f.name]: e.target.value }))} />
                 ) : (

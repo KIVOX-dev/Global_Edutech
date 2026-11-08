@@ -33,6 +33,12 @@ export default function StudentsPage() {
   const [docs, setDocs] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
 
+  const feeFields: Field[] = edit === 'new' ? [
+    { name: 'totalFee', label: 'Total fee (Rs.)', type: 'number', half: true, help: 'Optional. Creates the fee for this student now' },
+    { name: 'frequency', label: 'Paid', type: 'select', half: true, options: [{ value: 'MONTHLY', label: 'Monthly' }, { value: 'QUARTERLY', label: 'Quarterly' }, { value: 'YEARLY', label: 'Yearly' }] },
+    { name: 'installmentCount', label: 'Number of installments', type: 'number', half: true, help: 'Default 1 (full fee)' },
+  ] : []
+
   const fields: Field[] = useMemo(() => [
     { name: 'name', label: 'Student name', required: true, half: true },
     { name: 'admissionNo', label: 'Admission no.', half: true, help: 'Leave blank to auto-generate' },
@@ -41,10 +47,11 @@ export default function StudentsPage() {
     { name: 'parentName', label: 'Parent name', half: true },
     { name: 'parentPhone', label: 'Parent phone', type: 'tel', half: true },
     { name: 'parentEmail', label: 'Parent email', type: 'email', help: 'Fee reminders are also sent here' },
-    { name: 'course', label: 'Course', type: 'select', options: courses, half: true },
-    { name: 'batch', label: 'Batch', type: 'select', options: batches, half: true },
+    { name: 'course', label: 'Course', type: 'select', options: courses, half: true, help: courses.length ? undefined : 'No courses yet. Add one in Courses & Batches first.' },
+    { name: 'batch', label: 'Batch', type: 'select', options: batches, half: true, help: batches.length ? undefined : 'No batches yet. Add one in Courses & Batches.' },
     { name: 'status', label: 'Status', type: 'select', half: true, options: [{ value: 'ACTIVE', label: 'Active' }, { value: 'INACTIVE', label: 'Inactive' }] },
-  ], [courses, batches])
+    ...feeFields,
+  ], [courses, batches, edit === 'new']) // eslint-disable-line react-hooks/exhaustive-deps
 
   const columns: Column<Student>[] = [
     { key: 'admissionNo', header: 'Adm. no', sortable: true },
@@ -66,12 +73,23 @@ export default function StudentsPage() {
   ]
 
   const save = async (v: Record<string, string | boolean>) => {
-    const body = clean(v)
+    const { totalFee, installmentCount, frequency, ...rest } = v
+    const body = clean(rest)
     // blank selects must clear the link on edit
     if (edit !== 'new') { if (!v.course) body.course = null; if (!v.batch) body.batch = null }
-    if (edit === 'new') await api.post('/admin/students', body)
-    else if (edit) await api.patch(`/admin/students/${edit._id}`, body)
-    notifyOk(edit === 'new' ? 'Student added' : 'Student updated')
+    let feeNote = ''
+    if (edit === 'new') {
+      const fee = Number(totalFee)
+      if (fee > 0 && !v.course) throw new Error('Choose a course to attach the fee to')
+      const { data: s } = await api.post<{ _id: string }>('/admin/students', body)
+      if (fee > 0) {
+        try {
+          const r = await api.post<{ created: number }>('/admin/fees/generate', { studentId: s._id, totalFee: fee, installmentCount: Number(installmentCount) || 1, frequency: frequency || 'MONTHLY' })
+          feeNote = `, ${r.data.created} fee installment(s) created`
+        } catch (e) { notifyError(e); feeNote = ', but the fee could not be created (add it from Fees)' }
+      }
+    } else if (edit) await api.patch(`/admin/students/${edit._id}`, body)
+    notifyOk(edit === 'new' ? `Student added${feeNote}` : 'Student updated')
     reload()
   }
 
@@ -94,7 +112,7 @@ export default function StudentsPage() {
         <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="students" emptyTitle="No students found" emptyHint="Add a student or import a CSV." />
       </Card>
 
-      <FormModal open={!!edit} title={edit === 'new' ? 'Add student' : 'Edit student'} wide fields={fields} initial={edit && edit !== 'new' ? { ...edit, course: edit.course?._id, batch: edit.batch?._id } : { status: 'ACTIVE' }} onSubmit={save} onClose={() => setEdit(null)} />
+      <FormModal open={!!edit} title={edit === 'new' ? 'Add student' : 'Edit student'} wide fields={fields} initial={edit && edit !== 'new' ? { ...edit, course: edit.course?._id, batch: edit.batch?._id } : { status: 'ACTIVE', frequency: 'MONTHLY' }} onSubmit={save} onClose={() => setEdit(null)} />
       <ConfirmDialog
         open={!!del} title="Delete student" message={`Delete ${del?.name}? Students with attendance or fee records cannot be deleted; set them to Inactive instead.`}
         onClose={() => setDel(null)}

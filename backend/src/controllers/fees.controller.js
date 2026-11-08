@@ -14,8 +14,13 @@ import { audit } from '../services/audit.service.js';
 const installment = z.object({ label: reqText(60), amount: money, dueOffsetDays: z.coerce.number().int().min(0).max(3650).default(0) });
 export const schemas = {
   structure: z.object({ name: reqText(120), course: objectId, installments: z.array(installment).min(1).max(24), isActive: z.boolean().optional() }),
-  generate: z.object({ studentId: objectId.optional(), batchId: objectId.optional(), courseId: objectId.optional(), startDate: dateStr.optional() })
-    .refine((v) => !!v.studentId !== !!v.batchId, 'Provide exactly one of studentId or batchId'),
+  generate: z.object({
+    studentId: objectId.optional(), batchId: objectId.optional(), courseId: objectId.optional(), startDate: dateStr.optional(),
+    totalFee: money.optional(), installmentCount: z.coerce.number().int().min(1).max(24).optional(),
+    frequency: z.enum(['MONTHLY', 'QUARTERLY', 'YEARLY']).optional(),
+  })
+    .refine((v) => !!v.studentId !== !!v.batchId, 'Provide exactly one of studentId or batchId')
+    .refine((v) => !v.totalFee || !!v.studentId, 'A custom total fee applies to one student'),
   payment: z.object({ amount: z.coerce.number().positive().max(10_000_000), mode: z.enum(['CASH', 'UPI', 'CARD', 'BANK', 'CHEQUE']), reference: text(80).optional(), paidOn: dateStr.optional() }),
 };
 

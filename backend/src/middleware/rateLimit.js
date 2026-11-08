@@ -26,4 +26,5 @@ export const forgotLimiter = make({ windowMs: 60 * 60 * 1000, limit: 5, handler:
 export const enquiryLimiter = make({ windowMs: 60 * 60 * 1000, limit: 10, handler: handler('Too many enquiries from this connection. Please call us instead.') });
 export const chatLimiter = make({ windowMs: 10 * 60 * 1000, limit: 20, handler: handler('You are sending messages too fast. Please wait a few minutes or call us.') });
 export const aiLimiter = make({ windowMs: 60 * 60 * 1000, limit: 60, handler: handler('AI request limit reached. Try again later.') });
+export const replySendLimiter = make({ windowMs: 60 * 60 * 1000, limit: 40, handler: handler('Email sending limit reached for this hour. Try again later.') });
 export const reminderTriggerLimiter = make({ windowMs: 60 * 60 * 1000, limit: 20, handler: handler('Reminder trigger limit reached. Try again later.') });

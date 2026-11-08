@@ -12,6 +12,7 @@ const schema = new mongoose.Schema({
   formType: { type: String, default: 'Program Enquiry' },
   status: { type: String, enum: ['NEW', 'CONTACTED', 'IN_PROGRESS', 'ENROLLED', 'CLOSED'], default: 'NEW', index: true },
   note: { type: String, maxlength: 500 },
+  repliedAt: Date, // last time an admin emailed a reply from the panel
   // AI (or rule-based) triage; no AI call ever sees the phone number or email
   ai: { category: String, urgency: String, summary: String, source: String, model: String, at: Date },
   handledBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

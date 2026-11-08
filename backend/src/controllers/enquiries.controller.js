@@ -24,6 +24,7 @@ export const schemas = {
     message: reqText(2000),
     formType: text(40).optional(),
   }),
+  reply: z.object({ subject: reqText(150), body: z.string().trim().min(5).max(3000) }),
   update: z.object({
     status: z.enum(['NEW', 'CONTACTED', 'IN_PROGRESS', 'ENROLLED', 'CLOSED']).optional(),
     note: text(500).optional(),
@@ -76,6 +77,28 @@ export const update = asyncHandler(async (req, res) => {
   await e.save();
   await audit(req, { action: 'UPDATE_ENQUIRY', entity: 'Enquiry', entityId: e._id, before, after: e });
   ok(res, e);
+});
+
+// Admin presses "Send": the (edited) reply goes to the enquirer's own address through Brevo, never anywhere else
+export const sendReply = asyncHandler(async (req, res) => {
+  const e = await Enquiry.findById(req.params.id);
+  if (!e) throw ApiError.notFound('Enquiry not found');
+  if (!emailService.isConfigured()) throw ApiError.unavailable('Email is not configured (set BREVO_API_KEY and BREVO_SENDER_EMAIL)');
+  const { subject, body } = req.body;
+  const inner = body.split(/\r?\n\r?\n/).map((p) => `<p style="margin:0 0 14px">${escapeHtml(p).replace(/\r?\n/g, '<br/>')}</p>`).join('');
+  let result;
+  try {
+    result = await emailService.send({ to: e.email, subject, html: brandedHtml(inner), text: body, replyTo: config.brevo.senderEmail });
+  } catch (err) {
+    logger.warn({ err: err.message }, 'Enquiry reply email failed');
+    throw new ApiError(502, 'EMAIL_FAILED', 'The email could not be sent right now. Please try again, or use "Open in email app".');
+  }
+  e.repliedAt = new Date();
+  if (e.status === 'NEW') e.status = 'CONTACTED';
+  e.handledBy = req.user._id;
+  await e.save();
+  await audit(req, { action: 'SEND_ENQUIRY_REPLY', entity: 'Enquiry', entityId: e._id, after: { to: e.email, subject, provider: result.provider } });
+  ok(res, { sent: true, to: e.email, status: e.status, repliedAt: e.repliedAt });
 });
 
 export const remove = asyncHandler(async (req, res) => {
