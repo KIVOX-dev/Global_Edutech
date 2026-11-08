@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/portal/api'
+import { useCookieConsent } from '@/components/shared/CookieBanner'
 
 type GoogleId = {
   initialize: (cfg: { client_id: string; callback: (r: { credential: string }) => void; ux_mode?: string; auto_select?: boolean }) => void
@@ -19,6 +20,9 @@ export default function GoogleSignIn({ onCredential, disabled }: { onCredential:
   const [clientId, setClientId] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
+  const { choice } = useCookieConsent()
+  // Google sets its own cookies, so the button loads only after the visitor chose "Accept all"
+  const allowed = choice === 'all'
 
   useEffect(() => {
     let alive = true
@@ -27,7 +31,7 @@ export default function GoogleSignIn({ onCredential, disabled }: { onCredential:
   }, [])
 
   useEffect(() => {
-    if (!clientId || !box.current) return
+    if (!clientId || !allowed || !box.current) return
     const draw = () => {
       const g = window.google?.accounts.id
       if (!g || !box.current) return
@@ -49,9 +53,10 @@ export default function GoogleSignIn({ onCredential, disabled }: { onCredential:
     s.addEventListener('load', draw)
     s.addEventListener('error', () => setFailed(true))
     return () => s?.removeEventListener('load', draw)
-  }, [clientId])
+  }, [clientId, allowed])
 
   if (!clientId || failed) return null
+  if (!allowed) return <p className="mt-3 text-center text-xs text-muted-foreground">{choice === 'essential' ? 'Google sign-in is off because you chose essential cookies only. Use your email and password, or change it under Cookie settings on the website.' : 'Choose a cookie option above to use Google sign-in, or sign in with your email and password.'}</p>
   return (
     <div className={disabled ? 'pointer-events-none opacity-60' : undefined} aria-busy={!ready}>
       <div className="my-3 flex sm:my-5 items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">

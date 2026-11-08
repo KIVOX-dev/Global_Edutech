@@ -75,7 +75,7 @@ const sections: LegalSection[] = [
     id: 'cookies', title: 'Cookies and similar technologies',
     body: [
       'When you sign in to the staff or admin portal we set strictly necessary cookies (an access token and a refresh token). They are marked HttpOnly and, in production, Secure, so scripts cannot read them, and they are used only to keep you signed in. We do not use them for tracking or advertising.',
-      'The public website does not use advertising or cross-site tracking cookies. Your browser may store ordinary local preferences. You can block cookies in your browser, but the portal will not work without the sign-in cookies.',
+      'The public website does not use advertising or cross-site tracking cookies. Your browser may store ordinary local preferences. You can block cookies in your browser, but the portal will not work without the sign-in cookies. A full list of every cookie we use is in our Cookie Policy at /cookie-policy.',
     ],
   },
   {

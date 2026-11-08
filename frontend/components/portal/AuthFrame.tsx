@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/lib/portal/auth'
 import { Spinner } from './kit'
+import CookieBanner from '@/components/shared/CookieBanner'
 
 // Centered card used by login / forgot / reset / change-password
 export default function AuthFrame({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
@@ -28,6 +29,7 @@ export default function AuthFrame({ title, subtitle, children }: { title: string
           </div>
         </div>
       </div>
+      <CookieBanner />
       <Toaster />
     </AuthProvider>
   )

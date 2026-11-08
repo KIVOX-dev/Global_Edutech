@@ -1,6 +1,7 @@
 'use client'
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
+import { openCookieSettings } from '@/components/shared/CookieBanner'
 import { MapPin, Mail, Phone } from 'lucide-react'
 import { BookIcon, CapIcon, ClockIcon, HomeIcon, StarIcon } from '@/components/icons/DuoIcons'
 
@@ -121,7 +122,9 @@ export default function Footer() {
           </p>
           <p className="text-muted-foreground text-xs mt-2">
             <a href="/privacy-policy" className="hover:text-accent transition-colors">Privacy Policy</a> | 
-            <a href="/terms-of-service" className="hover:text-accent transition-colors ml-2">Terms of Service</a>
+            <a href="/terms-of-service" className="hover:text-accent transition-colors ml-2">Terms of Service</a> | 
+            <a href="/cookie-policy" className="hover:text-accent transition-colors ml-2">Cookie Policy</a> | 
+            <button type="button" onClick={openCookieSettings} className="hover:text-accent transition-colors ml-2">Cookie settings</button>
           </p>
         </div>
       </div>
