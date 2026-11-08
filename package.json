@@ -17,6 +17,6 @@
     "docker:up": "docker compose -f deploy/docker/docker-compose.yml up --build"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }

@@ -16,7 +16,7 @@
     "seed:admin": "node --env-file-if-exists=.env scripts/seed.js --admin-only"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1164.0",

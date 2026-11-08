@@ -39,15 +39,16 @@ const schema = z.object({
 // APP_URL plus its www / non-www twin, plus anything listed in ALLOWED_ORIGINS (all normalised, no trailing slash)
 export function buildAllowedOrigins(appUrl, extra = '') {
   const out = new Set();
-  const add = (raw) => {
+  const add = (raw, twin = false) => {
     try {
       const u = new URL(String(raw).trim());
       out.add(u.origin);
+      if (!twin) return;
       if (u.hostname.startsWith('www.')) out.add(`${u.protocol}//${u.hostname.slice(4)}${u.port ? `:${u.port}` : ''}`);
       else if (u.hostname.includes('.') && !/^\d+\.\d+\.\d+\.\d+$/.test(u.hostname) && u.hostname !== 'localhost') out.add(`${u.protocol}//www.${u.hostname}${u.port ? `:${u.port}` : ''}`);
     } catch { /* ignore malformed entries */ }
   };
-  add(appUrl);
+  add(appUrl, true); // only the main site address gets its www / non-www twin
   String(extra || '').split(',').filter((x) => x.trim()).forEach(add);
   return [...out];
 }

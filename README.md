@@ -35,7 +35,7 @@ global-edutech/
 │   ├── data/                courses.ts, gallery.ts (site content)
 │   ├── lib/                 helpers (portal/ holds the API client, auth context, hooks)
 │   └── public/images/       logos and photos
-├── backend/                 Express API (Node 20+, ES modules)
+├── backend/                 Express API (Node 22+, ES modules)
 │   ├── src/
 │   │   ├── config/          env loader, logger, database
 │   │   ├── models/          Mongoose models
@@ -70,7 +70,7 @@ In production the frontend is exported to static files (`next build` with `outpu
 
 ## 2. Run it locally
 
-Requires **Node 20+** (tested on 24).
+Requires **Node 22+** (tested on 24).
 
 ### Option A: try it with throwaway data (no database needed)
 
