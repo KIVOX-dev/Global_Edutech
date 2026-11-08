@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, BookOpen, Check, Clock, GraduationCap, Home, Phone, Sparkles } from 'lucide-react'
+import { ArrowRight, Check, Phone, Sparkles } from 'lucide-react'
 import { courses } from '@/lib/courses-data'
 import HeroCarousel from '@/components/HeroCarousel'
-import { BulbIcon, CapIcon, ChildIcon, IconTile, MicIcon, PuzzleIcon, StarIcon } from '@/components/icons/DuoIcons'
+import { BookIcon, BulbIcon, CapIcon, ChildIcon, ClockIcon, HomeIcon, IconTile, MicIcon, PuzzleIcon, StarIcon } from '@/components/icons/DuoIcons'
 
 const fade = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } }
 
@@ -102,44 +101,12 @@ export function BrandStrip() {
   )
 }
 
-/* 4. Program finder (reference: "Instant Admission Availability Checker") */
-const FINDER = [
-  { max: 4, name: 'Global Kids Preschool', href: '/#programs', note: 'Play-based learning for ages 2-6' },
-  { max: 12, name: 'Global Education After-School', href: '/#programs', note: 'Skill programs for ages 5-12' },
-  { max: 16, name: 'Tuition Point Home Tuitions', href: '/#programs', note: 'Home tuition for Class 1-10' },
-]
-export function ProgramFinder() {
-  const [age, setAge] = useState('')
-  const result = age ? FINDER.find((f) => Number(age) <= f.max) : null
-  return (
-    <section className="relative z-10 -mt-8 pb-4">
-      <div className="container-custom">
-        <motion.div {...fade} className="mx-auto max-w-4xl rounded-3xl bg-white p-5 shadow-xl ring-2 ring-yellow sm:p-7">
-          <h2 className="text-center font-display text-xl font-bold text-purple sm:text-2xl">Find the right program for your child</h2>
-          <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row">
-            <select value={age} onChange={(e) => setAge(e.target.value)} aria-label="Child's age" className="h-12 flex-1 rounded-xl border-2 border-purple/30 bg-background px-4 text-base focus:border-purple focus:outline-none">
-              <option value="">Select your child's age…</option>
-              {Array.from({ length: 15 }, (_, i) => i + 2).map((a) => <option key={a} value={a}>{a} years</option>)}
-            </select>
-            <a href="#contact" className="inline-flex h-12 items-center justify-center rounded-xl bg-pink px-6 font-bold text-white shadow transition hover:brightness-110">Check availability</a>
-          </div>
-          {result && (
-            <p role="status" className="mt-4 rounded-xl bg-purpleLight px-4 py-3 text-center font-medium text-purple">
-              <CapIcon className="mr-2 inline h-6 w-6 align-middle" spark={false} />We suggest <strong>{result.name}</strong>: {result.note}. <a className="underline" href="#contact">Book a free demo</a>
-            </p>
-          )}
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
 /* 5. Programs grid (reference: "CBSE Syllabus" four cards) */
 const PROGRAMS = [
-  { icon: GraduationCap, title: 'Global Kids', sub: 'Preschool · Ages 2-6', text: 'Play-based early learning with phonics, number sense, art and social skills.', tone: 'bg-yellow/30 ring-yellow', icon_c: 'bg-yellow text-purple' },
-  { icon: BookOpen, title: 'Global Education', sub: 'After-School · Ages 5-12', text: 'Abacus, Vedic maths, handwriting, English, art, chess and more after school.', tone: 'bg-pink/15 ring-pink', icon_c: 'bg-pink text-white' },
-  { icon: Home, title: 'Tuition Point', sub: 'Home Tuitions · Class 1-10', text: 'Verified tutors teach one-to-one at your doorstep, at your pace.', tone: 'bg-accent-light/30 ring-accent', icon_c: 'bg-accent text-white' },
-  { icon: Clock, title: 'Weekend & Skill Camps', sub: 'Flexible batches', text: 'Weekday and weekend batches so learning fits around school and family.', tone: 'bg-purple/10 ring-purple', icon_c: 'bg-purple text-white' },
+  { Icon: CapIcon, title: 'Global Kids', sub: 'Preschool · Ages 2-6', text: 'Play-based early learning with phonics, number sense, art and social skills.', tone: 'bg-yellow/30 ring-yellow' },
+  { Icon: BookIcon, title: 'Global Education', sub: 'After-School · Ages 5-12', text: 'Abacus, Vedic maths, handwriting, English, art, chess and more after school.', tone: 'bg-pink/15 ring-pink' },
+  { Icon: HomeIcon, title: 'Tuition Point', sub: 'Home Tuitions · Class 1-10', text: 'Verified tutors teach one-to-one at your doorstep, at your pace.', tone: 'bg-accent-light/30 ring-accent' },
+  { Icon: ClockIcon, title: 'Weekend & Skill Camps', sub: 'Flexible batches', text: 'Weekday and weekend batches so learning fits around school and family.', tone: 'bg-purple/10 ring-purple' },
 ]
 export function ProgramsGrid() {
   return (
@@ -149,7 +116,7 @@ export function ProgramsGrid() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PROGRAMS.map((p, i) => (
             <motion.div key={p.title} {...fade} transition={{ duration: 0.5, delay: i * 0.08 }} className={`rounded-3xl p-6 text-center shadow-gentle ring-2 ${p.tone}`}>
-              <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl ${p.icon_c}`}><p.icon className="h-8 w-8" /></div>
+              <IconTile className="mb-4 h-20 w-20 ring-2 ring-purple/10"><p.Icon className="h-14 w-14" /></IconTile>
               <h3 className="font-display text-xl font-bold text-purple">{p.title}</h3>
               <p className="mt-1 text-sm font-semibold text-pink">{p.sub}</p>
               <p className="mt-3 text-sm text-foreground/80">{p.text}</p>
@@ -188,9 +155,9 @@ export function WhyBest() {
           <a href="#contact" className="mt-7 inline-flex h-12 items-center rounded-xl bg-purple px-7 font-bold text-white shadow-lg transition hover:bg-purple/90">Talk to us</a>
         </motion.div>
         <motion.div {...fade} className="grid grid-cols-2 gap-4">
-          <div className="relative col-span-2 h-56 overflow-hidden rounded-3xl ring-4 ring-yellow sm:h-64"><Image src="/images/globalacademy-all.jpeg" alt="Students learning at Global Edutech" fill className="object-cover" sizes="(max-width:1024px) 100vw, 40vw" /></div>
-          <div className="relative h-36 overflow-hidden rounded-3xl ring-4 ring-pink"><Image src="/images/arts.png" alt="Art class" fill className="object-cover" sizes="25vw" /></div>
-          <div className="relative h-36 overflow-hidden rounded-3xl ring-4 ring-accent"><Image src="/images/abacus.png" alt="Abacus class" fill className="object-cover" sizes="25vw" /></div>
+          <div className="relative col-span-2 aspect-[16/11] overflow-hidden rounded-3xl bg-white ring-4 ring-yellow"><Image src="/images/globalacademy-all.jpeg" alt="Global Academy after school activities hub" fill quality={100} className="object-contain" sizes="(max-width:1024px) 100vw, 40vw" /></div>
+          <div className="relative aspect-[945/660] overflow-hidden rounded-3xl bg-white ring-4 ring-pink"><Image src="/images/arts.png" alt="Global Arts" fill quality={100} className="object-contain" sizes="(max-width:1024px) 50vw, 25vw" /></div>
+          <div className="relative aspect-[945/660] overflow-hidden rounded-3xl bg-white ring-4 ring-purple"><Image src="/images/abacus.png" alt="Global Abacus" fill quality={100} className="object-contain" sizes="(max-width:1024px) 50vw, 25vw" /></div>
         </motion.div>
       </div>
     </section>

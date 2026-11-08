@@ -5,7 +5,7 @@ import ContactSection from '../components/ContactSection'
 import GalleryPreview from '../components/GalleryPreview'
 import { Toaster } from '@/components/ui/toaster'
 import {
-  BrandStrip, CourseGrid, HomeHero, ProgramFinder, ProgramsGrid, StressFree, TeacherBanner, TopBar, VisitBanner, WhyBest,
+  BrandStrip, CourseGrid, HomeHero, ProgramsGrid, StressFree, TeacherBanner, TopBar, VisitBanner, WhyBest,
 } from '../components/home/HomeSections'
 
 export default function Home() {
@@ -14,7 +14,6 @@ export default function Home() {
       <TopBar />
       <Header />
       <HomeHero />
-      <ProgramFinder />
       <BrandStrip />
       <ProgramsGrid />
       <WhyBest />
