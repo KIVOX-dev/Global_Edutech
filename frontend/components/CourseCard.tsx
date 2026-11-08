@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 import { blendStyle } from '@/lib/image-blend'
+import { Monitor } from 'lucide-react'
 
 interface CourseCardProps {
   course: Course
@@ -58,6 +59,10 @@ export default function CourseCard({ course }: CourseCardProps) {
               </Badge>
             )}
             
+            <Badge className="flex items-center gap-1 border-0 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <Monitor className="h-4 w-4" /> Online &amp; Offline
+            </Badge>
+
             {ageGroup && (
               <Badge variant="outline" className="flex items-center gap-1 border-pastel-green">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor">
@@ -77,7 +82,7 @@ export default function CourseCard({ course }: CourseCardProps) {
               </Link>
             </Button>
             <Button variant="heroEnrollNow" asChild>
-              <Link href={`/courses/${slug}#enquiry-form`}>
+              <Link href={`/enquiry?course=${encodeURIComponent(title)}`}>
                 Enroll Now
               </Link>
             </Button>

@@ -82,7 +82,7 @@ export default function FancySelect({ id, label, value, onChange, options, place
       >
         <span
           aria-hidden
-          className="pointer-events-none absolute left-1.5 right-1.5 rounded-xl bg-purpleLight transition-[top,height,opacity] duration-200 ease-out"
+          className="pointer-events-none absolute left-1.5 right-1.5 rounded-xl bg-purple/25 transition-[top,height,opacity] duration-200 ease-out"
           style={{ top: bar?.top ?? 0, height: bar?.height ?? 0, opacity: bar ? 1 : 0 }}
         />
         {options.map((o, i) => {
@@ -95,7 +95,7 @@ export default function FancySelect({ id, label, value, onChange, options, place
               aria-selected={selected}
               onMouseEnter={() => setActive(i)}
               onClick={() => choose(o.value)}
-              className={`relative z-10 flex cursor-pointer items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-base transition-colors duration-200 ${selected ? 'font-semibold text-purple' : active === i ? 'text-purple' : 'text-foreground/85'}`}
+              className={`relative z-10 flex cursor-pointer items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-base transition-colors duration-200 ${selected ? 'font-semibold text-purple' : active === i ? 'font-medium text-purple' : 'text-foreground/85'}`}
             >
               <span>{o.label}</span>
               {selected && <Check className="h-4 w-4" strokeWidth={3} />}

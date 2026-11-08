@@ -7,7 +7,7 @@ import { api, fmtDateTime } from '@/lib/portal/api'
 import { notifyError, notifyOk, useDebounced, useList } from '@/lib/portal/hooks'
 
 type Enquiry = {
-  _id: string; name: string; email: string; phone: string; program?: string; studentAge?: string; preferredTime?: string
+  _id: string; name: string; email: string; phone: string; program?: string; studentAge?: string; preferredTime?: string; mode?: string
   message?: string; status: 'NEW' | 'CONTACTED' | 'IN_PROGRESS' | 'ENROLLED' | 'CLOSED'; note?: string; createdAt: string
 }
 const STATUSES = ['NEW', 'CONTACTED', 'IN_PROGRESS', 'ENROLLED', 'CLOSED'] as const
@@ -29,7 +29,7 @@ export default function EnquiriesPage() {
   const columns: Column<Enquiry>[] = [
     { key: 'name', header: 'Enquiry', sortable: true, render: (e) => <span><span className="font-medium">{e.name}</span><br /><span className="text-xs text-muted-foreground">{fmtDateTime(e.createdAt)}</span></span> },
     { key: 'phone', header: 'Contact', render: (e) => <span>{e.phone}<br /><span className="text-xs text-muted-foreground break-all">{e.email}</span></span> },
-    { key: 'program', header: 'Program', value: (e) => e.program, render: (e) => <span>{e.program || '-'}<br /><span className="text-xs text-muted-foreground">{[e.studentAge, e.preferredTime].filter(Boolean).join(' · ')}</span></span> },
+    { key: 'program', header: 'Program', value: (e) => e.program, render: (e) => <span>{e.program || '-'}<br /><span className="text-xs text-muted-foreground">{[e.mode, e.studentAge, e.preferredTime].filter(Boolean).join(' · ')}</span></span> },
     { key: 'message', header: 'Message', mobileHidden: true, render: (e) => <span className="line-clamp-2 max-w-xs text-sm">{e.message}</span> },
     {
       key: 'status', header: 'Status', value: (e) => e.status,

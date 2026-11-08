@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import FancySelect from './FancySelect'
+import { MapPin, Monitor } from 'lucide-react'
 
 interface EnquiryFormProps {
   courseTitle?: string
@@ -27,6 +28,7 @@ export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFor
     program: courseTitle || '',
     studentAge: '',
     preferredTime: '',
+    mode: '',
     message: courseTitle ? `I'm interested in the ${courseTitle} program.` : '',
   })
   
@@ -81,6 +83,7 @@ export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFor
         program: '',
         studentAge: '',
         preferredTime: '',
+        mode: '',
         message: '',
       })
     } catch (err: any) {
@@ -217,6 +220,28 @@ export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFor
           />
         </div>
         
+        {/* Class mode */}
+        <div className={compact ? '' : 'md:col-span-2'}>
+          <span id="mode-label" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">Class Mode</span>
+          <div role="radiogroup" aria-labelledby="mode-label" className="grid grid-cols-2 gap-3">
+            {(['Online', 'Offline'] as const).map((m) => {
+              const on = formData.mode === m
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => setFormData((prev) => ({ ...prev, mode: on ? '' : m }))}
+                  className={`flex h-12 lg:h-11 items-center justify-center gap-2 rounded-xl border-2 text-base font-semibold transition-all duration-200 ${on ? 'border-purple bg-purple text-white shadow-md' : 'border-purple/20 bg-white text-foreground/80 hover:border-purple/50 hover:bg-purpleLight'}`}
+                >
+                  {m === 'Online' ? <Monitor className="h-5 w-5" /> : <MapPin className="h-5 w-5" />} {m}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {/* Row 4: Message - full width */}
         <div className={compact ? '' : 'md:col-span-2'}>
           <label htmlFor="enquiry-message" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">

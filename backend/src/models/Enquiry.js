@@ -7,6 +7,7 @@ const schema = new mongoose.Schema({
   program: { type: String, trim: true },
   studentAge: { type: String, trim: true },
   preferredTime: { type: String, trim: true },
+  mode: { type: String, enum: ['Online', 'Offline', undefined] }, // preferred class mode
   message: { type: String, trim: true, maxlength: 2000 },
   formType: { type: String, default: 'Program Enquiry' },
   status: { type: String, enum: ['NEW', 'CONTACTED', 'IN_PROGRESS', 'ENROLLED', 'CLOSED'], default: 'NEW', index: true },

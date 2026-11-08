@@ -145,7 +145,7 @@ describe('website enquiries', () => {
     await start();
     await reset();
     await mk('ADMIN', 'admin@t.co');
-    const body = { name: 'Asha', email: 'asha@t.co', phone: '+91 93630 42019', program: 'Pre-School', studentAge: '3-5 years', preferredTime: 'Morning', message: 'Need details', formType: 'Program Enquiry' };
+    const body = { name: 'Asha', email: 'asha@t.co', phone: '+91 93630 42019', program: 'Pre-School', studentAge: '3-5 years', preferredTime: 'Morning', mode: 'Online', message: 'Need details', formType: 'Program Enquiry' };
     const res = await request(app).post('/api/submit-form').send(body);
     expect(res.status).toBe(201);
     expect((await request(app).post('/api/submit-form').send({ ...body, email: 'nope' })).status).toBe(400);

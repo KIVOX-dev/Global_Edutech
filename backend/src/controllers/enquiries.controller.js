@@ -19,6 +19,7 @@ export const schemas = {
     program: text(80).optional(),
     studentAge: text(40).optional(),
     preferredTime: text(60).optional(),
+    mode: z.preprocess((v) => (v === '' ? undefined : v), z.enum(['Online', 'Offline']).optional()),
     message: reqText(2000),
     formType: text(40).optional(),
   }),
@@ -39,7 +40,7 @@ export const submit = asyncHandler(async (req, res) => {
   if (!to.length) return;
   const inner = `<h3 style="margin:0 0 12px">New ${escapeHtml(e.formType)}</h3>
     <p><strong>Name:</strong> ${escapeHtml(e.name)}<br/><strong>Phone:</strong> ${escapeHtml(e.phone)}<br/><strong>Email:</strong> ${escapeHtml(e.email)}<br/>
-    <strong>Program:</strong> ${escapeHtml(e.program || '-')}<br/><strong>Student age:</strong> ${escapeHtml(e.studentAge || '-')}<br/><strong>Preferred time:</strong> ${escapeHtml(e.preferredTime || '-')}</p>
+    <strong>Program:</strong> ${escapeHtml(e.program || '-')}<br/><strong>Student age:</strong> ${escapeHtml(e.studentAge || '-')}<br/><strong>Preferred time:</strong> ${escapeHtml(e.preferredTime || '-')}<br/><strong>Class mode:</strong> ${escapeHtml(e.mode || '-')}</p>
     <p style="background:#f7f3ff;padding:12px;border-left:4px solid #7c4dcc">${escapeHtml(e.message).replace(/\n/g, '<br/>')}</p>
     <p><a href="${config.appUrl}/admin/enquiries">Open in the admin panel</a></p>`;
   emailService.send({ to: [...new Set(to)], subject: `New enquiry: ${e.name} (${e.program || 'General'})`, html: brandedHtml(inner), text: htmlToText(inner), replyTo: e.email })

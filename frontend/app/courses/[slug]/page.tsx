@@ -3,6 +3,8 @@ import { getCourseBySlug, courses } from '@/lib/courses-data'
 import Image from 'next/image'
 import { blendStyle } from '@/lib/image-blend'
 import Link from 'next/link'
+import LogoMarquee from '@/components/LogoMarquee'
+import { Monitor } from 'lucide-react'
 import { notFound } from 'next/navigation'
 
 export async function generateStaticParams() {
@@ -84,7 +86,7 @@ export default function CoursePage({ params }: CoursePageProps) {
               <div className="inline-block bg-purple/10 text-purple font-semibold px-4 py-2 rounded-full mb-4">
                 {categoryLabels[category as keyof typeof categoryLabels]}
               </div>
-              <h1 className="font-display text-4xl md:text-5xl font-bold text-purple mb-6">
+              <h1 className="font-display text-4xl md:text-5xl font-bold text-black mb-6">
                 {title}
               </h1>
               <p className="text-xl text-gray-700 mb-8 leading-relaxed">
@@ -107,6 +109,10 @@ export default function CoursePage({ params }: CoursePageProps) {
                     <span>{ageGroup}</span>
                   </div>
                 )}
+                <div className="flex items-center rounded-full bg-emerald-100 px-3 py-1 font-semibold text-emerald-800">
+                  <Monitor className="mr-2 h-5 w-5" />
+                  <span>Available online &amp; offline</span>
+                </div>
                 {schedule && (
                   <div className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-pink" viewBox="0 0 20 20" fill="currentColor">
@@ -138,14 +144,14 @@ export default function CoursePage({ params }: CoursePageProps) {
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-12">
             <div className="w-full lg:w-8/12">
-              <h2 className="mb-5 font-display text-3xl font-bold text-purple">
+              <h2 className="mb-5 font-display text-3xl font-bold text-black">
                 About This Program
               </h2>
               <div className="max-w-none text-lg leading-relaxed text-foreground/85">
                 <p className="whitespace-pre-line">{longDesc}</p>
               </div>
               
-              <h3 className="mb-5 mt-10 font-display text-2xl font-bold text-purple">
+              <h3 className="mb-5 mt-10 font-display text-2xl font-bold text-black">
                 What You Will Learn
               </h3>
               <ul className="grid gap-3 md:grid-cols-2">
@@ -161,7 +167,7 @@ export default function CoursePage({ params }: CoursePageProps) {
               
               {subTopics && subTopics.length > 0 && (
                 <>
-                  <h3 className="mb-5 mt-10 font-display text-2xl font-bold text-purple">{subTopicsTitle || 'What We Cover'}</h3>
+                  <h3 className="mb-5 mt-10 font-display text-2xl font-bold text-black">{subTopicsTitle || 'What We Cover'}</h3>
                   <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                     {subTopics.map((t, i) => (
                       <li key={t.name} className={`rounded-2xl border-t-4 bg-white p-4 text-center shadow-gentle ring-1 ring-purple/10 ${['border-t-yellow', 'border-t-pink', 'border-t-purple', 'border-t-emerald-400'][i % 4]}`}>
@@ -175,7 +181,7 @@ export default function CoursePage({ params }: CoursePageProps) {
 
               {prerequisites && (
                 <div className="mt-10 rounded-2xl border-l-4 border-pink bg-yellow/20 p-6">
-                  <h3 className="mb-2 font-display text-xl font-bold text-purple">
+                  <h3 className="mb-2 font-display text-xl font-bold text-black">
                     Prerequisites
                   </h3>
                   <p className="text-foreground/85">{prerequisites}</p>
@@ -184,11 +190,14 @@ export default function CoursePage({ params }: CoursePageProps) {
             </div>
             
             <div className="w-full lg:w-4/12">
-              <div className="sticky top-24 rounded-3xl bg-white p-6 text-center shadow-xl ring-1 ring-purple/10">
-                <h3 className="mb-2 font-display text-xl font-bold text-purple">Interested in this program?</h3>
+              <div className="space-y-5 lg:sticky lg:top-24">
+              <div className="rounded-3xl bg-white p-6 text-center shadow-xl ring-1 ring-purple/10">
+                <h3 className="mb-2 font-display text-xl font-bold text-black">Interested in this program?</h3>
                 <p className="mb-5 text-sm text-foreground/70">Send us an enquiry and we will call you back with timings, fees and a free demo.</p>
                 <Link href={`/enquiry?course=${encodeURIComponent(title)}`} className="flex h-12 w-full items-center justify-center rounded-xl bg-purple text-base font-bold text-white shadow-lg transition hover:bg-purple/90">Enquire Now</Link>
               </div>
+              <div className="relative lg:h-[26rem]"><LogoMarquee /></div>
+            </div>
             </div>
           </div>
         </div>
