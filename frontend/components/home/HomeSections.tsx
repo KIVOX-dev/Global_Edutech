@@ -1,0 +1,276 @@
+'use client'
+
+import { useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { ArrowRight, BookOpen, Clock, GraduationCap, Home, Phone, Sparkles } from 'lucide-react'
+import { courses } from '@/lib/courses-data'
+import HeroCarousel from '@/components/HeroCarousel'
+
+const fade = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } }
+
+function Heading({ kicker, title, sub, light }: { kicker?: string; title: string; sub?: string; light?: boolean }) {
+  return (
+    <motion.div {...fade} className="mx-auto mb-10 max-w-3xl text-center">
+      {kicker && <p className={`mb-2 text-sm font-semibold uppercase tracking-widest ${light ? 'text-yellow' : 'text-pink'}`}>{kicker}</p>}
+      <h2 className={`font-display text-3xl font-bold md:text-4xl ${light ? 'text-white' : 'text-purple'}`}>{title}</h2>
+      {sub && <p className={`mt-3 text-lg ${light ? 'text-white/90' : 'text-foreground/75'}`}>{sub}</p>}
+    </motion.div>
+  )
+}
+
+/* 1. Utility bar (like the top strip on the reference site) */
+export function TopBar() {
+  return (
+    <div className="bg-purple text-white">
+      <div className="container-custom flex flex-wrap items-center justify-between gap-2 py-2 text-xs sm:text-sm">
+        <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4 text-yellow" /> Preschool · After-School · Home Tuition</span>
+        <span className="flex items-center gap-4">
+          <a href="tel:+919363042019" className="inline-flex items-center gap-1 hover:text-yellow"><Phone className="h-3.5 w-3.5" /> +91 93630 42019</a>
+          <Link href="/courses" className="hidden hover:text-yellow sm:inline">All courses</Link>
+          <Link href="/login" className="font-semibold text-yellow hover:underline">Staff / Admin login</Link>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/* 2. Hero: big headline, two CTAs, rounded photo carousel */
+export function HomeHero() {
+  const stats = [
+    { v: '19', l: 'Years of experience', c: 'bg-yellow/90 text-purple' },
+    { v: '10,000+', l: 'Families served', c: 'bg-pink text-white' },
+    { v: '30+', l: 'Courses & programs', c: 'bg-accent-light text-purple' },
+  ]
+  return (
+    <section id="home" className="relative overflow-hidden bg-hero-gradient text-white">
+      <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-yellow/30 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-accent-light/40 blur-3xl" />
+      <div className="container-custom relative grid items-center gap-10 py-14 lg:grid-cols-2 lg:py-20">
+        <motion.div {...fade}>
+          <p className="mb-4 inline-block rounded-full bg-white/20 px-4 py-1 text-sm font-semibold backdrop-blur">⭐ Trusted by thousands of families</p>
+          <h1 className="font-display text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
+            Where Young Minds <span className="text-yellow">Love to Learn</span>
+          </h1>
+          <p className="mt-4 max-w-xl text-lg font-medium text-white/95 md:text-xl">
+            Global Edutech blends play with proven teaching, from preschool to after-school skills and home tuition up to Class 10.
+          </p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <a href="#contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-yellow px-7 font-bold text-purple shadow-lg transition hover:scale-105">Book a Free Demo <ArrowRight className="h-4 w-4" /></a>
+            <a href="#programs" className="inline-flex h-12 items-center justify-center rounded-xl border-2 border-white px-7 font-bold text-white transition hover:bg-white hover:text-purple">Explore Programs</a>
+          </div>
+          <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
+            {stats.map((s) => (
+              <div key={s.l} className={`rounded-2xl p-3 text-center shadow-gentle ${s.c}`}>
+                <p className="font-display text-xl font-bold sm:text-2xl">{s.v}</p>
+                <p className="text-[11px] font-semibold leading-tight sm:text-xs">{s.l}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+        <motion.div {...fade} className="relative mx-auto w-full max-w-xl">
+          <div className="relative h-80 rounded-[2rem] bg-white/20 p-3 ring-4 ring-white/40 backdrop-blur-md md:h-[26rem]"><HeroCarousel /></div>
+          <div aria-hidden className="motion-safe:animate-float absolute -right-3 -top-4 flex h-16 w-16 items-center justify-center rounded-full bg-pink text-2xl shadow-lg">🌟</div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* 3. "Trusted" strip with the three brand logos */
+export function BrandStrip() {
+  const logos = [
+    { src: '/images/globalkids.png', alt: 'Global Kids', ring: 'ring-yellow' },
+    { src: '/images/globaleducation.png', alt: 'Global Education', ring: 'ring-accent' },
+    { src: '/images/globalacademy.png', alt: 'Global Academy', ring: 'ring-pink' },
+    { src: '/images/tuitionpoint.png', alt: 'Tuition Point', ring: 'ring-purple' },
+  ]
+  return (
+    <section className="bg-purpleLight py-8">
+      <div className="container-custom text-center">
+        <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-purple">One family of learning brands</p>
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          {logos.map((l) => (
+            <div key={l.alt} className={`flex h-20 w-28 items-center justify-center rounded-2xl bg-white shadow-md ring-2 ${l.ring} sm:h-24 sm:w-36`}>
+              <Image src={l.src} alt={l.alt} width={64} height={64} className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* 4. Program finder (reference: "Instant Admission Availability Checker") */
+const FINDER = [
+  { max: 4, name: 'Global Kids Preschool', href: '/#programs', note: 'Play-based learning for ages 2-6' },
+  { max: 12, name: 'Global Education After-School', href: '/#programs', note: 'Skill programs for ages 5-12' },
+  { max: 16, name: 'Tuition Point Home Tuitions', href: '/#programs', note: 'Home tuition for Class 1-10' },
+]
+export function ProgramFinder() {
+  const [age, setAge] = useState('')
+  const result = age ? FINDER.find((f) => Number(age) <= f.max) : null
+  return (
+    <section className="relative z-10 -mt-8 pb-4">
+      <div className="container-custom">
+        <motion.div {...fade} className="mx-auto max-w-4xl rounded-3xl bg-white p-5 shadow-xl ring-2 ring-yellow sm:p-7">
+          <h2 className="text-center font-display text-xl font-bold text-purple sm:text-2xl">Find the right program for your child</h2>
+          <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row">
+            <select value={age} onChange={(e) => setAge(e.target.value)} aria-label="Child's age" className="h-12 flex-1 rounded-xl border-2 border-purple/30 bg-background px-4 text-base focus:border-purple focus:outline-none">
+              <option value="">Select your child's age…</option>
+              {Array.from({ length: 15 }, (_, i) => i + 2).map((a) => <option key={a} value={a}>{a} years</option>)}
+            </select>
+            <a href="#contact" className="inline-flex h-12 items-center justify-center rounded-xl bg-pink px-6 font-bold text-white shadow transition hover:brightness-110">Check availability</a>
+          </div>
+          {result && (
+            <p role="status" className="mt-4 rounded-xl bg-purpleLight px-4 py-3 text-center font-medium text-purple">
+              ✨ We suggest <strong>{result.name}</strong>: {result.note}. <a className="underline" href="#contact">Book a free demo</a>
+            </p>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* 5. Programs grid (reference: "CBSE Syllabus" four cards) */
+const PROGRAMS = [
+  { icon: GraduationCap, title: 'Global Kids', sub: 'Preschool · Ages 2-6', text: 'Play-based early learning with phonics, number sense, art and social skills.', tone: 'bg-yellow/30 ring-yellow', icon_c: 'bg-yellow text-purple' },
+  { icon: BookOpen, title: 'Global Education', sub: 'After-School · Ages 5-12', text: 'Abacus, Vedic maths, handwriting, English, art, chess and more after school.', tone: 'bg-pink/15 ring-pink', icon_c: 'bg-pink text-white' },
+  { icon: Home, title: 'Tuition Point', sub: 'Home Tuitions · Class 1-10', text: 'Verified tutors teach one-to-one at your doorstep, at your pace.', tone: 'bg-accent-light/30 ring-accent', icon_c: 'bg-accent text-white' },
+  { icon: Clock, title: 'Weekend & Skill Camps', sub: 'Flexible batches', text: 'Weekday and weekend batches so learning fits around school and family.', tone: 'bg-purple/10 ring-purple', icon_c: 'bg-purple text-white' },
+]
+export function ProgramsGrid() {
+  return (
+    <section id="programs" className="section-padding bg-white">
+      <div className="container-custom">
+        <Heading kicker="Our programs" title="Learning for Every Age and Stage" sub="Four ways to learn with Global Edutech, from first steps to Class 10." />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {PROGRAMS.map((p, i) => (
+            <motion.div key={p.title} {...fade} transition={{ duration: 0.5, delay: i * 0.08 }} className={`rounded-3xl p-6 text-center shadow-gentle ring-2 ${p.tone}`}>
+              <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl ${p.icon_c}`}><p.icon className="h-8 w-8" /></div>
+              <h3 className="font-display text-xl font-bold text-purple">{p.title}</h3>
+              <p className="mt-1 text-sm font-semibold text-pink">{p.sub}</p>
+              <p className="mt-3 text-sm text-foreground/80">{p.text}</p>
+              <a href="#contact" className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-purple hover:underline">Know more <ArrowRight className="h-4 w-4" /></a>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* 6. Why us (reference: "Why we are the Best") bullets + photo */
+const WHY = [
+  'Personalised learning path for every child',
+  'Experienced, certified educators',
+  'Professional tutoring at your doorstep',
+  'Holistic growth: academics, creativity and confidence',
+  '98% of students show measurable improvement within 3 months',
+  'Safe, secure environment with transparent communication',
+]
+export function WhyBest() {
+  return (
+    <section id="why-choose-us" className="section-padding bg-purpleLight">
+      <div className="container-custom grid items-center gap-10 lg:grid-cols-2">
+        <motion.div {...fade}>
+          <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-pink">Why Global Edutech</p>
+          <h2 className="font-display text-3xl font-bold text-purple md:text-4xl">Why Families Choose Us</h2>
+          <ul className="mt-6 space-y-3">
+            {WHY.map((w) => (
+              <li key={w} className="flex items-start gap-3 text-lg">
+                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple text-sm text-white">✓</span>{w}
+              </li>
+            ))}
+          </ul>
+          <a href="#contact" className="mt-7 inline-flex h-12 items-center rounded-xl bg-purple px-7 font-bold text-white shadow-lg transition hover:bg-purple/90">Talk to us</a>
+        </motion.div>
+        <motion.div {...fade} className="grid grid-cols-2 gap-4">
+          <div className="relative col-span-2 h-56 overflow-hidden rounded-3xl ring-4 ring-yellow sm:h-64"><Image src="/images/globalacademy-all.jpeg" alt="Students learning at Global Edutech" fill className="object-cover" sizes="(max-width:1024px) 100vw, 40vw" /></div>
+          <div className="relative h-36 overflow-hidden rounded-3xl ring-4 ring-pink"><Image src="/images/arts.png" alt="Art class" fill className="object-cover" sizes="25vw" /></div>
+          <div className="relative h-36 overflow-hidden rounded-3xl ring-4 ring-accent"><Image src="/images/abacus.png" alt="Abacus class" fill className="object-cover" sizes="25vw" /></div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* 7. Stress-free learning (reference: "What is Stress Free School") */
+const PILLARS = [
+  { e: '🧒', t: 'Child-centric methods', d: 'Lessons adapt to how each child learns best.' },
+  { e: '💡', t: 'Concept-based learning', d: 'Understand the why, not just memorise the how.' },
+  { e: '🗣️', t: 'Language mastery', d: 'English, Hindi and Tamil handwriting and speaking.' },
+  { e: '🧩', t: 'Learning through play', d: 'Puzzles, chess, cubes and art keep minds curious.' },
+]
+export function StressFree() {
+  return (
+    <section className="section-padding bg-hero-gradient text-white">
+      <div className="container-custom">
+        <Heading light kicker="Our approach" title="Learning Without the Stress" sub="Happy children learn faster. Everything we teach is designed to build confidence first." />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {PILLARS.map((p) => (
+            <motion.div key={p.t} {...fade} className="rounded-3xl bg-white/15 p-6 text-center backdrop-blur ring-1 ring-white/30">
+              <div className="text-5xl">{p.e}</div>
+              <h3 className="mt-3 font-display text-lg font-bold">{p.t}</h3>
+              <p className="mt-2 text-sm text-white/90">{p.d}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* 8. Course icon grid (reference: "20 Exciting Extra Curriculars") built from the real course list */
+const COLORS = ['bg-yellow/40', 'bg-pink/25', 'bg-accent-light/40', 'bg-purple/15']
+export function CourseGrid() {
+  const list = courses.filter((c) => c.category !== 'teacher')
+  return (
+    <section className="section-padding bg-white">
+      <div className="container-custom">
+        <Heading kicker="Courses" title={`${list.length} Exciting Courses & Skills`} sub="Pick one or combine several. Tap a course to see what your child will learn." />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {list.map((c, i) => (
+            <Link key={c.slug} href={`/courses/${c.slug}`} className={`group flex flex-col items-center rounded-3xl p-4 text-center shadow-gentle transition hover:-translate-y-1 hover:shadow-lg ${COLORS[i % 4]}`}>
+              <span className="relative mb-3 h-20 w-20 overflow-hidden rounded-2xl bg-white ring-2 ring-white"><Image src={c.imageUrl} alt="" fill className="object-cover" sizes="80px" /></span>
+              <span className="font-display font-bold text-purple">{c.title}</span>
+              <span className="mt-1 text-xs text-foreground/70">{c.details.ageGroup}</span>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-8 text-center"><Link href="/courses" className="inline-flex h-12 items-center rounded-xl border-2 border-purple px-7 font-bold text-purple transition hover:bg-purple hover:text-white">View all courses</Link></div>
+      </div>
+    </section>
+  )
+}
+
+/* 9. Teacher training banner (reference: "Careers, not jobs") */
+export function TeacherBanner() {
+  return (
+    <section className="bg-yellow/30 py-12">
+      <div className="container-custom flex flex-col items-center justify-between gap-5 text-center md:flex-row md:text-left">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-purple md:text-3xl">We Build Careers in Teaching</h2>
+          <p className="mt-2 max-w-2xl text-foreground/80">Train with our teacher-training programs (IMTTI and NTT) and grow into a confident early-years educator.</p>
+        </div>
+        <Link href="/courses/ntt" className="inline-flex h-12 shrink-0 items-center rounded-xl bg-purple px-7 font-bold text-white shadow-lg transition hover:bg-purple/90">View Teacher Training</Link>
+      </div>
+    </section>
+  )
+}
+
+/* 10. Tour banner (reference: "Want to Explore the Peepal Environment?") */
+export function VisitBanner() {
+  return (
+    <section className="bg-cta-gradient py-14 text-center text-white">
+      <div className="container-custom">
+        <h2 className="font-display text-3xl font-bold md:text-4xl">Want to See Global Edutech in Action?</h2>
+        <p className="mx-auto mt-3 max-w-2xl text-lg text-white/95">Visit a class, meet our teachers and watch your child try a free demo session.</p>
+        <a href="#contact" className="mt-7 inline-flex h-14 items-center gap-2 rounded-xl bg-yellow px-8 text-lg font-bold text-purple shadow-xl transition hover:scale-105">Schedule My Free Demo <ArrowRight className="h-5 w-5" /></a>
+      </div>
+    </section>
+  )
+}
+

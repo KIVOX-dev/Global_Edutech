@@ -3,7 +3,8 @@
   "private": true,
   "description": "Global Edutech: landing page + institute management system (single AppSail service)",
   "scripts": {
-    "build": "npm --prefix frontend ci && npm --prefix frontend run build:static && node scripts/copy-static.mjs",
+    "build": "npm --prefix frontend run build:static && node scripts/copy-static.mjs",
+    "install:all": "npm --prefix frontend ci && npm --prefix backend ci",
     "start": "node backend/src/index.js",
     "bundle": "node scripts/bundle-appsail.mjs",
     "deploy:build": "npm run build && npm run bundle",

@@ -1,33 +1,32 @@
 import Header from '../components/Header'
-import HeroSection from '../components/HeroSection'
-import WhyChooseUs from '../components/WhyChooseUs'
-import ServicesSection from '../components/ServicesSection'
+import Footer from '../components/Footer'
 import TestimonialsSection from '../components/TestimonialsSection'
 import ContactSection from '../components/ContactSection'
-import Footer from '../components/Footer'
-import CoursesTabs from '../components/CoursesTabs'
 import GalleryPreview from '../components/GalleryPreview'
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from '@/components/ui/toaster'
+import {
+  BrandStrip, CourseGrid, HomeHero, ProgramFinder, ProgramsGrid, StressFree, TeacherBanner, TopBar, VisitBanner, WhyBest,
+} from '../components/home/HomeSections'
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* Header */}
+      <TopBar />
       <Header />
-      {/* A - Attention: Hero Section */}
-      <HeroSection />
-      {/* I - Interest: Why Choose Us */}
-        <WhyChooseUs />
-      {/* D - Desire: Services, Courses & Testimonials */}
-        <TestimonialsSection />
-        <ServicesSection />
-        <CoursesTabs />
-      {/* Gallery Preview */}
-        <GalleryPreview />
-        <ContactSection />
-      {/* Footer */}
+      <HomeHero />
+      <ProgramFinder />
+      <BrandStrip />
+      <ProgramsGrid />
+      <WhyBest />
+      <StressFree />
+      <CourseGrid />
+      <TestimonialsSection />
+      <GalleryPreview />
+      <TeacherBanner />
+      <VisitBanner />
+      <ContactSection />
       <Footer />
       <Toaster />
     </main>
-  );
+  )
 }

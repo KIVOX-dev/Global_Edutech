@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import config from '../../config/env.js';
 
 // Provider interface: { name, dailyCap, isConfigured(), send({ to, subject, html, text, replyTo }) -> { messageId } }
@@ -32,33 +31,5 @@ export class BrevoProvider {
     const payload = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(`Brevo ${res.status}: ${payload.message || res.statusText}`);
     return { messageId: payload.messageId };
-  }
-}
-
-export class GmailProvider {
-  constructor(cfg = config.gmail, configured = config.services.gmail) {
-    this.name = 'GMAIL';
-    this.dailyCap = 450; // Gmail allows about 500/day
-    this.cfg = cfg;
-    this.configured = configured;
-    this.transporter = null;
-  }
-
-  isConfigured() { return this.configured; }
-
-  async send({ to, subject, html, text, replyTo }) {
-    if (!this.transporter) {
-      // Gmail SMTP with a 16 character App Password (2-step verification must be on), never the account password
-      this.transporter = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user: this.cfg.user, pass: this.cfg.pass } });
-    }
-    const info = await this.transporter.sendMail({
-      from: `"${config.instituteName}" <${this.cfg.user}>`,
-      to: toArray(to).join(','),
-      subject,
-      html,
-      text,
-      replyTo,
-    });
-    return { messageId: info.messageId };
   }
 }

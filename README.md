@@ -3,8 +3,8 @@
 Landing page **and** institute management system (Admin, Staff, Attendance, Fees, automatic fee reminders).
 
 ```
-frontend/   Next.js 14 (App Router, Tailwind): landing page, enquiry admin, and the new /login, /admin/*, /staff/* screens
-backend/    Express API: legacy enquiry endpoints + the management API (Mongoose, B2, Brevo/Gmail, cron)
+frontend/   Next.js 14 (App Router, Tailwind): landing page and the /login, /admin/*, /staff/* screens
+backend/    Express API: enquiry form endpoint + the management API (Mongoose, B2, Brevo, cron)
 scripts/    copy-static.mjs, bundle-appsail.mjs (build helpers for AppSail)
 app-config.json   Zoho Catalyst AppSail configuration
 docs/       Older guides (landing page era)
@@ -14,10 +14,10 @@ docs/       Older guides (landing page era)
 
 ## How it fits together
 
-- **Landing page + enquiry admin (unchanged):** `/`, `/courses`, `/gallery`, `/admin/login`, `/admin/dashboard`. Still deployable to Vercel exactly as before.
-- **Management system (new):** one login at `/login`. Admins land on `/admin`, staff on `/staff`. The old enquiry dashboard is linked from the admin sidebar as "Website Enquiries".
+- **Landing page:** `/`, `/courses`, `/gallery`. The enquiry form still saves to MongoDB (collection `globaledutech-enquiry`) and emails `CONTACT_RECEIVER_EMAIL` through Brevo. The old username/password enquiry admin was removed; enquiries are now only visible in the database.
+- **Management system:** one login at `/login`. Admins land on `/admin`, staff on `/staff`.
 - **Production target:** one Zoho Catalyst **AppSail** service. Express serves `/api/*` and the statically exported frontend (`next build` with `output: 'export'`, copied to `backend/public`). Same origin, so cookies just work.
-- **Data:** MongoDB Atlas (Mongoose). **Files:** private Backblaze B2 bucket, presigned URLs only. **Email:** Brevo API first, Gmail SMTP fallback. **Timezone:** Asia/Kolkata everywhere; attendance and fee dates are stored as `"YYYY-MM-DD"` strings.
+- **Data:** MongoDB Atlas (Mongoose). **Files:** private Backblaze B2 bucket, presigned URLs only. **Email:** Brevo transactional API only. **Timezone:** Asia/Kolkata everywhere; attendance and fee dates are stored as `"YYYY-MM-DD"` strings.
 
 ## Quick start (local)
 
@@ -33,7 +33,7 @@ npm run dev
 
 # 2. Frontend (http://localhost:5173)
 cd frontend
-echo BACKEND_URL=http://localhost:9000 > .env.local   # add JWT_SECRET=<legacy backend JWT_SECRET> for the old enquiry admin
+echo BACKEND_URL=http://localhost:9000 > .env.local  
 npm install
 npm run dev
 ```
@@ -57,7 +57,7 @@ Change the admin password immediately in any real environment. Staff created fro
 cd backend && npm test      # vitest + supertest + mongodb-memory-server (downloads a MongoDB binary on first run)
 ```
 
-Covers: role protection, refresh-token rotation and reuse detection, account lockout, duplicate-attendance prevention (including concurrent submits), percentage with holidays excluded, staff edit window, partial payments and overpayment races, reminder rule matching, no duplicate reminders (sequential and concurrent runs), Brevo failure falling back to Gmail, and a walk through most admin and staff endpoints.
+Covers: role protection, refresh-token rotation and reuse detection, account lockout, duplicate-attendance prevention (including concurrent submits), percentage with holidays excluded, staff edit window, partial payments and overpayment races, reminder rule matching, no duplicate reminders (sequential and concurrent runs), Brevo retry and failure handling, and a walk through most admin and staff endpoints.
 
 ## Environment variables (backend)
 
@@ -71,12 +71,12 @@ Covers: role protection, refresh-token rotation and reuse detection, account loc
 | `COOKIE_DOMAIN` | Leave `localhost`/blank locally; your domain in production if needed |
 | `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD` | First admin created by `npm run seed` |
 | `B2_KEY_ID`, `B2_APPLICATION_KEY`, `B2_BUCKET`, `B2_REGION`, `B2_ENDPOINT` | Backblaze B2 (S3 compatible) |
-| `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME` | Primary email provider |
-| `GMAIL_USER`, `GMAIL_APP_PASSWORD` | Fallback email provider |
+| `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME` | Email (reminders, password reset, credentials, enquiry notifications) |
+| `CONTACT_RECEIVER_EMAIL` | Who receives website enquiry notifications (defaults to the Brevo sender) |
 | `REMINDER_CRON_TIME` | Default daily reminder time `HH:mm` (IST); editable later in Admin → Reminders |
 | `PAYMENT_INSTRUCTIONS` (optional) | Text for the `{payment_instructions}` placeholder |
 
-The legacy enquiry admin still uses `JWT_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `CONTACT_RECEIVER_EMAIL`, `SMTP_*` (see `backend/.env.example`). Frontend: `BACKEND_URL` (dev proxy) and `JWT_SECRET` (legacy admin middleware). Never commit `.env` files.
+Frontend: only `BACKEND_URL` (dev proxy). Never commit `.env` files.
 
 ## Service setup
 
@@ -106,14 +106,9 @@ The legacy enquiry admin still uses `JWT_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSW
 ```
 Use your real `APP_URL` as the origin (add `http://localhost:5173` while developing). Uploads: the server validates type (JPG/PNG/PDF) and size (5 MB) before issuing a 5-minute presigned PUT, then `POST /api/files/confirm` re-checks the real object (size and type) and deletes it if it violates the rules. Downloads are 5-minute presigned GET links, authorised per owner.
 
-### Brevo (primary email)
+### Brevo (email)
 1. Create an account at brevo.com → SMTP & API → **API Keys** → generate a v3 key → `BREVO_API_KEY`.
-2. Senders & IP → add and **verify** the sender address → `BREVO_SENDER_EMAIL` (unverified senders are rejected). Free plan is about 300 emails/day; the app caps itself at 280.
-
-### Gmail (fallback)
-Turn on 2-step verification, then Google Account → Security → App passwords → create one → 16 characters into `GMAIL_APP_PASSWORD`, with `GMAIL_USER` your address. Never the normal password. Capped at 450/day.
-
-Delivery order: Brevo, one retry, then Gmail. Sends are queued with a delay between messages.
+2. Senders & IP → add and **verify** the sender address → `BREVO_SENDER_EMAIL` (unverified senders are rejected). Free plan is about 300 emails/day; the app caps itself at 280 and queues sends with a short delay. A failed send is retried once.
 
 ## Deploy to Zoho Catalyst AppSail
 
@@ -123,7 +118,7 @@ AppSail storage is **ephemeral**: nothing is ever written to disk, all files go 
 npm install -g zcatalyst-cli
 catalyst login
 catalyst init            # in the repo root: pick your project, choose AppSail (Node.js) when asked
-npm run deploy:build     # builds the static frontend into backend/public, then creates ./appsail-build (with production node_modules)
+npm run install:all && npm run deploy:build     # builds the static frontend into backend/public, then creates ./appsail-build (with production node_modules)
 catalyst deploy appsail --name global-edutech --build-path "$(pwd)/appsail-build" --stack node22 --command "node src/index.js" -ni
 ```
 Notes:
@@ -167,7 +162,7 @@ All responses: `{ success, data, meta? }` or `{ success:false, code, message, de
 
 **Attendance** (ADMIN + STAFF, staff scoped to assigned batches) `GET|POST /api/attendance/batch/:batchId`, `PATCH /api/attendance/:id`, `GET /api/attendance/student/:studentId?from=&to=`
 
-**Legacy** `POST /api/submit-form`, `/api/admin/login|logout|submissions|export` (enquiry admin, unchanged)
+**Public** `POST /api/submit-form` (website enquiry form)
 
 ## Assumptions and decisions
 

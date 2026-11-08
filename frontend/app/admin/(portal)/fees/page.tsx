@@ -86,8 +86,8 @@ function FeeList() {
           <FilterSelect label="Any status" value={status} onChange={(v) => { setStatus(v); setPage(1) }} options={['PENDING', 'PARTIAL', 'PAID', 'OVERDUE'].map((v) => ({ value: v, label: v }))} />
           <FilterSelect label="All batches" value={batch} onChange={(v) => { setBatch(v); setPage(1) }} options={batches} />
           <FilterSelect label="All courses" value={course} onChange={(v) => { setCourse(v); setPage(1) }} options={courses} />
-          <input type="date" className={`${inputCls} w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="Due from" />
-          <input type="date" className={`${inputCls} w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="Due to" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="Due from" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="Due to" />
         </div>
         <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="fees" emptyTitle="No fees found" emptyHint="Use “Generate fees” to create instalments from a course." />
       </Card>

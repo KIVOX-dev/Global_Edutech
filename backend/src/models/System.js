@@ -29,7 +29,7 @@ const reminderLogSchema = new mongoose.Schema({
   student: { type: ObjectId, ref: 'Student', required: true },
   rule: { type: String, required: true }, // D-7, D-3, D-1, D0, OVERDUE_n, MANUAL
   channel: { type: String, default: 'EMAIL' },
-  provider: { type: String, enum: ['BREVO', 'GMAIL', null] },
+  provider: { type: String, enum: ['BREVO', null] },
   status: { type: String, enum: ['PENDING', 'SENT', 'FAILED', 'SKIPPED'], required: true },
   error: String,
   recipients: [String],

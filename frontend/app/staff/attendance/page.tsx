@@ -32,7 +32,7 @@ export default function MyAttendancePage() {
           <button className={btn('success')} disabled={busy} onClick={() => act('/staff/attendance/check-in', 'Checked in')}><LogIn className="h-4 w-4" /> Check in</button>
           <button className={btn('outline')} disabled={busy} onClick={() => act('/staff/attendance/check-out', 'Checked out')}><LogOut className="h-4 w-4" /> Check out</button>
         </>} />
-      <div className="mb-3"><input type="month" className={`${inputCls} w-auto`} value={month} onChange={(e) => e.target.value && setMonth(e.target.value)} aria-label="Month" /></div>
+      <div className="mb-3"><input type="month" className={`${inputCls} sm:w-auto`} value={month} onChange={(e) => e.target.value && setMonth(e.target.value)} aria-label="Month" /></div>
       {s && (
         <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
           <StatCard label="Present" value={s.present} tone="green" />

@@ -68,9 +68,9 @@ export default function ReportsPage() {
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <FilterSelect label="Report type" value={type} onChange={(v) => { setType(v as typeof type); setRows(null) }} options={[{ value: 'student', label: 'By student' }, { value: 'batch', label: 'By batch' }, { value: 'staff', label: 'Staff' }]} />
           {type === 'student' && <FilterSelect label="All batches" value={batch} onChange={setBatch} options={batches} />}
-          <input type="date" className={`${inputCls} w-auto`} value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From" />
           <span className="text-sm">to</span>
-          <input type="date" className={`${inputCls} w-auto`} value={to} max={todayIST()} onChange={(e) => setTo(e.target.value)} aria-label="To" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={to} max={todayIST()} onChange={(e) => setTo(e.target.value)} aria-label="To" />
           <button className={btn('primary')} onClick={run} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Run</button>
           <button className={btn('outline')} onClick={exportCsv} disabled={csvBusy}>{csvBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Export CSV</button>
         </div>

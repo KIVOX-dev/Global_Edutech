@@ -10,8 +10,8 @@ type BtnVariant = 'primary' | 'outline' | 'ghost' | 'danger' | 'success'
 export const btn = (v: BtnVariant = 'primary', size: 'sm' | 'md' | 'lg' = 'md') =>
   cx(
     'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-purple/60',
-    size === 'sm' && 'h-8 px-3 text-xs',
-    size === 'md' && 'h-10 px-4 text-sm',
+    size === 'sm' && 'h-10 min-w-10 px-3 text-xs sm:h-8 sm:min-w-0',
+    size === 'md' && 'h-11 px-4 text-sm sm:h-10',
     size === 'lg' && 'h-12 px-6 text-base',
     v === 'primary' && 'bg-purple text-white hover:bg-purple/90 shadow-sm',
     v === 'outline' && 'border border-purple/40 text-purple hover:bg-purple/10',
@@ -20,7 +20,7 @@ export const btn = (v: BtnVariant = 'primary', size: 'sm' | 'md' | 'lg' = 'md') 
     v === 'success' && 'bg-emerald-600 text-white hover:bg-emerald-700',
   )
 
-export const inputCls = 'w-full h-10 rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-purple/50 disabled:opacity-60'
+export const inputCls = 'w-full h-11 rounded-lg border border-input bg-background px-3 text-base sm:h-10 sm:text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-purple/50 disabled:opacity-60'
 
 export function Spinner({ className }: { className?: string }) {
   return <Loader2 className={cx('h-5 w-5 animate-spin text-purple', className)} aria-label="Loading" />
@@ -33,7 +33,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
         <h1 className="font-display text-2xl font-bold text-foreground">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto [&>*]:flex-1 sm:[&>*]:flex-none">{actions}</div>}
     </div>
   )
 }
@@ -105,7 +105,7 @@ export function SearchBox({ value, onChange, placeholder = 'Search…' }: { valu
 
 export function FilterSelect({ value, onChange, options, label }: { value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; label: string }) {
   return (
-    <select className={cx(inputCls, 'w-auto min-w-[8rem]')} value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}>
+    <select className={cx(inputCls, 'sm:w-auto sm:min-w-[8rem]')} value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}>
       <option value="">{label}</option>
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
@@ -171,41 +171,71 @@ export function DataTable<T extends { _id?: string; id?: string }>({
   return (
     <div>
       {exportName && rows.length > 0 && (
-        <div className="mb-2 flex justify-end">
-          <button className={btn('outline', 'sm')} onClick={exportCsv}><Download className="h-4 w-4" /> Export CSV</button>
+        <div className="mb-3 flex sm:justify-end">
+          <button className={cx(btn('outline', 'sm'), 'w-full sm:w-auto')} onClick={exportCsv}><Download className="h-4 w-4" /> Export CSV</button>
         </div>
       )}
       {error ? <ErrorState message={error} onRetry={onRetry} /> : (
-        <div className="relative overflow-x-auto rounded-xl border">
-          <table className="w-full min-w-[32rem] text-left text-sm">
-            <thead className="bg-purpleLight/60 text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                {columns.map((c) => (
-                  <th key={c.key} className={cx('whitespace-nowrap px-3 py-2.5 font-semibold', c.mobileHidden && 'hidden md:table-cell', c.className)}>
-                    {c.sortable ? (
-                      <button className="inline-flex items-center gap-1 hover:text-foreground" onClick={() => setSort((s) => (s?.key === c.key ? { key: c.key, dir: (s.dir * -1) as 1 | -1 } : { key: c.key, dir: 1 }))}>
-                        {c.header}{sort?.key === c.key ? (sort.dir === 1 ? ' ▲' : ' ▼') : ''}
-                      </button>
-                    ) : c.header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {sorted.map((r, i) => (
-                <tr key={rowKey ? rowKey(r) : r._id || r.id || i} className="hover:bg-muted/40">
+        <>
+          {/* Mobile: one card per row (no sideways scrolling) */}
+          <div className="md:hidden">
+            {loading && rows.length === 0 && <div className="flex justify-center py-10"><Spinner /></div>}
+            <ul className={cx('space-y-3', loading && rows.length > 0 && 'opacity-60')}>
+              {sorted.map((r, i) => {
+                const data = columns.filter((c) => c.header !== '')
+                const actions = columns.filter((c) => c.header === '')
+                const [first, ...rest] = data
+                return (
+                  <li key={rowKey ? rowKey(r) : r._id || r.id || i} className="rounded-2xl border bg-card p-3.5 shadow-sm">
+                    {first && <div className="text-base font-medium">{first.render ? first.render(r) : String((r as Record<string, unknown>)[first.key] ?? '-')}</div>}
+                    <dl className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                      {rest.map((c) => (
+                        <div key={c.key} className="min-w-0">
+                          <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{c.header}</dt>
+                          <dd className="break-words">{c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '-')}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    {actions.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">{actions.map((c) => <div key={c.key} className="w-full [&>div]:justify-start">{c.render?.(r)}</div>)}</div>}
+                  </li>
+                )
+              })}
+            </ul>
+            {!loading && rows.length === 0 && <EmptyState title={emptyTitle} hint={emptyHint} />}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="relative hidden overflow-x-auto rounded-xl border md:block">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-purpleLight/60 text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
                   {columns.map((c) => (
-                    <td key={c.key} className={cx('px-3 py-2.5 align-middle', c.mobileHidden && 'hidden md:table-cell', c.className)}>
-                      {c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '-')}
-                    </td>
+                    <th key={c.key} className={cx('whitespace-nowrap px-3 py-2.5 font-semibold', c.className)}>
+                      {c.sortable ? (
+                        <button className="inline-flex items-center gap-1 hover:text-foreground" onClick={() => setSort((s) => (s?.key === c.key ? { key: c.key, dir: (s.dir * -1) as 1 | -1 } : { key: c.key, dir: 1 }))}>
+                          {c.header}{sort?.key === c.key ? (sort.dir === 1 ? ' ▲' : ' ▼') : ''}
+                        </button>
+                      ) : c.header}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {loading && <div className="absolute inset-0 flex items-center justify-center bg-background/60"><Spinner /></div>}
-          {!loading && rows.length === 0 && <EmptyState title={emptyTitle} hint={emptyHint} />}
-        </div>
+              </thead>
+              <tbody className="divide-y">
+                {sorted.map((r, i) => (
+                  <tr key={rowKey ? rowKey(r) : r._id || r.id || i} className="hover:bg-muted/40">
+                    {columns.map((c) => (
+                      <td key={c.key} className={cx('px-3 py-2.5 align-middle', c.className)}>
+                        {c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '-')}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {loading && <div className="absolute inset-0 flex items-center justify-center bg-background/60"><Spinner /></div>}
+            {!loading && rows.length === 0 && <EmptyState title={emptyTitle} hint={emptyHint} />}
+          </div>
+        </>
       )}
       {onPage && <Pagination meta={meta} onPage={onPage} />}
     </div>
@@ -222,7 +252,7 @@ export function Modal({ open, title, onClose, children, wide }: { open: boolean;
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true" aria-label={title}>
-      <div className={cx('max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-background p-5 shadow-xl sm:rounded-2xl', wide ? 'sm:max-w-3xl' : 'sm:max-w-lg')}>
+      <div className={cx('max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl bg-background p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-xl sm:rounded-2xl sm:pb-5', wide ? 'sm:max-w-3xl' : 'sm:max-w-lg')}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">{title}</h2>
           <button className="rounded-lg p-1 hover:bg-muted" onClick={onClose} aria-label="Close"><X className="h-5 w-5" /></button>
@@ -330,7 +360,7 @@ export function FormModal({ open, title, fields, initial, submitLabel = 'Save', 
           </label>
         ))}
         {err && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 sm:col-span-2">{err}</p>}
-        <div className="flex justify-end gap-2 sm:col-span-2">
+        <div className="flex flex-col-reverse gap-2 sm:col-span-2 sm:flex-row sm:justify-end">
           <button type="button" className={btn('ghost')} onClick={onClose} disabled={busy}>Cancel</button>
           <button type="submit" className={btn('primary')} disabled={busy}>{busy && <Loader2 className="h-4 w-4 animate-spin" />}{submitLabel}</button>
         </div>

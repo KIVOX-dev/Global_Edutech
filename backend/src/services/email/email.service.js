@@ -1,7 +1,7 @@
 import config from '../../config/env.js';
 import logger from '../../config/logger.js';
 import { todayStr } from '../../utils/dates.js';
-import { BrevoProvider, GmailProvider } from './providers.js';
+import { BrevoProvider } from './providers.js';
 
 const sleep = (ms) => new Promise((r) => { setTimeout(r, ms); });
 
@@ -10,7 +10,7 @@ export class EmailNotConfiguredError extends Error {
 }
 
 /**
- * Tries providers in order (Brevo first). The primary gets one retry, then the next provider is used.
+ * Tries providers in order (Brevo is the only one today; the list stays pluggable). The first provider gets one retry.
  * Sends are serialised through an in-process queue with a delay between messages and a per-provider daily cap.
  */
 export class EmailService {
@@ -90,7 +90,7 @@ export class EmailService {
 }
 
 export const emailService = new EmailService({
-  providers: [new BrevoProvider(), new GmailProvider()],
+  providers: [new BrevoProvider()],
   delayMs: config.isTest ? 0 : 1200,
   retryDelayMs: config.isTest ? 0 : 800,
 });

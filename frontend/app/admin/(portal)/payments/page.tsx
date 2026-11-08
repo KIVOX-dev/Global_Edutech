@@ -39,8 +39,8 @@ export default function PaymentsPage() {
       <Card>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <FilterSelect label="Any mode" value={mode} onChange={(v) => { setMode(v); setPage(1) }} options={['CASH', 'UPI', 'CARD', 'BANK', 'CHEQUE'].map((v) => ({ value: v, label: v }))} />
-          <input type="date" className={`${inputCls} w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="From" />
-          <input type="date" className={`${inputCls} w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="To" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="From" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="To" />
         </div>
         <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="payments" emptyTitle="No payments yet" />
       </Card>

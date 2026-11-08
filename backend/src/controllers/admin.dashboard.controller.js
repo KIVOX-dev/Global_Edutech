@@ -52,7 +52,6 @@ export const systemStatus = asyncHandler(async (req, res) => {
       mongodb: config.services.mongodb && dbReady(),
       b2: config.services.b2,
       brevo: config.services.brevo,
-      gmail: config.services.gmail,
       email: emailService.isConfigured(),
       jwtSecrets: config.services.jwt,
     },

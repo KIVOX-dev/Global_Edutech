@@ -26,8 +26,6 @@ const schema = z.object({
   BREVO_API_KEY: str(''),
   BREVO_SENDER_EMAIL: str(''),
   BREVO_SENDER_NAME: str(''),
-  GMAIL_USER: str(''),
-  GMAIL_APP_PASSWORD: str(''),
   REMINDER_CRON_TIME: str('10:00'),
   PAYMENT_INSTRUCTIONS: str('Please pay at the institute office or via UPI / bank transfer and share the reference.'),
   STATIC_DIR: str(''),
@@ -48,16 +46,14 @@ export function loadConfig(env = process.env) {
     jwt: !isPlaceholder(e.JWT_ACCESS_SECRET) && !isPlaceholder(e.JWT_REFRESH_SECRET),
     b2: ![e.B2_KEY_ID, e.B2_APPLICATION_KEY, e.B2_BUCKET, e.B2_ENDPOINT].some(isPlaceholder),
     brevo: !isPlaceholder(e.BREVO_API_KEY) && !isPlaceholder(e.BREVO_SENDER_EMAIL),
-    gmail: !isPlaceholder(e.GMAIL_USER) && !isPlaceholder(e.GMAIL_APP_PASSWORD),
   };
-  services.email = services.brevo || services.gmail;
+  services.email = services.brevo;
 
   const problems = [];
   if (!services.mongodb) problems.push('MONGODB_URI (database features disabled)');
   if (!services.jwt) problems.push('JWT_ACCESS_SECRET / JWT_REFRESH_SECRET (using insecure dev secrets)');
   if (!services.b2) problems.push('B2_* (file uploads, receipts and CSV exports disabled)');
-  if (!services.brevo) problems.push('BREVO_* (primary email provider disabled)');
-  if (!services.gmail) problems.push('GMAIL_* (fallback email provider disabled)');
+  if (!services.brevo) problems.push('BREVO_* (email disabled: no reminders, reset links or credentials emails)');
 
   if (isProd) {
     const fatal = [];
@@ -92,7 +88,6 @@ export function loadConfig(env = process.env) {
     seed: { email: e.ADMIN_SEED_EMAIL, password: e.ADMIN_SEED_PASSWORD },
     b2: { keyId: e.B2_KEY_ID, appKey: e.B2_APPLICATION_KEY, bucket: e.B2_BUCKET, region: e.B2_REGION, endpoint: e.B2_ENDPOINT },
     brevo: { apiKey: e.BREVO_API_KEY, senderEmail: e.BREVO_SENDER_EMAIL, senderName: e.BREVO_SENDER_NAME || e.INSTITUTE_NAME },
-    gmail: { user: e.GMAIL_USER, pass: e.GMAIL_APP_PASSWORD },
     reminderTime: `${h.padStart(2, '0')}:${m.padStart(2, '0')}`,
     staticDir: e.STATIC_DIR,
     services,

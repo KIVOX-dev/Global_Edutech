@@ -32,8 +32,8 @@ export default function AuditPage() {
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <FilterSelect label="Any entity" value={entity} onChange={(v) => { setEntity(v); setPage(1) }} options={ENTITIES.map((e) => ({ value: e, label: e }))} />
           <SearchBox value={action} onChange={(v) => { setAction(v.toUpperCase()); setPage(1) }} placeholder="Action, e.g. RECORD_PAYMENT" />
-          <input type="date" className={`${inputCls} w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="From" />
-          <input type="date" className={`${inputCls} w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="To" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="From" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="To" />
         </div>
         <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="audit-log" emptyTitle="No audit entries" />
       </Card>

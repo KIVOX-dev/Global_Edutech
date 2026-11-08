@@ -12,7 +12,6 @@ import { dbReady } from './config/db.js';
 import { requestId, sanitizeInput, requireDb, errorHandler, notFoundApi } from './middleware/core.js';
 import { apiLimiter } from './middleware/rateLimit.js';
 import publicRoutes from './routes/public.js';
-import legacyAdminRoutes from './routes/admin.js';
 import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import staffRoutes from './routes/staff.routes.js';
@@ -64,9 +63,8 @@ export function createApp() {
 
   app.use('/api', apiLimiter);
 
-  // Legacy landing-page endpoints (enquiries + enquiry-admin) keep their original behaviour
+  // Landing-page enquiry form endpoint
   app.use('/api', publicRoutes);
-  app.use('/api/admin', legacyAdminRoutes);
 
   // Institute management API
   app.use('/api/auth', requireDb, authRoutes);

@@ -23,7 +23,7 @@ function Inner() {
       <Card>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <FilterSelect label="Select batch" value={batch} onChange={setBatch} options={(batches || []).map((b) => ({ value: b._id, label: b.name }))} />
-          <input type="date" className={`${inputCls} w-auto`} value={date} max={todayIST()} onChange={(e) => setDate(e.target.value)} aria-label="Date" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={date} max={todayIST()} onChange={(e) => setDate(e.target.value)} aria-label="Date" />
         </div>
         {batch && date ? <MarkSheet key={`${batch}-${date}`} batchId={batch} date={date} /> : <p className="py-10 text-center text-sm text-muted-foreground">Choose a batch to load the roster.</p>}
       </Card>

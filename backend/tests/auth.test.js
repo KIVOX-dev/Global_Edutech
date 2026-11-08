@@ -37,7 +37,7 @@ describe('role protection', () => {
   it('system status reports integrations without leaking values', async () => {
     const admin = await loginAs('admin@t.co');
     const res = await admin.get('/api/admin/system/status');
-    expect(res.body.data.integrations).toMatchObject({ b2: false, brevo: false, gmail: false });
+    expect(res.body.data.integrations).toMatchObject({ b2: false, brevo: false });
     expect(JSON.stringify(res.body)).not.toMatch(/test-access-secret|your_/);
   });
 

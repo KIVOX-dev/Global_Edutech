@@ -37,7 +37,7 @@ export const updateSettings = asyncHandler(async (req, res) => {
 export const sendOne = asyncHandler(async (req, res) => {
   const r = await sendNow(req.params.studentFeeId);
   if (r.status === 'NOT_FOUND') throw ApiError.notFound('Fee not found');
-  if (r.status === 'SKIPPED' && r.reason === 'channel-not-configured') throw ApiError.unavailable('No email provider is configured (set BREVO_* or GMAIL_*)');
+  if (r.status === 'SKIPPED' && r.reason === 'channel-not-configured') throw ApiError.unavailable('No email provider is configured (set BREVO_*)');
   await audit(req, { action: 'SEND_REMINDER', entity: 'StudentFee', entityId: req.params.studentFeeId, after: r });
   ok(res, r);
 });

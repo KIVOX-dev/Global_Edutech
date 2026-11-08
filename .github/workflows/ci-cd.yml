@@ -48,6 +48,5 @@ jobs:
       - run: npm run build
         env:
           BACKEND_URL: https://example.invalid
-          JWT_SECRET: ci-build-placeholder
       - run: npm audit --omit=dev --audit-level=critical
         continue-on-error: true

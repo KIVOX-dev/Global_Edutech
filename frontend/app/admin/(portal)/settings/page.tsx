@@ -12,7 +12,7 @@ type Settings = {
 }
 type Status = { environment: string; timezone: string; integrations: Record<string, boolean>; placeholderMode: boolean; notConfigured: string[] }
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const LABELS: Record<string, string> = { mongodb: 'MongoDB Atlas', b2: 'Backblaze B2 storage', brevo: 'Brevo email (primary)', gmail: 'Gmail SMTP (fallback)', jwtSecrets: 'JWT secrets' }
+const LABELS: Record<string, string> = { mongodb: 'MongoDB Atlas', b2: 'Backblaze B2 storage', brevo: 'Brevo email', jwtSecrets: 'JWT secrets' }
 
 export default function SettingsPage() {
   const { data, loading, error, reload } = useData<Settings>('/admin/settings')

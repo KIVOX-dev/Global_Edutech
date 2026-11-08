@@ -96,9 +96,9 @@ export default function RemindersPage() {
       <Card title="Reminder log" className="mt-4">
         <div className="mb-3 flex flex-wrap gap-2">
           <FilterSelect label="Any status" value={lf.status} onChange={(v) => { setLf({ ...lf, status: v }); setPage(1) }} options={['SENT', 'FAILED', 'SKIPPED', 'PENDING'].map((v) => ({ value: v, label: v }))} />
-          <FilterSelect label="Any provider" value={lf.provider} onChange={(v) => { setLf({ ...lf, provider: v }); setPage(1) }} options={[{ value: 'BREVO', label: 'Brevo' }, { value: 'GMAIL', label: 'Gmail' }]} />
-          <input type="date" className={`${inputCls} w-auto`} value={lf.from} onChange={(e) => { setLf({ ...lf, from: e.target.value }); setPage(1) }} aria-label="From" />
-          <input type="date" className={`${inputCls} w-auto`} value={lf.to} onChange={(e) => { setLf({ ...lf, to: e.target.value }); setPage(1) }} aria-label="To" />
+          <FilterSelect label="Any provider" value={lf.provider} onChange={(v) => { setLf({ ...lf, provider: v }); setPage(1) }} options={[{ value: 'BREVO', label: 'Brevo' }]} />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={lf.from} onChange={(e) => { setLf({ ...lf, from: e.target.value }); setPage(1) }} aria-label="From" />
+          <input type="date" className={`${inputCls} sm:w-auto`} value={lf.to} onChange={(e) => { setLf({ ...lf, to: e.target.value }); setPage(1) }} aria-label="To" />
         </div>
         <DataTable columns={columns} rows={logs.rows} meta={logs.meta} loading={logs.loading} error={logs.error} onRetry={logs.reload} onPage={setPage} exportName="reminder-log" emptyTitle="No reminders sent yet" />
       </Card>

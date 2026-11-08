@@ -8,7 +8,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider, homeFor, useAuth } from '@/lib/portal/auth'
 import { Spinner, cx } from './kit'
 
-export type NavItem = { href: string; label: string; icon: React.ComponentType<{ className?: string }>; external?: boolean }
+export type NavItem = { href: string; label: string; icon: React.ComponentType<{ className?: string }>; primary?: boolean; short?: string }
 
 function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[]; children: React.ReactNode }) {
   const { user, loading, logout } = useAuth()
@@ -44,7 +44,7 @@ function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[
           <li key={n.href}>
             <Link
               href={n.href}
-              className={cx('flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition', isActive(n.href) ? 'bg-white text-purple shadow' : 'text-white/85 hover:bg-white/15')}
+              className={cx('flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition', isActive(n.href) ? 'bg-white text-purple shadow' : 'text-white/85 hover:bg-white/15')}
               aria-current={isActive(n.href) ? 'page' : undefined}
             >
               <n.icon className="h-4 w-4 shrink-0" />{n.label}
@@ -66,16 +66,37 @@ function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85%] bg-gradient-to-b from-purple to-purple/85">{sidebar}</aside>
+          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85%] bg-gradient-to-b from-purple to-purple/85 pb-[env(safe-area-inset-bottom)]"><button onClick={() => setOpen(false)} className="absolute right-2 top-3 z-10 rounded-lg p-2 text-white hover:bg-white/15" aria-label="Close menu"><X className="h-5 w-5" /></button>{sidebar}</aside>
         </div>
       )}
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur lg:hidden">
-          <button onClick={() => setOpen(!open)} className="rounded-lg p-2 hover:bg-muted" aria-label={open ? 'Close menu' : 'Open menu'}>{open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
-          <span className="font-display font-bold text-purple">Global Edutech</span>
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur lg:hidden">
+          <img src="/images/logo.png" alt="" className="h-8 w-8" />
+          <span className="flex-1 truncate font-display font-bold text-purple">{role === 'ADMIN' ? 'Admin' : 'Staff'} · {user.name.split(' ')[0]}</span>
+          <button onClick={logout} className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted" aria-label="Sign out"><LogOut className="h-5 w-5" /></button>
         </header>
-        <main className="mx-auto w-full max-w-7xl p-4 sm:p-6">{children}</main>
+        <main className="mx-auto w-full max-w-7xl p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-6 lg:pb-6">{children}</main>
       </div>
+
+      {/* Mobile bottom tab bar: the four main screens plus a menu with everything else */}
+      <nav aria-label="Quick navigation" className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+        <ul className="grid grid-cols-5">
+          {nav.filter((n) => n.primary).slice(0, 4).map((n) => (
+            <li key={n.href}>
+              <Link href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}
+                className={cx('flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium active:bg-muted', isActive(n.href) ? 'text-purple' : 'text-muted-foreground')}>
+                <n.icon className="h-5 w-5" />
+                <span className="max-w-full truncate px-1">{n.short || n.label}</span>
+              </Link>
+            </li>
+          ))}
+          <li>
+            <button onClick={() => setOpen(true)} className="flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground active:bg-muted" aria-label="Open full menu">
+              <Menu className="h-5 w-5" /><span>More</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
       <Toaster />
     </div>
   )

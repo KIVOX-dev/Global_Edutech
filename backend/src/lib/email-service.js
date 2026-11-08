@@ -1,19 +1,3 @@
-import nodemailer from 'nodemailer';
-
-let transporter;
-function getTransporter() {
-  if (!transporter) {
-    const port = Number(process.env.SMTP_PORT) || 465;
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port,
-      secure: port === 465,
-      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
-    });
-  }
-  return transporter;
-}
-
 const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
@@ -22,12 +6,20 @@ export async function sendEnquiryNotification(data) {
     const { name, email, phone, message, program, studentAge, preferredTime, formType } = data;
     const isGeneral = program === 'General Enquiry' || formType === 'General Enquiry';
 
-    return await getTransporter().sendMail({
-      from: `"Global EduTech Website" <${process.env.GMAIL_USER}>`,
-      to: process.env.CONTACT_RECEIVER_EMAIL || process.env.GMAIL_USER,
-      replyTo: email,
-      subject: isGeneral ? `New General Enquiry - ${name}` : `New Program Enquiry - ${program}`,
-      html: `
+    const { BREVO_API_KEY: apiKey, BREVO_SENDER_EMAIL: senderEmail, BREVO_SENDER_NAME: senderName } = process.env;
+    const to = process.env.CONTACT_RECEIVER_EMAIL || senderEmail;
+    if (!apiKey || !senderEmail || /your_|changeme/i.test(`${apiKey}${senderEmail}`)) {
+      return { skipped: 'Brevo is not configured; enquiry saved without notification email' };
+    }
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': apiKey, 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({
+        sender: { email: senderEmail, name: senderName || 'Global EduTech Website' },
+        to: [{ email: to }],
+        replyTo: email ? { email } : undefined,
+        subject: isGeneral ? `New General Enquiry - ${name}` : `New Program Enquiry - ${program}`,
+        htmlContent: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
           <h2 style="color: #2485C4; border-bottom: 2px solid #2485C4; padding-bottom: 10px;">
             ${isGeneral ? 'New General Enquiry' : 'New Program Enquiry'}
@@ -45,7 +37,11 @@ export async function sendEnquiryNotification(data) {
           </div>
           <p style="font-size: 12px; color: #666; margin-top: 30px;">Sent automatically from the Global EduTech website enquiry form.</p>
         </div>`,
+      }),
+      signal: AbortSignal.timeout(15000),
     });
+    if (!res.ok) throw new Error(`Brevo ${res.status}`);
+    return { sent: true };
   } catch (error) {
     // Never fail the form submission because of email problems
     console.error('Failed to send email notification:', error);

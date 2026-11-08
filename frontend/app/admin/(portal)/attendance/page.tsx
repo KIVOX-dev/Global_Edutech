@@ -35,7 +35,7 @@ function StudentTab() {
     <Card>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <FilterSelect label="Select batch" value={batch} onChange={setBatch} options={batches} />
-        <input type="date" className={`${inputCls} w-auto`} value={date} max={todayIST()} onChange={(e) => setDate(e.target.value)} aria-label="Date" />
+        <input type="date" className={`${inputCls} sm:w-auto`} value={date} max={todayIST()} onChange={(e) => setDate(e.target.value)} aria-label="Date" />
       </div>
       {batch && date ? <MarkSheet key={`${batch}-${date}`} batchId={batch} date={date} /> : <p className="py-10 text-center text-sm text-muted-foreground">Choose a batch and a date to load the roster.</p>}
     </Card>
@@ -61,9 +61,9 @@ function StaffTab() {
   return (
     <Card>
       <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
-        <input type="date" className={`${inputCls} w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="From" />
+        <input type="date" className={`${inputCls} sm:w-auto`} value={from} onChange={(e) => { setFrom(e.target.value); setPage(1) }} aria-label="From" />
         <span>to</span>
-        <input type="date" className={`${inputCls} w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="To" />
+        <input type="date" className={`${inputCls} sm:w-auto`} value={to} onChange={(e) => { setTo(e.target.value); setPage(1) }} aria-label="To" />
       </div>
       <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="staff-attendance" emptyTitle="No staff attendance in this range" />
       <FormModal open={!!edit} title={`Correct attendance: ${edit?.staff?.name}`} submitLabel="Save correction"

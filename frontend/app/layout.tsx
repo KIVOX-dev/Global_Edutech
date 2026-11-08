@@ -13,6 +13,8 @@ const poppins = Poppins({
   variable: '--font-poppins',
 })
 
+export const viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#763dcb' }
+
 export const metadata = {
   title: 'Global Edutech - One Destination for Preschool, After-School Programs & Home Tuitions',
   description: 'Global Edutech nurtures young minds through a blend of traditional and tech-powered education — from playschool to personalized tutoring at your doorstep.',
