@@ -57,7 +57,8 @@ async function request<T>(method: string, path: string, body?: unknown, query?: 
 
   if (res.status === 401 && !retried && !path.startsWith('/auth/login') && !path.startsWith('/auth/refresh')) {
     if (await refreshSession()) return request<T>(method, path, body, query, true)
-    if (typeof window !== 'undefined') window.dispatchEvent(new Event('portal:session-expired'))
+    // The first "am I signed in?" check on a page is allowed to fail quietly: only a real call from a signed-in session means "expired"
+    if (typeof window !== 'undefined' && !path.startsWith('/auth/me')) window.dispatchEvent(new Event('portal:session-expired'))
   }
 
   const ct = res.headers.get('content-type') || ''

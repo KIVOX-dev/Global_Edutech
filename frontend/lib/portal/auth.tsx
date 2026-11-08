@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api, ApiError } from './api'
 
@@ -21,6 +21,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [user, setUser] = useState<PortalUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const userRef = useRef<PortalUser | null>(null)
+  userRef.current = user
 
   const refresh = useCallback(async () => {
     try {
@@ -36,7 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { refresh() }, [refresh])
   useEffect(() => {
-    const onExpired = () => { setUser(null); router.replace('/login?expired=1') }
+    // Only redirect when someone who WAS signed in loses the session (never for visitors on login / forgot / reset pages)
+    const onExpired = () => { if (!userRef.current) return; setUser(null); router.replace('/login?expired=1') }
     window.addEventListener('portal:session-expired', onExpired)
     return () => window.removeEventListener('portal:session-expired', onExpired)
   }, [router])
