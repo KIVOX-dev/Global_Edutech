@@ -236,13 +236,15 @@ export function CourseGrid() {
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           {list.map((c, i) => (
             <motion.div key={c.slug} {...fade} transition={{ duration: 0.5, delay: i * 0.06 }} className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(20%-1.2rem)]">
-              <Link href={`/courses/${c.slug}`} className={`group flex h-full flex-col items-center rounded-3xl border border-t-4 bg-white p-4 text-center shadow-gentle transition hover:-translate-y-1 hover:shadow-xl ${ACCENTS[i % ACCENTS.length]}`}>
-                <span className="relative mb-3 flex h-24 w-full items-center justify-center rounded-2xl bg-purpleLight/60 p-3 sm:h-28">
-                  <Image src={c.imageUrl} alt={`${c.title} logo`} width={160} height={110} className="h-full w-full object-contain transition group-hover:scale-105" />
+              <Link href={`/courses/${c.slug}`} className={`group flex h-full flex-col overflow-hidden rounded-3xl border border-t-4 bg-white text-center shadow-gentle transition hover:-translate-y-1 hover:shadow-xl ${ACCENTS[i % ACCENTS.length]}`}>
+                <span className="relative block aspect-[945/660] w-full bg-white">
+                  <Image src={c.imageUrl} alt={`${c.title} logo`} fill quality={100} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="object-cover transition duration-300 group-hover:scale-105" />
                 </span>
-                <span className="font-display text-base font-bold leading-snug text-purple sm:text-lg">{c.title}</span>
-                <span className="mt-2 rounded-full bg-yellow/40 px-3 py-0.5 text-xs font-semibold text-purple">{c.details.ageGroup}</span>
-                <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-pink">Learn more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                <span className="flex flex-1 flex-col items-center p-4">
+                  <span className="font-display text-base font-bold leading-snug text-purple sm:text-lg">{c.title}</span>
+                  <span className="mt-2 rounded-full bg-yellow/40 px-3 py-0.5 text-xs font-semibold text-purple">{c.details.ageGroup}</span>
+                  <span className="mt-auto inline-flex items-center gap-1 pt-3 text-sm font-bold text-pink">Learn more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                </span>
               </Link>
             </motion.div>
           ))}
