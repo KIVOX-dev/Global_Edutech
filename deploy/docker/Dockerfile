@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 # ONE image that serves everything (API + built website), the same way AppSail runs it.
-# Build from the repo root:  docker build -t global-edutech .
-# Run:                       docker run --env-file backend/.env -p 9000:9000 global-edutech
+# Build from the repo root:  npm run docker:build
+#   (docker build --platform linux/amd64 -f deploy/docker/Dockerfile -t globaledutech:latest .)
+# Run:                       docker run --env-file backend/.env -p 9000:9000 globaledutech:latest
 # Needs real values for NODE_ENV=production (see README), or run with NODE_ENV=development.
 
 # ---- 1. static website (Next export)

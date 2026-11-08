@@ -1,7 +1,7 @@
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 import { galleryImages } from '@/data/gallery'
-import Gallery from '@/components/Gallery'
+import Gallery from '@/components/gallery/Gallery'
 
 export const metadata = {
   title: 'Photo Gallery | Global Edutech',

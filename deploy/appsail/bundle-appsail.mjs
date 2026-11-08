@@ -5,7 +5,7 @@ import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const out = path.join(root, 'appsail-build');
 const backend = path.join(root, 'backend');
 if (!existsSync(path.join(backend, 'public', 'index.html'))) throw new Error('Run "npm run build" first (backend/public is missing)');

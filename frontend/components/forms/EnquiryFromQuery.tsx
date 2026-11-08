@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import EnquiryForm from './EnquiryForm'
+import EnquiryForm from '@/components/forms/EnquiryForm'
 
 function Inner() {
   const course = useSearchParams().get('course')?.slice(0, 80) || undefined

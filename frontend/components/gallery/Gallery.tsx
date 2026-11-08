@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { GalleryImage } from '@/data/gallery';
-import GalleryThumbnail from './GalleryThumbnail';
+import GalleryThumbnail from '@/components/gallery/GalleryThumbnail';
 import { useState } from 'react';
-import GalleryLightbox from './GalleryLightbox';
+import GalleryLightbox from '@/components/gallery/GalleryLightbox';
 
 type GalleryProps = {
   images: GalleryImage[];

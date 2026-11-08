@@ -1,10 +1,10 @@
-# Local stack: MongoDB + API + website.   docker compose up --build
+# Local stack: MongoDB + API + website.   npm run docker:up   (docker compose -f deploy/docker/docker-compose.yml up --build)
 #   Website  http://localhost:5173      API  http://localhost:9000/api/health
 # The API reads backend/.env, but MONGODB_URI is overridden to the local Mongo below,
 # so your real Atlas database is never touched by this stack.
 #
 # First run: seed sample data (admin + staff + students)
-#   docker compose --profile tools run --rm seed
+#   docker compose -f deploy/docker/docker-compose.yml --profile tools run --rm seed
 services:
   mongo:
     image: mongo:7
@@ -18,10 +18,10 @@ services:
       retries: 10
 
   backend:
-    build: ./backend
+    build: ../../backend
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - ../../backend/.env
     environment:
       NODE_ENV: development
       PORT: "9000"
@@ -36,7 +36,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ../../frontend
       args:
         BACKEND_URL: http://backend:9000
     restart: unless-stopped
@@ -45,12 +45,12 @@ services:
     ports:
       - "5173:3000"
 
-  # One-off helper: docker compose --profile tools run --rm seed
+  # One-off helper: seeds sample data into the local Mongo
   seed:
-    build: ./backend
+    build: ../../backend
     profiles: ["tools"]
     env_file:
-      - ./backend/.env
+      - ../../backend/.env
     environment:
       NODE_ENV: development
       MONGODB_URI: mongodb://mongo:27017/global_edutech

@@ -14,12 +14,46 @@ Built mobile-first: the admin and staff screens turn tables into cards, use a bo
 ## 1. How it is built
 
 ```
-frontend/    Next.js 14 (App Router, TypeScript, Tailwind): website + admin + staff screens
-backend/     Express API (Node 20+, ES modules): Mongoose, B2 storage, Brevo email, cron
-scripts/     copy-static.mjs, bundle-appsail.mjs: build helpers for Zoho Catalyst AppSail
-app-config.json   AppSail configuration (start command, build path, stack)
-docs/        Older notes from the landing-page era (may be out of date)
-legacy/      Old static site (not used)
+global-edutech/
+├── frontend/                Next.js 14 (App Router, TypeScript, Tailwind)
+│   ├── app/
+│   │   ├── (site)/          public website: home, courses, gallery, enquiry, privacy-policy, terms-of-service
+│   │   ├── (auth)/          login, forgot-password, reset-password, change-password
+│   │   ├── admin/(portal)/  admin panel screens
+│   │   └── staff/           staff portal screens
+│   ├── components/
+│   │   ├── layout/          Header, Footer
+│   │   ├── home/            home page sections, hero carousel, testimonials, contact
+│   │   ├── courses/         course cards
+│   │   ├── gallery/         gallery grid, preview, lightbox
+│   │   ├── forms/           enquiry form, custom dropdown
+│   │   ├── shared/          legal page layout, running-logos marquee
+│   │   ├── portal/          admin/staff shell, tables, modals, charts, attendance sheet
+│   │   ├── icons/           duotone SVG icons
+│   │   ├── theme/           theme provider and toggle
+│   │   └── ui/              base UI components (buttons, inputs, toasts…)
+│   ├── data/                courses.ts, gallery.ts (site content)
+│   ├── lib/                 helpers (portal/ holds the API client, auth context, hooks)
+│   └── public/images/       logos and photos
+├── backend/                 Express API (Node 20+, ES modules)
+│   ├── src/
+│   │   ├── config/          env loader, logger, database
+│   │   ├── models/          Mongoose models
+│   │   ├── routes/          route definitions
+│   │   ├── controllers/     request handlers
+│   │   ├── services/        business logic (attendance, fees, reminders, email, storage…)
+│   │   ├── middleware/      auth, validation, rate limits, errors
+│   │   ├── validators/      zod helpers
+│   │   ├── jobs/            reminder scheduler
+│   │   └── utils/           dates, csv, http helpers
+│   ├── scripts/             seed.js, dev-memory.js
+│   └── tests/               vitest + supertest
+├── deploy/
+│   ├── docker/              Dockerfile (single image), Dockerfile.dockerignore, docker-compose.yml
+│   └── appsail/             build, bundle and deploy scripts for Zoho Catalyst AppSail
+├── archive/                 old landing-page era docs and the original static site (not used)
+├── app-config.json          AppSail configuration (kept at the root where the Catalyst CLI looks for it)
+└── package.json             root scripts: build, bundle, deploy, docker, test
 ```
 
 | Concern | Choice |
@@ -124,6 +158,9 @@ Set these in `backend/.env` for development, and in the AppSail console for prod
 | `B2_KEY_ID`, `B2_APPLICATION_KEY`, `B2_BUCKET`, `B2_REGION`, `B2_ENDPOINT` | Backblaze B2 |
 | `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME` | Brevo email |
 | `CONTACT_RECEIVER_EMAIL` | Extra recipient for new-enquiry notifications (admins are always notified) |
+| `GROQ_API_KEY` | Optional AI key from console.groq.com. Several keys may be comma-separated: they are used as automatic fallbacks |
+| `GROQ_MODEL`, `GROQ_FALLBACK_MODELS` | Main model and comma-separated backup models, tried in order when one is rate limited or retired |
+| `GROQ_DAILY_LIMIT` | Our own cap on AI calls per day (default 400), so a free tier is never exhausted |
 | `REMINDER_CRON_TIME` | Default daily reminder time `HH:mm` (IST). Editable later in Admin → Reminders |
 | `PAYMENT_INSTRUCTIONS` (optional) | Text used for `{payment_instructions}` in reminder emails |
 
@@ -176,7 +213,7 @@ catalyst init                         # in the repo root; pick your project and 
 
 npm run install:all                   # install frontend and backend dependencies
 npm run deploy:build                  # static frontend -> backend/public, then ./appsail-build with production node_modules
-# or do all of it (install, build, deploy) with one command:  bash scripts/deploy-appsail.sh   (npm run deploy:appsail)
+# or do all of it (install, build, deploy) with one command:  bash deploy/appsail/deploy-appsail.sh   (npm run deploy:appsail)
 
 catalyst deploy appsail --name global-edutech \
   --build-path "$(pwd)/appsail-build" --stack node22 --command "node src/index.js" -ni
@@ -193,15 +230,15 @@ Root scripts: `npm run build` (static frontend into `backend/public`), `npm run 
 
 ### Deploy with Docker (alternative)
 
-The repo root `Dockerfile` builds one image that serves the API and the website. Catalyst only accepts Linux AMD64 images, so the scripts build with `--platform linux/amd64`.
+`deploy/docker/Dockerfile` builds one image that serves the API and the website. Catalyst only accepts Linux AMD64 images, so the scripts build with `--platform linux/amd64`.
 
 ```bash
-npm run docker:build      # docker build --platform linux/amd64 -t globaledutech:latest .
+npm run docker:build      # docker build --platform linux/amd64 -f deploy/docker/Dockerfile -t globaledutech:latest .
 npm run docker:deploy     # catalyst deploy appsail --name globaledutech --source docker://globaledutech:latest --port 9000 -ni
 npm run docker:release    # both in one go
 ```
 
-Docker deploys ignore `app-config.json`: set the environment variables in the AppSail console. Other helpers: `npm run docker:run` (run the image locally with `backend/.env`), and `npm run docker:up` (`docker-compose.yml`: local MongoDB + API on :9000 + website on :5173; seed with `docker compose --profile tools run --rm seed`). `backend/Dockerfile` and `frontend/Dockerfile` build the two parts separately.
+Docker deploys ignore `app-config.json`: set the environment variables in the AppSail console. Other helpers: `npm run docker:run` (run the image locally with `backend/.env`), and `npm run docker:up` (`docker-compose.yml`: local MongoDB + API on :9000 + website on :5173; seed with `docker compose -f deploy/docker/docker-compose.yml --profile tools run --rm seed`). `backend/Dockerfile` and `frontend/Dockerfile` build the two parts separately.
 
 ### Post-deploy checklist
 1. `GET /api/health` returns `ok` with `"db": true`.
@@ -214,6 +251,20 @@ Docker deploys ignore `app-config.json`: set the environment variables in the Ap
 8. Confirm the email in Brevo → Transactional → Logs.
 9. Upload a student photo and a document (checks the B2 CORS rule).
 10. Submit the Enquire Now form and see it under Admin → Enquiries.
+
+## 6b. AI features (optional, Groq)
+
+Set `GROQ_API_KEY` to turn them on; everything works without it using built-in fallbacks.
+
+| Feature | With AI | Fallback (no key, rate limit, daily cap, bad output) |
+| --- | --- | --- |
+| Website chat bubble (`POST /api/chat`) | Answers from the course data in the user's language | Keyword answers built from the same course data, with links |
+| Enquiry triage (category, priority, summary) | AI classification | Keyword rules (also catches spam) |
+| Admin → Enquiries → **Reply** | Drafts a WhatsApp/email reply in English, Tamil or Hindi | Built-in templates in all three languages |
+| Admin → Reminders → email language + **Translate** | Translates your edited templates (placeholders are verified) | Built-in Tamil and Hindi templates |
+| Admin dashboard "This week at a glance" | Plain-language summary of totals | Computed bullets from the same numbers |
+
+Free-tier protection (`backend/src/services/ai/groq.service.js`): multiple keys and models are tried in order, a 429 puts that key and model on cooldown and moves on, rejected keys are switched off, retired models are skipped, answers are cached, a daily call cap applies, and a circuit breaker stops calling Groq for a minute after repeated failures. Nothing AI-written is sent to a parent automatically, and phone numbers and emails are never sent to Groq. Run `node scripts/build-knowledge.mjs` in `backend/` after editing `frontend/data/courses.ts` to refresh what the assistant knows.
 
 ## 7. Website enquiries
 

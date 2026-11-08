@@ -3,18 +3,18 @@
   "private": true,
   "description": "Global Edutech: landing page + institute management system (single AppSail service)",
   "scripts": {
-    "build": "npm --prefix frontend run build:static && node scripts/copy-static.mjs",
+    "build": "npm --prefix frontend run build:static && node deploy/appsail/copy-static.mjs",
     "install:all": "npm --prefix frontend ci && npm --prefix backend ci",
     "start": "node backend/src/index.js",
-    "bundle": "node scripts/bundle-appsail.mjs",
+    "bundle": "node deploy/appsail/bundle-appsail.mjs",
     "deploy:build": "npm run build && npm run bundle",
     "test": "npm --prefix backend test",
-    "deploy:appsail": "bash scripts/deploy-appsail.sh",
-    "docker:build": "docker build --platform linux/amd64 -t globaledutech:latest .",
+    "deploy:appsail": "bash deploy/appsail/deploy-appsail.sh",
+    "docker:build": "docker build --platform linux/amd64 -f deploy/docker/Dockerfile -t globaledutech:latest .",
     "docker:run": "docker run --rm --env-file backend/.env -p 9000:9000 globaledutech:latest",
     "docker:deploy": "catalyst deploy appsail --name globaledutech --source docker://globaledutech:latest --port 9000 -ni",
     "docker:release": "npm run docker:build && npm run docker:deploy",
-    "docker:up": "docker compose up --build"
+    "docker:up": "docker compose -f deploy/docker/docker-compose.yml up --build"
   },
   "engines": {
     "node": ">=20"

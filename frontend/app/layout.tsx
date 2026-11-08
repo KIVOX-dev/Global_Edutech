@@ -1,6 +1,6 @@
 import './globals.css'
 import { Inter, Poppins } from 'next/font/google'
-import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeProvider } from '@/components/theme/theme-provider'
 
 const inter = Inter({ 
   subsets: ['latin'],

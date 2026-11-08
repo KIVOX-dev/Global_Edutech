@@ -1,0 +1,271 @@
+{
+  "institute": {
+    "name": "Global Edutech",
+    "tagline": "Nurturing Young Minds",
+    "address": "69, Rajiv Gandhi Nagar, Uppilipalayam, Coimbatore, Tamil Nadu 641015",
+    "phone": "+91 93630 42019",
+    "email": "globaleducationgv@gmail.com",
+    "days": "Monday to Saturday",
+    "freeDemo": true,
+    "modes": "Every course is available online and offline."
+  },
+  "programs": [
+    {
+      "name": "Global Kids",
+      "type": "Preschool",
+      "ages": "2-6 years"
+    },
+    {
+      "name": "Global Education",
+      "type": "After-school programs",
+      "ages": "5-12 years"
+    },
+    {
+      "name": "Tuition Point",
+      "type": "Home tuitions",
+      "ages": "Class 1-10"
+    }
+  ],
+  "courses": [
+    {
+      "slug": "abacus",
+      "title": "Abacus",
+      "category": "academic",
+      "intro": "Enhances memory, concentration, visualization, and arithmetic speed. Builds mental math skills through bead-based visualization and encourages brain development.",
+      "ageGroup": "5-12 years",
+      "duration": "12 weeks per level",
+      "schedule": "Weekdays and Weekend classes",
+      "prerequisites": "Child who identifies numbers from 1-100 is eligible",
+      "learning": [
+        "Improve Concentration",
+        "Observation and Listening Skills",
+        "Amplify Speed and Accuracy",
+        "Boosts Creativity and Increases Self-Confidence",
+        "Boost Memory",
+        "Sharpen Cerebral Construction of a Child"
+      ]
+    },
+    {
+      "slug": "handwriting",
+      "title": "Handwriting",
+      "category": "academic",
+      "intro": "Focuses on coordination between mind and motor skills. Improves reading, language processing, and fine motor skills. Teaches correct pen grip and posture.",
+      "ageGroup": "3+ years",
+      "duration": "Flexible program",
+      "schedule": "Online & Offline, Flexible timings",
+      "prerequisites": "None",
+      "learning": [
+        "English, Tamil, Hindi, and Lucida Handwriting",
+        "Speed Writing",
+        "Calligraphy – Stylish Writing",
+        "Scientific methods and personalized error correction"
+      ]
+    },
+    {
+      "slug": "arts",
+      "title": "Creative Arts & Crafts",
+      "category": "skill",
+      "intro": "Unleash creativity through painting, sculpting, and other crafts. Develops fine motor skills and artistic expression.",
+      "ageGroup": "5-15 years",
+      "duration": "8 weeks",
+      "schedule": "Weekend classes",
+      "prerequisites": "None",
+      "learning": [
+        "Painting and Drawing",
+        "Sculpting",
+        "Crafting with Recycled Materials",
+        "Teamwork and Collaboration"
+      ]
+    },
+    {
+      "slug": "english",
+      "title": "English Language Skills",
+      "category": "academic",
+      "intro": "Enhance communication skills, grammar, and vocabulary. Builds confidence in speaking and writing.",
+      "ageGroup": "6-14 years",
+      "duration": "10 weeks",
+      "schedule": "Weekdays and Weekend classes",
+      "prerequisites": "Basic English knowledge",
+      "learning": [
+        "Grammar and Vocabulary",
+        "Public Speaking",
+        "Creative Writing",
+        "Reading Comprehension"
+      ]
+    },
+    {
+      "slug": "vedic-maths",
+      "title": "Vedic Maths",
+      "category": "academic",
+      "intro": "Learn ancient techniques for faster calculations. Boosts confidence and reduces math anxiety.",
+      "ageGroup": "8-16 years",
+      "duration": "12 weeks",
+      "schedule": "Weekend classes",
+      "prerequisites": "Basic Arithmetic Knowledge",
+      "learning": [
+        "Speed Calculations",
+        "Mental Math Techniques",
+        "Problem Solving Skills",
+        "Confidence Building"
+      ]
+    },
+    {
+      "slug": "phonics",
+      "title": "Phonics",
+      "category": "academic",
+      "intro": "Builds foundational reading, spelling, and writing skills using phonics and multi-sensory learning.",
+      "ageGroup": "4-8 years",
+      "duration": "24 weeks",
+      "schedule": "Weekdays and Weekend classes",
+      "prerequisites": "None",
+      "learning": [
+        "By learning 44 sounds, children can read almost any word",
+        "Children will blend sounds to read words, phrases, and sentences",
+        "Identify the sounds in a word to spell (Dictation)",
+        "Develop the ability to read books independently",
+        "No need to memorize words or spellings",
+        "Nurture the love for reading through exposure to books"
+      ]
+    },
+    {
+      "slug": "spoken-english",
+      "title": "Spoken English",
+      "category": "skill",
+      "intro": "Enhances English fluency, pronunciation, grammar, and confidence for practical and professional communication.",
+      "ageGroup": "All ages",
+      "duration": "Flexible program",
+      "schedule": "Online & Offline, Flexible timings",
+      "prerequisites": "None",
+      "learning": [
+        "Enhance your spoken English for a professional setting",
+        "Refine your English skills for real-life situations",
+        "Express ideas and thoughts needed to handle various situations",
+        "Communicate flawlessly with confidence and fluency",
+        "Enhance your profile and set yourself apart from the crowd",
+        "Avoid communication gaps and reach your goals"
+      ]
+    },
+    {
+      "slug": "spoken-hindi",
+      "title": "Spoken Hindi",
+      "category": "skill",
+      "intro": "Develops Hindi reading, writing, and speaking skills. Prepares students for Hindi Prachar Sabha exams.",
+      "ageGroup": "All ages",
+      "duration": "Flexible program",
+      "schedule": "Online & Offline, Flexible timings",
+      "prerequisites": "None",
+      "learning": [
+        "Be able to write Hindi flawlessly",
+        "Improve your Hindi knowledge",
+        "Learn to write Hindi like your mother tongue",
+        "Enhance your reading skill by learning all Hindi letters and matras",
+        "Enhance your profile and set yourself apart from the crowd"
+      ]
+    },
+    {
+      "slug": "drawing-coloring",
+      "title": "Drawing & Coloring",
+      "category": "skill",
+      "intro": "Develops creativity, observation, patience, and artistic technique from basics to advanced levels.",
+      "ageGroup": "3+ years",
+      "duration": "Step-wise program",
+      "schedule": "Online & Offline, Flexible timings",
+      "prerequisites": "None",
+      "learning": [
+        "Blossom in arts and other creative fields",
+        "Express feelings with or without words",
+        "Develop observation and presentation skills",
+        "Better concentration and ability to focus",
+        "Improves emotional stability",
+        "Promotes advanced use of brain functions"
+      ]
+    },
+    {
+      "slug": "rubiks-cube",
+      "title": "Rubik's Cube",
+      "category": "skill",
+      "intro": "Teaches logical thinking, pattern recognition, and memory through hands-on puzzle solving.",
+      "ageGroup": "All ages",
+      "duration": "Flexible program",
+      "schedule": "Online & Offline, Flexible timings",
+      "prerequisites": "None",
+      "learning": [
+        "Improves Problem-Solving Skills",
+        "Enhances Spatial Awareness",
+        "Boosts Memory",
+        "Increases Patience and Persistence",
+        "Improves Focus and Concentration",
+        "Encourages Analytical Thinking"
+      ]
+    },
+    {
+      "slug": "chess",
+      "title": "Chess",
+      "category": "skill",
+      "intro": "Builds strategic, logical, and creative thinking along with memory and emotional intelligence.",
+      "ageGroup": "6-15 years",
+      "duration": "Ongoing program with levels",
+      "schedule": "Weekend classes",
+      "prerequisites": "None",
+      "learning": [
+        "Improves Cognitive Skills",
+        "Enhances Memory",
+        "Boosts IQ",
+        "Enhances Creativity",
+        "Improves Emotional Intelligence",
+        "Increases Problem-Solving Speed"
+      ]
+    },
+    {
+      "slug": "imtti",
+      "title": "International Montessori Teacher Training Institute(IMTTI)",
+      "category": "teacher",
+      "intro": "Professional teacher training in Montessori philosophy, methods, and classroom management.",
+      "ageGroup": "Adults (18+ years)",
+      "duration": "Flexible program",
+      "schedule": "Online & Offline, Flexible timings",
+      "prerequisites": "None",
+      "learning": [
+        "Child-Centered Learning: Children follow their interests; teachers guide, not lecture",
+        "Mixed-Age Groups: Promoting peer learning and mentorship",
+        "Hands-On Learning: Self-correcting materials encourage exploration",
+        "Freedom within Limits: Balancing freedom with classroom order",
+        "Individualized Learning: Tailored to each child's pace and interests",
+        "Respect for the Child: Fostering independence and self-esteem"
+      ]
+    },
+    {
+      "slug": "ntt",
+      "title": "Nursery Teacher Training (NTT)",
+      "category": "teacher",
+      "intro": "Comprehensive early childhood educator training for aspiring nursery and kindergarten teachers.",
+      "ageGroup": "Adults (18+ years)",
+      "duration": "1 year",
+      "schedule": "Flexible schedule",
+      "prerequisites": "12th standard completion",
+      "learning": [
+        "Early childhood development and psychology",
+        "Curriculum planning and creative activity design",
+        "Child safety, hygiene, and classroom management",
+        "Use of play-based and experiential learning",
+        "Observation and assessment of young children"
+      ]
+    },
+    {
+      "slug": "french",
+      "title": "French Speaking",
+      "category": "skill",
+      "intro": "Beginner-friendly French language classes for children and adults.",
+      "ageGroup": "All ages",
+      "duration": "Beginner to intermediate",
+      "schedule": "Group and individual classes",
+      "prerequisites": "None",
+      "learning": [
+        "Conversational French for daily use",
+        "Reading and writing French basics",
+        "French pronunciation and listening comprehension",
+        "French culture, customs, and etiquette"
+      ]
+    }
+  ]
+}

@@ -64,7 +64,7 @@ export function createApp() {
   app.use('/api', apiLimiter);
 
   // Landing-page enquiry form endpoint
-  app.use('/api', requireDb, publicRoutes);
+  app.use('/api', publicRoutes); // the enquiry route checks the database itself; the chatbot works without one
 
   // Institute management API
   app.use('/api/auth', requireDb, authRoutes);

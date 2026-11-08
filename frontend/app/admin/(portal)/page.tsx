@@ -5,6 +5,10 @@ import { Card, ErrorState, PageHeader, Spinner, StatCard, StatusBadge } from '@/
 import { fmtDateTime, money } from '@/lib/portal/api'
 import { useData } from '@/lib/portal/hooks'
 import { TrendChart, TrendPoint } from '@/components/portal/Charts'
+import { api } from '@/lib/portal/api'
+import { Loader2, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { btn } from '@/components/portal/kit'
 
 type Dash = {
   counts: { students: number; staff: number; courses: number; batches: number; pendingLeaves: number; newEnquiries: number }
@@ -13,6 +17,32 @@ type Dash = {
   fees: { collectedTotal: number; collectedThisMonth: number; pending: { amount: number; count: number }; overdue: { amount: number; count: number }; dueToday: { amount: number; count: number } }
   trend: TrendPoint[]
   recentActivity: { _id: string; actorName?: string; action: string; entity: string; createdAt: string }[]
+}
+
+type Insights = { headline: string; bullets: string[]; source: 'ai' | 'fallback'; generatedAt: string }
+
+// Plain-language summary of the numbers. Uses Groq when available, otherwise a rule-based summary.
+function InsightsCard() {
+  const [data, setData] = useState<Insights | null>(null)
+  const [busy, setBusy] = useState(true)
+  const [err, setErr] = useState<string | null>(null)
+  const load = async () => {
+    setBusy(true)
+    setErr(null)
+    try { setData((await api.get<Insights>('/admin/ai/insights')).data) } catch (e) { setErr(e instanceof Error ? e.message : 'Could not load insights') } finally { setBusy(false) }
+  }
+  useEffect(() => { load() }, [])
+  return (
+    <Card title="This week at a glance" className="mt-5" actions={<button className={btn('ghost', 'sm')} onClick={load} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Refresh</button>}>
+      {err ? <p className="text-sm text-red-700">{err}</p> : !data ? <p className="py-4 text-center text-sm text-muted-foreground">Writing your summary…</p> : (
+        <>
+          <p className="font-display text-lg font-bold">{data.headline}</p>
+          <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm marker:text-pink">{data.bullets.map((b) => <li key={b}>{b}</li>)}</ul>
+          <p className="mt-3 text-xs text-muted-foreground">{data.source === 'ai' ? 'Written by AI from this week\'s totals (no student names are shared).' : 'Computed summary (AI unavailable or limit reached).'}</p>
+        </>
+      )}
+    </Card>
+  )
 }
 
 export default function AdminDashboard() {
@@ -34,6 +64,8 @@ export default function AdminDashboard() {
         <StatCard label="Overdue" value={money(d.fees.overdue.amount)} hint={`${d.fees.overdue.count} instalments`} tone="red" />
         <StatCard label="Due today" value={money(d.fees.dueToday.amount)} hint={`${d.fees.dueToday.count} instalments`} tone="amber" />
       </div>
+
+      <InsightsCard />
 
       <Card title="Student attendance trend (last 14 days)" className="mt-5">
         <TrendChart data={d.trend} />

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/core.js';
 import { adminOnly } from '../middleware/auth.js';
-import { reminderTriggerLimiter } from '../middleware/rateLimit.js';
+import { reminderTriggerLimiter, aiLimiter } from '../middleware/rateLimit.js';
 import { idParams, pagingQuery, objectId } from '../validators/common.js';
 import * as people from '../controllers/admin.people.controller.js';
 import * as acad from '../controllers/admin.academics.controller.js';
@@ -10,6 +10,7 @@ import * as dash from '../controllers/admin.dashboard.controller.js';
 import * as att from '../controllers/attendance.controller.js';
 import * as fees from '../controllers/fees.controller.js';
 import * as enq from '../controllers/enquiries.controller.js';
+import * as aic from '../controllers/ai.controller.js';
 import * as rem from '../controllers/reminders.controller.js';
 
 const r = Router();
@@ -81,6 +82,12 @@ r.get('/payments/:id/receipt', id, fees.receipt);
 r.get('/enquiries', q, enq.list);
 r.patch('/enquiries/:id', id, validate({ body: enq.schemas.update }), enq.update);
 r.delete('/enquiries/:id', id, enq.remove);
+r.post('/enquiries/:id/draft-reply', aiLimiter, id, validate({ body: aic.schemas.draft }), aic.draftReply);
+
+// AI helpers (Groq with built-in fallbacks)
+r.get('/ai/insights', aiLimiter, aic.insights);
+r.get('/ai/status', aic.aiStatus);
+r.post('/reminders/translate', aiLimiter, validate({ body: aic.schemas.translate }), aic.translateReminders);
 
 // reminders
 r.get('/reminders/settings', rem.getSettings);

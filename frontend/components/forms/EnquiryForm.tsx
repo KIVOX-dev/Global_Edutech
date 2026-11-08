@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import FancySelect from './FancySelect'
+import FancySelect from '@/components/forms/FancySelect'
 import { MapPin, Monitor } from 'lucide-react'
 
 interface EnquiryFormProps {

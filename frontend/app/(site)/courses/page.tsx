@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
-import { getCategories, getCoursesByCategory } from '@/lib/courses-data'
-import CourseCard from '@/components/CourseCard'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import { getCategories, getCoursesByCategory } from '@/data/courses'
+import CourseCard from '@/components/courses/CourseCard'
+import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'Our Courses | Global EduTech',

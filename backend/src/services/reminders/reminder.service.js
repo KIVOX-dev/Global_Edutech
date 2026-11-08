@@ -12,6 +12,14 @@ import { emailService } from '../email/email.service.js';
 import { buildMessage, brandedHtml, htmlToText } from '../email/templates.js';
 import { escapeHtml } from '../../utils/sanitize.js';
 import { matchReminderRule } from './rules.js';
+import { TRANSLATIONS } from './defaults.js';
+
+// English by default; Tamil/Hindi use the saved translation, else the built-in one
+export const pickTemplate = (settings, key) => {
+  const lang = settings.language || 'en';
+  if (lang === 'en') return settings.templates[key];
+  return settings.translations?.[lang]?.[key] || TRANSLATIONS[lang]?.[key] || settings.templates[key];
+};
 import { defaultChannel } from './channels.js';
 
 const LOCK_NAME = 'daily-fee-reminders';
@@ -59,7 +67,7 @@ export async function sendReminder(fee, { rule, template, dateKey, settings, cha
     return { status: 'SKIPPED', reason: 'channel-not-configured' };
   }
   try {
-    const msg = buildMessage(settings.templates[template], varsFor(fee, student));
+    const msg = buildMessage(pickTemplate(settings, template), varsFor(fee, student));
     const res = await channel.send({ to, ...msg });
     await ReminderLog.updateOne(filter, { status: 'SENT', provider: res.provider, sentAt: new Date(), recipients: to, error: undefined });
     return { status: 'SENT', provider: res.provider };

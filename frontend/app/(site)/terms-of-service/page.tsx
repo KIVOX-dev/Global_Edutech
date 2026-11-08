@@ -1,4 +1,4 @@
-import LegalPage, { LegalSection } from '@/components/LegalPage'
+import LegalPage, { LegalSection } from '@/components/shared/LegalPage'
 
 export const metadata = {
   title: 'Terms of Service | Global Edutech',

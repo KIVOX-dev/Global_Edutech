@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
-import EnquiryFromQuery from '../../components/EnquiryFromQuery'
-import LogoMarquee from '../../components/LogoMarquee'
+import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
+import EnquiryFromQuery from '@/components/forms/EnquiryFromQuery'
+import LogoMarquee from '@/components/shared/LogoMarquee'
 
 export const metadata = {
   title: 'Enquire Now | Global Edutech',

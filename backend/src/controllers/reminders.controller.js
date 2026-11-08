@@ -17,6 +17,7 @@ export const settingsSchema = z.object({
   overdueMaxCount: z.number().int().min(0).max(50),
   sendTime: hhmm,
   sendToParent: z.boolean(),
+  language: z.enum(['en', 'ta', 'hi']),
   templates: z.object({ beforeDue: tpl, dueToday: tpl, overdue: tpl }).partial(),
 }).partial();
 

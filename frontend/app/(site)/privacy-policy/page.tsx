@@ -1,4 +1,4 @@
-import LegalPage, { LegalSection } from '@/components/LegalPage'
+import LegalPage, { LegalSection } from '@/components/shared/LegalPage'
 
 export const metadata = {
   title: 'Privacy Policy | Global Edutech',
@@ -64,6 +64,7 @@ const sections: LegalSection[] = [
         'MongoDB Atlas: cloud database where our records are stored.',
         'Backblaze B2: private cloud storage for uploaded photos, documents, receipts and exports. Files are not public and are opened only through short-lived, access-controlled links.',
         'Brevo: email delivery service used to send fee reminders, password-reset links, login details and enquiry notifications.',
+        'Groq (AI provider, optional): helps draft replies to enquiries, translate reminder emails, power the website chat assistant and summarise totals for administrators. We send only what is needed: for enquiry replies the first name, program, age range and message (never phone number or email); for summaries only totals without student names; for the chat assistant only what the visitor types. Please do not enter personal details in the chat. AI drafts are always reviewed by our staff before being sent, and the site works without AI.',
         'Zoho Catalyst: the hosting platform on which the website and portal run.',
         'Google Fonts and Google Maps: used to display fonts and our location on the website. Your browser may send standard request data (such as IP address) to Google when these load.',
       ] },

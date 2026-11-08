@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { getFeaturedGalleryImages } from '@/data/gallery'
-import GalleryThumbnail from './GalleryThumbnail'
-import GalleryLightbox from './GalleryLightbox'
+import GalleryThumbnail from '@/components/gallery/GalleryThumbnail'
+import GalleryLightbox from '@/components/gallery/GalleryLightbox'
 import { motion } from 'framer-motion'
-import { Button } from './ui/button'
+import { Button } from '@/components/ui/button'
 
 export default function GalleryPreview() {
   // Get random selection of 6 images

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deploys Global Edutech (website + API) to Zoho Catalyst AppSail.
-# Usage:  bash scripts/deploy-appsail.sh
+# Usage:  bash deploy/appsail/deploy-appsail.sh   (or: npm run deploy:appsail)
 # Options (environment variables):
 #   APPSAIL_NAME=global-edutech   AppSail service name
 #   APPSAIL_STACK=node22          Node stack (node20 | node22 | node24)
@@ -9,7 +9,7 @@ set -euo pipefail
 
 NAME="${APPSAIL_NAME:-global-edutech}"
 STACK="${APPSAIL_STACK:-node22}"
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ROOT_ABS="$(cd "$ROOT" && (pwd -W 2>/dev/null || pwd))"   # Windows-style path under Git Bash; the CLI needs an absolute path
 cd "$ROOT"
 

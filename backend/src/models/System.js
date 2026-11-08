@@ -15,6 +15,8 @@ const reminderSettingSchema = new mongoose.Schema({
   overdueMaxCount: { type: Number, default: 5, min: 0 },
   sendTime: { type: String, default: () => config.reminderTime },
   sendToParent: { type: Boolean, default: true },
+  language: { type: String, enum: ['en', 'ta', 'hi'], default: 'en' }, // language of reminder emails
+  translations: { type: mongoose.Schema.Types.Mixed, default: {} }, // saved ta / hi versions of the templates
   templates: {
     beforeDue: tpl(DEFAULT_TEMPLATES.beforeDue),
     dueToday: tpl(DEFAULT_TEMPLATES.dueToday),

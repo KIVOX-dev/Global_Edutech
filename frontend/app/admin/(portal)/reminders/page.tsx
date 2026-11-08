@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Loader2, Play, Save, Send } from 'lucide-react'
+import { Loader2, Play, Save, Send, Sparkles } from 'lucide-react'
 import { Card, Column, ConfirmDialog, DataTable, ErrorState, FilterSelect, PageHeader, Spinner, StatusBadge, btn, inputCls } from '@/components/portal/kit'
 import { api, fmtDateTime, money, fmtDate } from '@/lib/portal/api'
 import { notifyError, notifyOk, useData, useList } from '@/lib/portal/hooks'
 
 type Tpl = { subject: string; html: string }
 type RS = {
-  enabled: boolean; daysBefore: number[]; onDueDate: boolean; overdueEveryDays: number; overdueMaxCount: number; sendTime: string; sendToParent: boolean
+  enabled: boolean; daysBefore: number[]; onDueDate: boolean; overdueEveryDays: number; overdueMaxCount: number; sendTime: string; sendToParent: boolean; language: 'en' | 'ta' | 'hi'
   templates: { beforeDue: Tpl; dueToday: Tpl; overdue: Tpl }
 }
 type Log = { _id: string; rule: string; status: string; provider?: string; error?: string; sentAt?: string; dateKey: string; createdAt: string; recipients?: string[]; student?: { name: string }; studentFee?: { installmentLabel: string; amountDue: number; dueDate: string } }
@@ -20,6 +20,7 @@ export default function RemindersPage() {
   const [form, setForm] = useState<RS | null>(null)
   const [saving, setSaving] = useState(false)
   const [running, setRunning] = useState(false)
+  const [translating, setTranslating] = useState(false)
   const [bulk, setBulk] = useState(false)
   useEffect(() => { if (data) setForm(structuredClone(data)) }, [data])
 
@@ -41,6 +42,15 @@ export default function RemindersPage() {
       notifyOk('Reminder settings saved')
       reload()
     } catch (e) { notifyError(e) } finally { setSaving(false) }
+  }
+  const translate = async () => {
+    if (!form || form.language === 'en') return
+    setTranslating(true)
+    try {
+      const { data: r } = await api.post<{ source: 'ai' | 'fallback' }>('/admin/reminders/translate', { language: form.language })
+      notifyOk('Translation saved', r.source === 'ai' ? 'Translated by AI from your current templates. Please read it once.' : 'Built-in translation used (AI unavailable or limit reached).')
+      reload()
+    } catch (e) { notifyError(e) } finally { setTranslating(false) }
   }
   const run = async () => {
     setRunning(true)
@@ -72,6 +82,18 @@ export default function RemindersPage() {
       <Card title="Schedule & rules" actions={<button className={btn('primary', 'sm')} onClick={save} disabled={saving}><Save className="h-4 w-4" /> Save</button>}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-sm">
           <label className="flex items-center gap-2"><input type="checkbox" className="h-4 w-4 accent-purple" checked={form.enabled} onChange={(e) => set('enabled', e.target.checked)} /> Automatic reminders enabled</label>
+          <div className="sm:col-span-2 lg:col-span-3">
+            <span className="mb-1 block font-medium">Email language</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <select className={`${inputCls} sm:w-56`} value={form.language || 'en'} onChange={(e) => set('language', e.target.value as RS['language'])} aria-label="Email language">
+                <option value="en">English</option><option value="ta">தமிழ் (Tamil)</option><option value="hi">हिन्दी (Hindi)</option>
+              </select>
+              <button type="button" className={btn('outline')} onClick={translate} disabled={translating || form.language === 'en'}>
+                {translating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Translate my templates
+              </button>
+            </div>
+            <span className="text-xs text-muted-foreground">Tamil and Hindi use built-in wording by default. “Translate” rewrites your edited English templates with AI (placeholders are checked and kept), falling back to the built-in text if AI is unavailable. Save to apply the language.</span>
+          </div>
           <label className="flex items-center gap-2"><input type="checkbox" className="h-4 w-4 accent-purple" checked={form.sendToParent} onChange={(e) => set('sendToParent', e.target.checked)} /> Also email the parent</label>
           <label className="flex items-center gap-2"><input type="checkbox" className="h-4 w-4 accent-purple" checked={form.onDueDate} onChange={(e) => set('onDueDate', e.target.checked)} /> Remind on the due date</label>
           <label className="font-medium">Send time (IST)<input type="time" className={`${inputCls} mt-1`} value={form.sendTime} onChange={(e) => set('sendTime', e.target.value)} /></label>

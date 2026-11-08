@@ -10,6 +10,7 @@ import { audit } from '../services/audit.service.js';
 import { emailService } from '../services/email/email.service.js';
 import { brandedHtml, htmlToText } from '../services/email/templates.js';
 import { escapeHtml } from '../utils/sanitize.js';
+import { ai } from '../services/ai/ai.service.js';
 
 export const schemas = {
   submit: z.object({
@@ -33,6 +34,14 @@ export const schemas = {
 export const submit = asyncHandler(async (req, res) => {
   const e = await Enquiry.create(req.body);
   res.status(201).json({ success: true, message: 'Thank you! We will contact you shortly.', id: e._id });
+
+  // triage in the background; a failure here never affects the visitor
+  try {
+    const t = await ai.triageEnquiry(e);
+    await Enquiry.updateOne({ _id: e._id }, { ai: { category: t.category, urgency: t.urgency, summary: t.summary, source: t.source, model: t.model, at: new Date() } });
+  } catch (err) {
+    logger.warn({ err: err.message }, 'Enquiry triage failed');
+  }
 
   if (!emailService.isConfigured()) return;
   const admins = await User.find({ role: 'ADMIN', isActive: true }).select('email').lean();

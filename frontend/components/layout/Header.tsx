@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-// import { ThemeToggle } from './theme-toggle'
+// import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
