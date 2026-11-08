@@ -11,6 +11,7 @@ function Svg({ children, className = 'h-12 w-12', spark = true, title }: { child
     <svg viewBox="0 0 64 64" className={className} fill="none" stroke={INK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
       <defs>
         <linearGradient id="hs-dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ff73ad" /><stop offset="1" stopColor="#763dcb" /></linearGradient>
+        <linearGradient id="hs-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffe066" /><stop offset="0.55" stopColor="#ffc107" /><stop offset="1" stopColor="#f59e0b" /></linearGradient>
         <linearGradient id="hs-light" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffd3e6" /><stop offset="1" stopColor="#d8c6ff" /></linearGradient>
       </defs>
       {children}
@@ -81,7 +82,7 @@ export const ClockIcon = (p: P) => (
 
 export const StarIcon = (p: P) => (
   <Svg {...p}>
-    <path d="M32 8l7.5 15.5 17 2.4-12.3 12 3 17L32 46.5 16.8 54.9l3-17-12.3-12 17-2.4z" fill={D} />
+    <path d="M32 8l7.5 15.5 17 2.4-12.3 12 3 17L32 46.5 16.8 54.9l3-17-12.3-12 17-2.4z" fill="url(#hs-gold)" />
   </Svg>
 )
 

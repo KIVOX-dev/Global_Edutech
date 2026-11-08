@@ -110,7 +110,7 @@ export default function TestimonialsSection() {
                 <p className="text-muted-foreground mb-2">{testimonials[currentSlide].role}</p>
                 <div className="flex justify-center lg:justify-start items-center gap-1">
                   {[...Array(testimonials[currentSlide].rating)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-yellow text-yellow" />
+                    <Star key={i} className="h-5 w-5 fill-[#FFC107] text-[#E09F00]" />
                   ))}
                 </div>
               </div>

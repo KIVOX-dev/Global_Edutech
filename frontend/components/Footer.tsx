@@ -85,7 +85,7 @@ export default function Footer() {
               <h4 className="text-xl font-bold mb-6">Contact Us</h4>
               <ul className="space-y-4">
                 <li className="flex items-start space-x-3">
-                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-accent" />
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hero-gradient text-white shadow-md"><MapPin className="h-5 w-5" /></span>
                   <div>
                     <p className="text-muted-foreground">Location:</p>
                     <p className="text-sm text-muted-foreground">69, Rajiv Gandhi Nagar, Uppilipalayam,</p>
@@ -93,7 +93,7 @@ export default function Footer() {
                   </div>
                 </li>
                 <li className="flex items-center space-x-3">
-                  <Phone className="h-5 w-5 shrink-0 text-accent" />
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hero-gradient text-white shadow-md"><Phone className="h-5 w-5" /></span>
                   <div>
                     <a href="tel:+919363042019" className="text-muted-foreground hover:text-accent transition-colors duration-300">
                       +91 93630 42019
@@ -102,7 +102,7 @@ export default function Footer() {
                   </div>
                 </li>
                 <li className="flex items-center space-x-3">
-                  <Mail className="h-5 w-5 shrink-0 text-accent" />
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hero-gradient text-white shadow-md"><Mail className="h-5 w-5" /></span>
                   <div>
                     <a href="mailto:globaleducationgv@gmail.com" className="text-muted-foreground hover:text-accent transition-colors duration-300">
                       globaleducationgv@gmail.com

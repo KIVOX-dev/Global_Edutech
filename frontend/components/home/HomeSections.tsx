@@ -30,7 +30,6 @@ export function TopBar() {
         <span className="flex items-center gap-4">
           <a href="tel:+919363042019" className="inline-flex items-center gap-1 hover:text-yellow"><Phone className="h-3.5 w-3.5" /> +91 93630 42019</a>
           <Link href="/courses" className="hidden hover:text-yellow sm:inline">All courses</Link>
-          <Link href="/login" className="font-semibold text-yellow hover:underline">Staff / Admin login</Link>
         </span>
       </div>
     </div>
