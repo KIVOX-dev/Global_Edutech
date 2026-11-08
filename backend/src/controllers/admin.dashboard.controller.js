@@ -8,14 +8,14 @@ import config from '../config/env.js';
 import { dbReady } from '../config/db.js';
 import { asyncHandler, ok } from '../utils/http.js';
 import { todayStr, addDays } from '../utils/dates.js';
-import { summarizeStudents, loadCalendar } from '../services/attendance.service.js';
+import { summarizeStudents, loadCalendar, attendanceTrend } from '../services/attendance.service.js';
 import { feeDashboard } from '../services/fee.service.js';
 import { emailService } from '../services/email/email.service.js';
 
 export const dashboard = asyncHandler(async (req, res) => {
   const today = todayStr();
   const from = addDays(today, -29);
-  const [students, staff, courses, batches, todayAtt, staffToday, pendingLeaves, fees, low, recent, cal, newEnquiries] = await Promise.all([
+  const [students, staff, courses, batches, todayAtt, staffToday, pendingLeaves, fees, low, recent, cal, newEnquiries, trend] = await Promise.all([
     Student.countDocuments({ status: 'ACTIVE' }),
     User.countDocuments({ role: 'STAFF', isActive: true }),
     Course.countDocuments(),
@@ -28,6 +28,7 @@ export const dashboard = asyncHandler(async (req, res) => {
     AuditLog.find().sort({ createdAt: -1 }).limit(10).select('actorName action entity entityId createdAt').lean(),
     loadCalendar(today, today),
     Enquiry.countDocuments({ status: 'NEW' }),
+    attendanceTrend({ days: 14 }),
   ]);
   const by = Object.fromEntries(todayAtt.map((a) => [a._id, a.n]));
   const counted = (by.PRESENT || 0) + (by.LATE || 0) + (by.ABSENT || 0);
@@ -41,6 +42,7 @@ export const dashboard = asyncHandler(async (req, res) => {
       staffPresent: staffToday,
     },
     lowAttendance: { threshold: low.threshold, from, to: today, students: low.low.slice(0, 10).map((r) => ({ id: r.student._id, name: r.student.name, admissionNo: r.student.admissionNo, batch: r.student.batch?.name, percentage: r.percentage })) },
+    trend,
     fees,
     recentActivity: recent,
   });

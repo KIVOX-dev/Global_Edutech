@@ -80,7 +80,7 @@ The website deliberately has **no login or sign-up link**. Staff and admins go s
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `ADMIN_SEED_EMAIL` (default `admin@example.com`) | `ADMIN_SEED_PASSWORD` (default `changeme_strong_password`) |
+| Admin | `ADMIN_SEED_EMAIL` (default `admin@example.com`) | `ADMIN_SEED_PASSWORD` (this project's local `.env` uses `Admin@2026`) |
 | Staff | `priya.staff@example.com` (also `rahul.staff@…`, `anita.staff@…`) | `Staff@12345` |
 
 The seed creates 1 admin, 3 staff, 2 courses, 2 batches, 20 students, a week of attendance and fees that are paid, partial, pending and overdue. **Change the admin password in any real environment.** Staff created from the admin panel get a one-time temporary password and must change it at first sign-in.
@@ -176,6 +176,7 @@ catalyst init                         # in the repo root; pick your project and 
 
 npm run install:all                   # install frontend and backend dependencies
 npm run deploy:build                  # static frontend -> backend/public, then ./appsail-build with production node_modules
+# or do all of it (install, build, deploy) with one command:  bash scripts/deploy-appsail.sh   (npm run deploy:appsail)
 
 catalyst deploy appsail --name global-edutech \
   --build-path "$(pwd)/appsail-build" --stack node22 --command "node src/index.js" -ni

@@ -8,8 +8,8 @@ import { StudentFee } from '../models/Fees.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler, ok, created, paginate } from '../utils/http.js';
 import { reqText, optPhone, dateStr, monthStr, text } from '../validators/common.js';
-import { todayStr } from '../utils/dates.js';
-import { dayStatus, loadBatchFor } from '../services/attendance.service.js';
+import { todayStr, addDays } from '../utils/dates.js';
+import { dayStatus, loadBatchFor, attendanceTrend, summarizeStudents } from '../services/attendance.service.js';
 import * as staffAtt from '../services/staffAttendance.service.js';
 import { getSettings } from '../services/settings.service.js';
 import { audit } from '../services/audit.service.js';
@@ -33,10 +33,15 @@ export const dashboard = asyncHandler(async (req, res) => {
     LeaveRequest.countDocuments({ staff: req.user._id, status: 'PENDING' }),
   ]);
   const ids = batches.map((b) => b._id);
-  const [marked, studentCount] = await Promise.all([
+  const [marked, studentCount, todayStatus, trend, low] = await Promise.all([
     StudentAttendance.aggregate([{ $match: { batch: { $in: ids }, date: today } }, { $group: { _id: '$batch', n: { $sum: 1 } } }]),
     Student.countDocuments({ batch: { $in: ids }, status: 'ACTIVE' }),
+    StudentAttendance.aggregate([{ $match: { batch: { $in: ids }, date: today } }, { $group: { _id: '$status', n: { $sum: 1 } } }]),
+    attendanceTrend({ batchIds: ids, days: 14 }),
+    summarizeStudents({ from: addDays(today, -29), to: today, batchId: { $in: ids } }),
   ]);
+  const tb = Object.fromEntries(todayStatus.map((x) => [x._id, x.n]));
+  const markedToday = (tb.PRESENT || 0) + (tb.ABSENT || 0) + (tb.LATE || 0) + (tb.EXCUSED || 0);
   const markedSet = new Set(marked.map((m) => String(m._id)));
   ok(res, {
     date: today,
@@ -46,6 +51,12 @@ export const dashboard = asyncHandler(async (req, res) => {
     studentCount,
     pendingAttendance: status.isWorkingDay ? batches.filter((b) => !markedSet.has(String(b._id))).map((b) => ({ id: b._id, name: b.name })) : [],
     todayAttendance: todayRec || null,
+    students: {
+      today: { present: tb.PRESENT || 0, absent: tb.ABSENT || 0, late: tb.LATE || 0, excused: tb.EXCUSED || 0, unmarked: Math.max(0, studentCount - markedToday), total: studentCount },
+      trend,
+      threshold: low.threshold,
+      low: low.low.sort((a, b) => a.percentage - b.percentage).slice(0, 6).map((r) => ({ id: r.student._id, name: r.student.name, admissionNo: r.student.admissionNo, batch: r.student.batch?.name, percentage: r.percentage })),
+    },
     leaveBalance: profile?.leaveBalance,
     shift: profile ? { start: profile.shiftStart, end: profile.shiftEnd } : null,
     pendingLeaves,

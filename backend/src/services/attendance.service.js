@@ -2,7 +2,7 @@ import { StudentAttendance, Holiday } from '../models/Attendance.js';
 import Student from '../models/Student.js';
 import { Batch } from '../models/Course.js';
 import { ApiError } from '../utils/ApiError.js';
-import { todayStr, dayOfWeek, nowHHmm } from '../utils/dates.js';
+import { todayStr, dayOfWeek, nowHHmm, addDays, eachDate } from '../utils/dates.js';
 import { getSettings } from './settings.service.js';
 import { audit } from './audit.service.js';
 
@@ -208,3 +208,24 @@ export async function summarizeStudents({ from, to, batchId, threshold }) {
   return { rows, threshold: limit, low: rows.filter((r) => r.percentage !== null && r.percentage < limit && r.student.status === 'ACTIVE') };
 }
 
+
+// Daily student attendance % over the last N days (working days only). batchIds = null for every batch.
+export async function attendanceTrend({ batchIds = null, days = 14 } = {}) {
+  const to = todayStr();
+  const from = addDays(to, -(days - 1));
+  const { isWorkingDay } = await loadCalendar(from, to);
+  const match = { date: { $gte: from, $lte: to } };
+  if (batchIds) match.batch = { $in: batchIds };
+  const rows = await StudentAttendance.aggregate([{ $match: match }, { $group: { _id: { date: '$date', status: '$status' }, n: { $sum: 1 } } }]);
+  const byDate = new Map();
+  for (const r of rows) {
+    const d = byDate.get(r._id.date) || { PRESENT: 0, LATE: 0, ABSENT: 0, EXCUSED: 0 };
+    d[r._id.status] = r.n;
+    byDate.set(r._id.date, d);
+  }
+  return eachDate(from, to).filter(isWorkingDay).map((date) => {
+    const d = byDate.get(date);
+    const counted = d ? d.PRESENT + d.LATE + d.ABSENT : 0;
+    return { date, present: d?.PRESENT || 0, late: d?.LATE || 0, absent: d?.ABSENT || 0, excused: d?.EXCUSED || 0, percentage: counted ? Math.round(((d.PRESENT + d.LATE) / counted) * 1000) / 10 : null };
+  });
+}

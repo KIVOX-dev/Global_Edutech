@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { Card, ErrorState, PageHeader, Spinner, StatCard, StatusBadge } from '@/components/portal/kit'
 import { fmtDateTime, money } from '@/lib/portal/api'
 import { useData } from '@/lib/portal/hooks'
+import { TrendChart, TrendPoint } from '@/components/portal/Charts'
 
 type Dash = {
   counts: { students: number; staff: number; courses: number; batches: number; pendingLeaves: number; newEnquiries: number }
   today: { date: string; isWorkingDay: boolean; studentAttendancePercent: number | null; studentsMarked: number; staffPresent: number }
   lowAttendance: { threshold: number; students: { id: string; name: string; admissionNo: string; batch?: string; percentage: number }[] }
   fees: { collectedTotal: number; collectedThisMonth: number; pending: { amount: number; count: number }; overdue: { amount: number; count: number }; dueToday: { amount: number; count: number } }
+  trend: TrendPoint[]
   recentActivity: { _id: string; actorName?: string; action: string; entity: string; createdAt: string }[]
 }
 
@@ -32,6 +34,11 @@ export default function AdminDashboard() {
         <StatCard label="Overdue" value={money(d.fees.overdue.amount)} hint={`${d.fees.overdue.count} instalments`} tone="red" />
         <StatCard label="Due today" value={money(d.fees.dueToday.amount)} hint={`${d.fees.dueToday.count} instalments`} tone="amber" />
       </div>
+
+      <Card title="Student attendance trend (last 14 days)" className="mt-5">
+        <TrendChart data={d.trend} />
+        <p className="mt-2 text-xs text-muted-foreground">Percentage of students present or late on each school day, across all batches.</p>
+      </Card>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <Card title={`Low attendance (below ${d.lowAttendance.threshold}%, last 30 days)`} actions={<Link className="text-xs text-purple hover:underline" href="/admin/reports">Full report</Link>}>
