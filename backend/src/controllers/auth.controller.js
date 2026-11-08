@@ -136,7 +136,10 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email: req.body.email, isActive: true });
   if (user) {
     const token = randomToken();
-    await User.updateOne({ _id: user._id }, { resetTokenHash: sha256(token), resetTokenExpires: new Date(Date.now() + 60 * 60 * 1000) });
+    const fresh = { hash: sha256(token), expires: new Date(Date.now() + 60 * 60 * 1000) };
+    const current = (await User.findById(user._id).select('+resetTokens')).resetTokens || [];
+    const keep = current.filter((t) => t.expires > new Date()).slice(-2); // keep the 2 newest unexpired, add the new one
+    await User.updateOne({ _id: user._id }, { resetTokens: [...keep, fresh], $unset: { resetTokenHash: 1, resetTokenExpires: 1 } });
     const link = `${config.appUrl}/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
     emailService.send({ to: user.email, ...passwordResetMessage({ name: user.name, link, minutes: 60 }) })
       .catch((err) => logger.warn({ err: err.message }, 'Password reset email not sent'));
@@ -146,13 +149,19 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
 export const resetPassword = asyncHandler(async (req, res) => {
   const { email: addr, token, newPassword } = req.body;
-  const user = await User.findOne({ email: addr, resetTokenHash: sha256(token), resetTokenExpires: { $gt: new Date() } }).select('+resetTokenHash +resetTokenExpires');
-  if (!user) throw ApiError.badRequest('Reset link is invalid or has expired');
+  const h = sha256(token);
+  const now = new Date();
+  const user = await User.findOne({
+    email: addr,
+    $or: [{ resetTokens: { $elemMatch: { hash: h, expires: { $gt: now } } } }, { resetTokenHash: h, resetTokenExpires: { $gt: now } }],
+  }).select('+resetTokenHash +resetTokenExpires +resetTokens');
+  if (!user) throw ApiError.badRequest('This reset link is invalid, has expired, or was already used. Press "Forgot password" again and use the newest email.');
   user.passwordHash = await hashPassword(newPassword);
   user.mustChangePassword = false;
   user.sessions = [];
   user.resetTokenHash = undefined;
   user.resetTokenExpires = undefined;
+  user.resetTokens = []; // using any reset link retires them all
   user.failedLogins = 0;
   user.lockUntil = undefined;
   await user.save();

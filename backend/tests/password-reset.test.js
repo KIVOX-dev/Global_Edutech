@@ -54,8 +54,25 @@ describe('forgot / reset password', () => {
     await flush();
     const token = new URL(send.mock.calls[0][0].text.match(/https?:\/\/\S+reset-password\?\S+/)[0]).searchParams.get('token');
     expect((await request(app).post('/api/auth/reset-password').send({ email: 'owner@t.co', token: 'x'.repeat(64), newPassword: 'Another-9x' })).status).toBe(400);
-    await User.updateOne({ email: 'owner@t.co' }, { resetTokenExpires: new Date(Date.now() - 1000) });
+    await User.updateOne({ email: 'owner@t.co' }, { $set: { 'resetTokens.$[].expires': new Date(Date.now() - 1000) } });
     expect((await request(app).post('/api/auth/reset-password').send({ email: 'owner@t.co', token, newPassword: 'Another-9x' })).status).toBe(400);
+  });
+
+  it('an older reset email keeps working after another one is requested, and one use retires them all', async () => {
+    const tokenOf = (i) => new URL(send.mock.calls[i][0].text.match(/https?:\/\/\S+reset-password\?\S+/)[0]).searchParams.get('token');
+    await request(app).post('/api/auth/forgot-password').send({ email: 'owner@t.co' });
+    await flush();
+    await request(app).post('/api/auth/forgot-password').send({ email: 'owner@t.co' });
+    await flush();
+    expect(send).toHaveBeenCalledTimes(2);
+    const [first, second] = [tokenOf(0), tokenOf(1)];
+    expect(first).not.toBe(second);
+    // the FIRST email still works
+    expect((await request(app).post('/api/auth/reset-password').send({ email: 'owner@t.co', token: first, newPassword: 'Older-link-9' })).status).toBe(200);
+    // and using it retires the other link too
+    const again = await request(app).post('/api/auth/reset-password').send({ email: 'owner@t.co', token: second, newPassword: 'Newer-link-9' });
+    expect(again.status).toBe(400);
+    expect(again.body.message).toMatch(/newest email/);
   });
 
   it('does not break the request when email sending fails', async () => {

@@ -15,7 +15,9 @@ const userSchema = new mongoose.Schema({
   failedLogins: { type: Number, default: 0, select: false },
   lockUntil: { type: Date, select: false },
   sessions: { type: [{ _id: false, jti: String, expiresAt: Date }], default: [], select: false },
-  resetTokenHash: { type: String, select: false },
+  // Up to 3 recent reset links stay valid together, so an older email still works after pressing "Forgot password" again
+  resetTokens: { type: [{ _id: false, hash: String, expires: Date }], default: [], select: false },
+  resetTokenHash: { type: String, select: false }, // legacy single token, still accepted
   resetTokenExpires: { type: Date, select: false },
 }, { timestamps: true });
 
