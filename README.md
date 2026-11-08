@@ -191,6 +191,18 @@ catalyst deploy appsail --name global-edutech \
 
 Root scripts: `npm run build` (static frontend into `backend/public`), `npm run bundle` (create `appsail-build`), `npm run deploy:build` (both), `npm start` (run the API, which also serves the built site), `npm test`.
 
+### Deploy with Docker (alternative)
+
+The repo root `Dockerfile` builds one image that serves the API and the website. Catalyst only accepts Linux AMD64 images, so the scripts build with `--platform linux/amd64`.
+
+```bash
+npm run docker:build      # docker build --platform linux/amd64 -t globaledutech:latest .
+npm run docker:deploy     # catalyst deploy appsail --name globaledutech --source docker://globaledutech:latest --port 9000 -ni
+npm run docker:release    # both in one go
+```
+
+Docker deploys ignore `app-config.json`: set the environment variables in the AppSail console. Other helpers: `npm run docker:run` (run the image locally with `backend/.env`), and `npm run docker:up` (`docker-compose.yml`: local MongoDB + API on :9000 + website on :5173; seed with `docker compose --profile tools run --rm seed`). `backend/Dockerfile` and `frontend/Dockerfile` build the two parts separately.
+
 ### Post-deploy checklist
 1. `GET /api/health` returns `ok` with `"db": true`.
 2. Create the admin: run `npm run seed` once against the production database, or insert an admin user. The seed also creates sample students and staff, so delete the `SEED…` records for a clean start.

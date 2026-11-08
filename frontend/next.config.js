@@ -2,9 +2,11 @@
 // NEXT_OUTPUT=export builds a static site (served by the Express/AppSail service from backend/public).
 // The default build is unchanged, so the Vercel deployment of the landing page keeps working.
 const isStaticExport = process.env.NEXT_OUTPUT === 'export'
+// NEXT_OUTPUT=standalone builds a self-contained Node server (used by frontend/Dockerfile)
+const isStandalone = process.env.NEXT_OUTPUT === 'standalone'
 
 const nextConfig = {
-  ...(isStaticExport ? { output: 'export', trailingSlash: false } : {}),
+  ...(isStaticExport ? { output: 'export', trailingSlash: false } : isStandalone ? { output: 'standalone' } : {}),
   reactStrictMode: true,  // Keep this enabled for better code quality
   swcMinify: true,        // Keep this enabled for faster builds
   images: {

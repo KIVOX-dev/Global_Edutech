@@ -1,0 +1,63 @@
+# Local stack: MongoDB + API + website.   docker compose up --build
+#   Website  http://localhost:5173      API  http://localhost:9000/api/health
+# The API reads backend/.env, but MONGODB_URI is overridden to the local Mongo below,
+# so your real Atlas database is never touched by this stack.
+#
+# First run: seed sample data (admin + staff + students)
+#   docker compose --profile tools run --rm seed
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: development
+      PORT: "9000"
+      MONGODB_URI: mongodb://mongo:27017/global_edutech
+      APP_URL: http://localhost:5173
+      COOKIE_DOMAIN: localhost
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "9000:9000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: http://backend:9000
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:3000"
+
+  # One-off helper: docker compose --profile tools run --rm seed
+  seed:
+    build: ./backend
+    profiles: ["tools"]
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://mongo:27017/global_edutech
+    depends_on:
+      mongo:
+        condition: service_healthy
+    command: ["node", "scripts/seed.js"]
+
+volumes:
+  mongo-data:

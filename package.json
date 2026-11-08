@@ -9,7 +9,12 @@
     "bundle": "node scripts/bundle-appsail.mjs",
     "deploy:build": "npm run build && npm run bundle",
     "test": "npm --prefix backend test",
-    "deploy:appsail": "bash scripts/deploy-appsail.sh"
+    "deploy:appsail": "bash scripts/deploy-appsail.sh",
+    "docker:build": "docker build --platform linux/amd64 -t globaledutech:latest .",
+    "docker:run": "docker run --rm --env-file backend/.env -p 9000:9000 globaledutech:latest",
+    "docker:deploy": "catalyst deploy appsail --name globaledutech --source docker://globaledutech:latest --port 9000 -ni",
+    "docker:release": "npm run docker:build && npm run docker:deploy",
+    "docker:up": "docker compose up --build"
   },
   "engines": {
     "node": ">=20"
