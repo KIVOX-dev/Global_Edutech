@@ -1,12 +1,25 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
+import FancySelect from './FancySelect'
 
 interface EnquiryFormProps {
   courseTitle?: string
+  compact?: boolean // single column, for narrow sidebars
 }
 
-export default function EnquiryForm({ courseTitle }: EnquiryFormProps) {
+const PROGRAMS = [
+  ['General Enquiry', 'General Enquiry'],
+  ['Pre-School', 'Pre-School Program'],
+  ['After-School', 'After-School Program'],
+  ['Home Tuition', 'Home Tuition'],
+  ['Summer Camp', 'Summer Camp'],
+  ['Skill Development', 'Skill Development'],
+]
+
+const field = 'h-12 lg:h-11 w-full rounded-xl border-2 border-purple/20 bg-white px-4 text-base text-foreground placeholder:text-foreground/40 transition focus:border-purple focus:outline-none focus:ring-4 focus:ring-purple/15'
+
+export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -89,7 +102,7 @@ export default function EnquiryForm({ courseTitle }: EnquiryFormProps) {
         </p>
         <button 
           onClick={() => setIsSubmitted(false)}
-          className="mt-4 text-primary font-medium hover:underline"
+          className="mt-4 font-medium text-purple hover:underline"
         >
           Submit another enquiry
         </button>
@@ -98,7 +111,7 @@ export default function EnquiryForm({ courseTitle }: EnquiryFormProps) {
   }
   
   return (
-    <form id="enquiry-form" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="w-full">
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-600 rounded-md p-3 text-sm mb-4">
           {error}
@@ -106,10 +119,10 @@ export default function EnquiryForm({ courseTitle }: EnquiryFormProps) {
       )}
       
       {/* Two-column layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+      <div className={`grid grid-cols-1 gap-x-5 gap-y-4 lg:gap-y-3 ${compact ? '' : 'md:grid-cols-2'}`}>
         {/* Row 1: Name and Email */}
         <div>
-          <label htmlFor="enquiry-name" className="block text-sm font-medium text-foreground/80 mb-1">
+          <label htmlFor="enquiry-name" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">
             Your Name *
           </label>
           <input
@@ -119,13 +132,13 @@ export default function EnquiryForm({ courseTitle }: EnquiryFormProps) {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 bg-background border border-border rounded-md focus:ring-primary focus:border-primary"
+            className={field}
             placeholder="John Doe"
           />
         </div>
         
         <div>
-          <label htmlFor="enquiry-email" className="block text-sm font-medium text-foreground/80 mb-1">
+          <label htmlFor="enquiry-email" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">
             Email Address *
           </label>
           <input
@@ -135,14 +148,14 @@ export default function EnquiryForm({ courseTitle }: EnquiryFormProps) {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 bg-background border border-border rounded-md focus:ring-primary focus:border-primary"
+            className={field}
             placeholder="john.doe@example.com"
           />
         </div>
         
         {/* Row 2: Phone and Program */}
         <div>
-          <label htmlFor="enquiry-phone" className="block text-sm font-medium text-foreground/80 mb-1">
+          <label htmlFor="enquiry-phone" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">
             Phone Number *
           </label>
           <input
@@ -152,100 +165,89 @@ export default function EnquiryForm({ courseTitle }: EnquiryFormProps) {
             value={formData.phone}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 bg-background border border-border rounded-md focus:ring-primary focus:border-primary"
+            className={field}
             placeholder="+91 93630 42019"
           />
         </div>
         
         <div>
-          <label htmlFor="program" className="block text-sm font-medium text-foreground/80 mb-1">
-            Enquiry & Program of Interest *
+          <label htmlFor="program" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">
+            Program of Interest *
           </label>
-          <select
+          <FancySelect
             id="program"
-            name="program"
             value={formData.program}
-            onChange={handleChange}
+            onChange={(v) => setFormData((prev) => ({ ...prev, program: v }))}
             required
-            className="w-full px-4 py-2 bg-background border border-border rounded-md focus:ring-primary focus:border-primary"
-          >
-            <option value="">Select a program</option>
-            <option value="General Enquiry">General Enquiry</option>
-            <option value="Pre-School">Pre-School Program</option>
-            <option value="After-School">After-School Program</option>
-            <option value="Home Tuition">Home Tuition</option>
-            <option value="Summer Camp">Summer Camp</option>
-            <option value="Skill Development">Skill Development</option>
-          </select>
+            className={field}
+            placeholder="Select a program"
+            options={[
+              ...(courseTitle && !PROGRAMS.some(([v]) => v === courseTitle) ? [{ value: courseTitle, label: courseTitle }] : []),
+              ...PROGRAMS.map(([v, l]) => ({ value: v, label: l })),
+            ]}
+          />
         </div>
         
         {/* Row 3: Student Age and Preferred Time */}
         <div>
-          <label htmlFor="studentAge" className="block text-sm font-medium text-foreground/80 mb-1">
-            Student's Age Range *
+          <label htmlFor="studentAge" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">
+            Student's Age Range
           </label>
-          <select
+          <FancySelect
             id="studentAge"
-            name="studentAge"
             value={formData.studentAge}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-background border border-border rounded-md focus:ring-primary focus:border-primary"
-          >
-            <option value="">Select age range</option>
-            <option value="3-5 years">3-5 years</option>
-            <option value="6-8 years">6-8 years</option>
-            <option value="9-12 years">9-12 years</option>
-            <option value="13-15 years">13-15 years</option>
-            <option value="16-18 years">16-18 years</option>
-            <option value="Adult">Adult</option>
-          </select>
+            onChange={(v) => setFormData((prev) => ({ ...prev, studentAge: v }))}
+            className={field}
+            placeholder="Select age range"
+            options={['3-5 years', '6-8 years', '9-12 years', '13-15 years', '16-18 years', 'Adult'].map((v) => ({ value: v, label: v }))}
+          />
         </div>
         
         <div>
-          <label htmlFor="preferredTime" className="block text-sm font-medium text-foreground/80 mb-1">
-            Preferred Time for Contact *
+          <label htmlFor="preferredTime" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">
+            Preferred Time for Contact
           </label>
-          <select
+          <FancySelect
             id="preferredTime"
-            name="preferredTime"
             value={formData.preferredTime}
-            onChange={handleChange}
-            className="w-full px-4 py-2 bg-background border border-border rounded-md focus:ring-primary focus:border-primary"
-          >
-            <option value="">Select preferred time</option>
-            <option value="Morning (9am - 12pm)">Morning (9am - 12pm)</option>
-            <option value="Afternoon (12pm - 3pm)">Afternoon (12pm - 3pm)</option>
-            <option value="Evening (3pm - 6pm)">Evening (3pm - 6pm)</option>
-          </select>
+            onChange={(v) => setFormData((prev) => ({ ...prev, preferredTime: v }))}
+            className={field}
+            placeholder="Select preferred time"
+            options={['Morning (9am - 12pm)', 'Afternoon (12pm - 3pm)', 'Evening (3pm - 6pm)'].map((v) => ({ value: v, label: v }))}
+          />
         </div>
         
         {/* Row 4: Message - full width */}
-        <div className="md:col-span-2">
-          <label htmlFor="enquiry-message" className="block text-sm font-medium text-foreground/80 mb-1">
+        <div className={compact ? '' : 'md:col-span-2'}>
+          <label htmlFor="enquiry-message" className="mb-1.5 lg:mb-1 block text-sm font-semibold text-purple">
             Message *
           </label>
           <textarea
             id="enquiry-message"
             name="message"
-            rows={3}
+            rows={2}
+            required
             value={formData.message}
             onChange={handleChange}
-            className="w-full px-4 py-2 bg-background border border-border rounded-md focus:ring-primary focus:border-primary"
+            className={`${field} h-auto min-h-24 py-3 lg:min-h-[4.5rem] lg:py-2`}
             placeholder="I'd like to know more about..."
           ></textarea>
         </div>
       </div>
       
       {/* Submit button - centered */}
-      <div className="mt-6 flex justify-center">
+      <div className={`mt-6 lg:mt-4 ${compact ? '' : 'flex justify-center'}`}>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-8 bg-primary hover:bg-accent text-primary-foreground hover:text-accent-foreground font-bold py-3 rounded-lg transition-all duration-300 disabled:bg-muted flex items-center justify-center"
+          className="flex h-12 lg:h-11 w-full items-center justify-center rounded-xl bg-purple px-8 text-base font-bold text-white shadow-lg transition hover:bg-purple/90 disabled:opacity-60 sm:w-auto sm:min-w-56"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Enquiry'}
         </button>
       </div>
+      <p className="mt-4 lg:mt-3 text-center text-xs text-foreground/60">
+        By submitting this form you agree to our <a href="/privacy-policy" className="font-semibold text-purple underline">Privacy Policy</a> and <a href="/terms-of-service" className="font-semibold text-purple underline">Terms of Service</a>, and to being contacted about your enquiry.
+      </p>
     </form>
   )
 }

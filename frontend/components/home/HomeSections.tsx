@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Check, Phone, Sparkles } from 'lucide-react'
 import { courses } from '@/lib/courses-data'
 import HeroCarousel from '@/components/HeroCarousel'
+import { blendStyle } from '@/lib/image-blend'
 import { BookIcon, BulbIcon, CapIcon, ChildIcon, ClockIcon, HomeIcon, IconTile, MicIcon, PuzzleIcon, StarIcon } from '@/components/icons/DuoIcons'
 
 const fade = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } }
@@ -23,8 +24,8 @@ function Heading({ kicker, title, sub, light }: { kicker?: string; title: string
 /* 1. Utility bar (like the top strip on the reference site) */
 export function TopBar() {
   return (
-    <div className="bg-purple text-white">
-      <div className="container-custom flex flex-wrap items-center justify-between gap-2 py-2 text-xs sm:text-sm">
+    <div className="hypershade text-white">
+      <div className="container-custom relative z-10 flex flex-wrap items-center justify-between gap-2 py-2 text-xs sm:text-sm">
         <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4 text-yellow" /> Preschool · After-School · Home Tuition</span>
         <span className="flex items-center gap-4">
           <a href="tel:+919363042019" className="inline-flex items-center gap-1 hover:text-yellow"><Phone className="h-3.5 w-3.5" /> +91 93630 42019</a>
@@ -38,9 +39,9 @@ export function TopBar() {
 /* 2. Hero: big headline, two CTAs, rounded photo carousel */
 export function HomeHero() {
   const stats = [
-    { v: '19', l: 'Years of experience', c: 'bg-yellow/90 text-purple' },
-    { v: '10,000+', l: 'Families served', c: 'bg-pink text-white' },
-    { v: '30+', l: 'Courses & programs', c: 'bg-accent-light text-purple' },
+    { v: '19', l: 'Years of experience', c: 'hs-card hs-amber text-white' },
+    { v: '10,000+', l: 'Families served', c: 'hs-card hs-rose text-white' },
+    { v: '30+', l: 'Courses & programs', c: 'hs-card hs-violet text-white' },
   ]
   return (
     <section id="home" className="relative overflow-hidden bg-hero-gradient text-white">
@@ -56,13 +57,13 @@ export function HomeHero() {
             Global Edutech blends play with proven teaching, from preschool to after-school skills and home tuition up to Class 10.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <a href="#contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-yellow px-7 font-bold text-purple shadow-lg transition hover:scale-105">Book a Free Demo <ArrowRight className="h-4 w-4" /></a>
+            <a href="/enquiry" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-yellow px-7 font-bold text-purple shadow-lg transition hover:scale-105">Book a Free Demo <ArrowRight className="h-4 w-4" /></a>
             <a href="#programs" className="inline-flex h-12 items-center justify-center rounded-xl border-2 border-white px-7 font-bold text-white transition hover:bg-white hover:text-purple">Explore Programs</a>
           </div>
           <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
             {stats.map((s) => (
               <div key={s.l} className={`rounded-2xl p-3 text-center shadow-gentle ${s.c}`}>
-                <p className="font-display text-xl font-bold sm:text-2xl">{s.v}</p>
+                <p className="font-display text-xl font-bold text-white drop-shadow-md sm:text-2xl">{s.v}</p>
                 <p className="text-[11px] font-semibold leading-tight sm:text-xs">{s.l}</p>
               </div>
             ))}
@@ -91,8 +92,8 @@ export function BrandStrip() {
         <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-purple">One family of learning brands</p>
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           {logos.map((l) => (
-            <div key={l.alt} className={`flex h-20 w-28 items-center justify-center rounded-2xl bg-white shadow-md ring-2 ${l.ring} sm:h-24 sm:w-36`}>
-              <Image src={l.src} alt={l.alt} width={64} height={64} className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
+            <div key={l.alt} className={`flex h-28 w-40 items-center justify-center overflow-hidden rounded-2xl bg-white p-1.5 shadow-md ring-2 ${l.ring} sm:h-36 sm:w-52`}>
+              <Image src={l.src} alt={l.alt} width={400} height={400} quality={100} className="h-full w-full object-contain" />
             </div>
           ))}
         </div>
@@ -120,7 +121,7 @@ export function ProgramsGrid() {
               <h3 className="font-display text-xl font-bold text-purple">{p.title}</h3>
               <p className="mt-1 text-sm font-semibold text-pink">{p.sub}</p>
               <p className="mt-3 text-sm text-foreground/80">{p.text}</p>
-              <a href="#contact" className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-purple hover:underline">Know more <ArrowRight className="h-4 w-4" /></a>
+              <Link href="/enquiry" className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-purple text-sm font-bold text-white shadow-md transition hover:bg-purple/90">Know more <ArrowRight className="h-4 w-4" /></Link>
             </motion.div>
           ))}
         </div>
@@ -152,10 +153,10 @@ export function WhyBest() {
               </li>
             ))}
           </ul>
-          <a href="#contact" className="mt-7 inline-flex h-12 items-center rounded-xl bg-purple px-7 font-bold text-white shadow-lg transition hover:bg-purple/90">Talk to us</a>
+          <a href="/enquiry" className="mt-7 inline-flex h-12 items-center rounded-xl bg-purple px-7 font-bold text-white shadow-lg transition hover:bg-purple/90">Talk to us</a>
         </motion.div>
         <motion.div {...fade} className="grid grid-cols-2 gap-4">
-          <div className="relative col-span-2 aspect-[16/11] overflow-hidden rounded-3xl bg-white ring-4 ring-yellow"><Image src="/images/globalacademy-all.jpeg" alt="Global Academy after school activities hub" fill quality={100} className="object-contain" sizes="(max-width:1024px) 100vw, 40vw" /></div>
+          <div className="relative col-span-2 aspect-[16/11] overflow-hidden rounded-3xl bg-white ring-4 ring-yellow"><Image src="/images/globalacademy-all.jpeg" alt="Global Academy after school activities hub" fill quality={100} className="object-contain" style={blendStyle('/images/globalacademy-all.jpeg')} sizes="(max-width:1024px) 100vw, 40vw" /></div>
           <div className="relative aspect-[945/660] overflow-hidden rounded-3xl bg-white ring-4 ring-pink"><Image src="/images/arts.png" alt="Global Arts" fill quality={100} className="object-contain" sizes="(max-width:1024px) 50vw, 25vw" /></div>
           <div className="relative aspect-[945/660] overflow-hidden rounded-3xl bg-white ring-4 ring-purple"><Image src="/images/abacus.png" alt="Global Abacus" fill quality={100} className="object-contain" sizes="(max-width:1024px) 50vw, 25vw" /></div>
         </motion.div>
@@ -209,7 +210,7 @@ export function CourseGrid() {
                 <span className="flex flex-1 flex-col items-center p-4">
                   <span className="font-display text-base font-bold leading-snug text-purple sm:text-lg">{c.title}</span>
                   <span className="mt-2 rounded-full bg-yellow/40 px-3 py-0.5 text-xs font-semibold text-purple">{c.details.ageGroup}</span>
-                  <span className="mt-auto inline-flex items-center gap-1 pt-3 text-sm font-bold text-pink">Learn more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+                  <span className="mt-auto w-full pt-4"><span className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-pink text-sm font-bold text-white shadow-md transition group-hover:bg-purple">Learn more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span></span>
                 </span>
               </Link>
             </motion.div>
@@ -243,7 +244,7 @@ export function VisitBanner() {
       <div className="container-custom">
         <h2 className="font-display text-3xl font-bold md:text-4xl">Want to See Global Edutech in Action?</h2>
         <p className="mx-auto mt-3 max-w-2xl text-lg text-white/95">Visit a class, meet our teachers and watch your child try a free demo session.</p>
-        <a href="#contact" className="mt-7 inline-flex h-14 items-center gap-2 rounded-xl bg-yellow px-8 text-lg font-bold text-purple shadow-xl transition hover:scale-105">Schedule My Free Demo <ArrowRight className="h-5 w-5" /></a>
+        <a href="/enquiry" className="mt-7 inline-flex h-14 items-center gap-2 rounded-xl bg-yellow px-8 text-lg font-bold text-purple shadow-xl transition hover:scale-105">Schedule My Free Demo <ArrowRight className="h-5 w-5" /></a>
       </div>
     </section>
   )

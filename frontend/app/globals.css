@@ -533,3 +533,80 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Live "hypershade": the brand pink-to-purple gradient slowly flowing, with a soft light sweep */
+@keyframes hypershade-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes hypershade-sweep {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+.hypershade {
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(100deg, #ff73ad, #d65fb8, #9a4fc9, #763dcb, #9a4fc9, #d65fb8, #ff73ad);
+  background-size: 300% 100%;
+  animation: hypershade-flow 12s ease-in-out infinite;
+}
+.hypershade::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  animation: hypershade-sweep 5s linear infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hypershade, .hypershade::after { animation: none; }
+}
+
+/* Live yellow hypershade used inside the golden star icon */
+@keyframes star-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.star-fill {
+  background-image: linear-gradient(135deg, #fff6a8, #ffd400, #ffab1a, #ffe45c, #ffd400, #fff6a8);
+  background-size: 300% 300%;
+  animation: star-flow 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .star-fill { animation: none; } }
+
+/* Each hero stat card has its own live hypershade: a smooth, slowly drifting colour field with a soft gloss */
+@keyframes hs-card-drift {
+  0%, 100% { background-position: 0% 30%; }
+  50% { background-position: 100% 70%; }
+}
+.hs-card {
+  position: relative;
+  overflow: hidden;
+  background-size: 220% 220%;
+  animation: hs-card-drift 10s ease-in-out infinite;
+  box-shadow: 0 10px 24px rgba(60, 20, 110, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+/* soft glossy highlight along the top, no hard edges */
+.hs-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 20% -10%, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0) 55%);
+  pointer-events: none;
+}
+.hs-card > * { position: relative; z-index: 1; }
+.hs-amber { background-image: linear-gradient(135deg, #ffc04d 0%, #ff9a3c 45%, #ff7f50 75%, #ffc04d 100%); }
+.hs-rose { background-image: linear-gradient(135deg, #ff6fb1 0%, #e84a9f 45%, #c13a9e 75%, #ff6fb1 100%); animation-duration: 12s; }
+.hs-violet { background-image: linear-gradient(135deg, #a98bff 0%, #7e5bf0 45%, #6246d8 75%, #a98bff 100%); animation-duration: 11s; }
+@media (prefers-reduced-motion: reduce) { .hs-card { animation: none; } }
+
+/* Running logos: vertical marquee that moves top to bottom, horizontal on small screens */
+@keyframes marquee-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+@keyframes marquee-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-v { animation: marquee-down 28s linear infinite; }
+.marquee-h { animation: marquee-left 22s linear infinite; }
+.marquee-pause:hover .marquee-v, .marquee-pause:hover .marquee-h { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .marquee-v, .marquee-h { animation: none; } }

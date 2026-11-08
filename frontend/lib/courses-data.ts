@@ -14,6 +14,9 @@ export interface Course {
     prerequisites?: string;
   };
   featured?: boolean;
+  // Optional list of variants taught inside the course (e.g. cube types)
+  subTopicsTitle?: string;
+  subTopics?: { name: string; note: string }[];
 }
 
 // Course data
@@ -251,6 +254,19 @@ export const courses: Course[] = [
       schedule: 'Online & Offline, Flexible timings',
       prerequisites: 'None'
     },
+    subTopicsTitle: 'Types of Cubes We Teach',
+    subTopics: [
+      { name: '2x2', note: 'Pocket cube: the perfect first puzzle' },
+      { name: '3x3', note: "The classic Rubik's Cube" },
+      { name: '4x4', note: 'Revenge cube: adds parity puzzles' },
+      { name: '5x5', note: 'Professor cube: patient, step-by-step solving' },
+      { name: '6x6', note: 'Large cube for advanced solvers' },
+      { name: '7x7', note: 'The ultimate big-cube challenge' },
+      { name: 'Pyraminx', note: 'Triangular pyramid puzzle' },
+      { name: 'Megaminx', note: 'Twelve-sided dodecahedron puzzle' },
+      { name: 'Skewb', note: 'Corner-turning cube with a twist' },
+      { name: 'Square-1', note: 'Shape-shifting cube puzzle' },
+    ],
     featured: false
   },
   {

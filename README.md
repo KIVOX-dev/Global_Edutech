@@ -1,102 +1,153 @@
 # Global Edutech
 
-Landing page **and** institute management system (Admin, Staff, Attendance, Fees, automatic fee reminders).
+The Global Edutech website and institute management system in one project:
+
+- **Public website:** home page, courses, gallery, an Enquire Now page, Privacy Policy and Terms of Service.
+- **Admin panel (`/admin`):** enquiries, students, staff, courses and batches, attendance, leaves, fees, payments, reminders, reports, holidays, settings and an audit log.
+- **Staff portal (`/staff`):** dashboard, batches, mark attendance, own attendance (check-in/out), leaves and profile.
+- **Automatic fee reminders:** a daily job emails students and parents before and after due dates.
+
+Built mobile-first: the admin and staff screens turn tables into cards, use a bottom tab bar on phones and have large tap targets.
+
+---
+
+## 1. How it is built
 
 ```
-frontend/   Next.js 14 (App Router, Tailwind): landing page and the /login, /admin/*, /staff/* screens
-backend/    Express API: enquiry form endpoint + the management API (Mongoose, B2, Brevo, cron)
-scripts/    copy-static.mjs, bundle-appsail.mjs (build helpers for AppSail)
-app-config.json   Zoho Catalyst AppSail configuration
-docs/       Older guides (landing page era)
+frontend/    Next.js 14 (App Router, TypeScript, Tailwind): website + admin + staff screens
+backend/     Express API (Node 20+, ES modules): Mongoose, B2 storage, Brevo email, cron
+scripts/     copy-static.mjs, bundle-appsail.mjs: build helpers for Zoho Catalyst AppSail
+app-config.json   AppSail configuration (start command, build path, stack)
+docs/        Older notes from the landing-page era (may be out of date)
+legacy/      Old static site (not used)
 ```
 
-> The folders are still called `frontend/` and `backend/` (not `client/` / `server/`) so the existing Vercel deployment and CI keep working. They play the same roles.
+| Concern | Choice |
+| --- | --- |
+| Database | MongoDB Atlas via Mongoose |
+| File storage | Backblaze B2 (S3-compatible, **private** bucket, short-lived presigned URLs only) |
+| Hosting | One Zoho Catalyst AppSail service: Express serves `/api/*` and the built frontend |
+| Auth | JWT in httpOnly cookies (15 min access, 7 day refresh with rotation), bcrypt (cost 12) |
+| Email | Brevo transactional API only |
+| Timezone | Asia/Kolkata everywhere. Attendance and fee dates are stored as `"YYYY-MM-DD"` strings so there is no timezone drift |
+| Logging | pino, with tokens, cookies and passwords redacted |
 
-## How it fits together
+In production the frontend is exported to static files (`next build` with `output: 'export'`, switched on by `NEXT_OUTPUT=export`) and copied to `backend/public`. Express serves them, so the browser talks to one origin and cookies just work. In development Next proxies `/api/*` to the backend.
 
-- **Landing page:** `/`, `/courses`, `/gallery`. The enquiry form still saves to MongoDB (collection `globaledutech-enquiry`) and emails `CONTACT_RECEIVER_EMAIL` through Brevo. The old username/password enquiry admin was removed; enquiries are now only visible in the database.
-- **Management system:** one login at `/login`. Admins land on `/admin`, staff on `/staff`.
-- **Production target:** one Zoho Catalyst **AppSail** service. Express serves `/api/*` and the statically exported frontend (`next build` with `output: 'export'`, copied to `backend/public`). Same origin, so cookies just work.
-- **Data:** MongoDB Atlas (Mongoose). **Files:** private Backblaze B2 bucket, presigned URLs only. **Email:** Brevo transactional API only. **Timezone:** Asia/Kolkata everywhere; attendance and fee dates are stored as `"YYYY-MM-DD"` strings.
+## 2. Run it locally
 
-## Quick start (local)
+Requires **Node 20+** (tested on 24).
 
-Requires Node 20+.
+### Option A: try it with throwaway data (no database needed)
 
 ```bash
-# 1. Backend (http://localhost:9000)
-cd backend
-cp .env.example .env     # replace the your_ / changeme values (see below)
-npm install
-npm run seed             # sample data (needs a real MONGODB_URI)
-npm run dev
+npm --prefix backend install
+npm --prefix frontend install
 
-# 2. Frontend (http://localhost:5173)
-cd frontend
-echo BACKEND_URL=http://localhost:9000 > .env.local  
-npm install
-npm run dev
+cd backend && npm run dev:memory      # API on http://localhost:9000 with an in-memory MongoDB, seeded
+cd frontend && npm run dev            # site on http://localhost:5173
 ```
 
-Open http://localhost:5173/login.
+`dev:memory` starts a temporary MongoDB, seeds sample data and runs the API. Everything is lost when you stop it, and your real `MONGODB_URI` is never used.
 
-**Placeholder mode:** if a variable still contains `your_` or `changeme`, that service is skipped with a clear warning in the log (no B2 calls, no emails, no cron sends, DB routes answer `503 SERVICE_NOT_CONFIGURED`) and the rest of the app keeps running. In `NODE_ENV=production` the server refuses to start without a real `MONGODB_URI`, strong JWT secrets and an https `APP_URL`. Admins can see which integrations are configured at `GET /api/admin/system/status` (and on the Settings page); no values are ever shown.
+### Option B: use your own MongoDB Atlas
 
-### Default logins (after `npm run seed`)
+```bash
+cd backend
+cp .env.example .env          # then replace every your_ / changeme value (section 4)
+npm install
+npm run seed                  # optional: sample data (writes to the database in MONGODB_URI)
+npm run dev                   # API on http://localhost:9000
+
+cd ../frontend
+echo BACKEND_URL=http://localhost:9000 > .env.local
+npm install
+npm run dev                   # http://localhost:5173
+```
+
+### Open it
+
+| Page | URL |
+| --- | --- |
+| Website | http://localhost:5173 |
+| Enquire Now | http://localhost:5173/enquiry |
+| Sign in (admin and staff) | http://localhost:5173/login |
+| API health | http://localhost:9000/api/health |
+
+The website deliberately has **no login or sign-up link**. Staff and admins go straight to `/login`.
+
+### Default logins (after seeding)
 
 | Role | Email | Password |
 | --- | --- | --- |
 | Admin | `ADMIN_SEED_EMAIL` (default `admin@example.com`) | `ADMIN_SEED_PASSWORD` (default `changeme_strong_password`) |
 | Staff | `priya.staff@example.com` (also `rahul.staff@…`, `anita.staff@…`) | `Staff@12345` |
 
-Change the admin password immediately in any real environment. Staff created from the admin panel get a one-time temporary password and must change it at first login.
+The seed creates 1 admin, 3 staff, 2 courses, 2 batches, 20 students, a week of attendance and fees that are paid, partial, pending and overdue. **Change the admin password in any real environment.** Staff created from the admin panel get a one-time temporary password and must change it at first sign-in.
 
-### Tests
+### Placeholder mode
+
+If an environment variable still contains `your_` or `changeme`, that service is skipped with a clear warning in the log and the rest of the app keeps running:
+
+| Not configured | What happens |
+| --- | --- |
+| `MONGODB_URI` | Database routes answer `503 SERVICE_NOT_CONFIGURED`; health still works |
+| `JWT_*` secrets | Insecure development secrets are used (warning only in development) |
+| `B2_*` | No uploads, receipts or CSV links (CSV is streamed directly instead) |
+| `BREVO_*` | No emails sent; reminders are skipped, not logged as failed |
+
+In `NODE_ENV=production` the server refuses to start without a real `MONGODB_URI`, strong (32+ character) JWT secrets and an https `APP_URL`. Admins can see which integrations are configured at `GET /api/admin/system/status` and on the Settings page. Values are never shown.
+
+## 3. Tests
 
 ```bash
-cd backend && npm test      # vitest + supertest + mongodb-memory-server (downloads a MongoDB binary on first run)
+cd backend && npm test
 ```
 
-Covers: role protection, refresh-token rotation and reuse detection, account lockout, duplicate-attendance prevention (including concurrent submits), percentage with holidays excluded, staff edit window, partial payments and overpayment races, reminder rule matching, no duplicate reminders (sequential and concurrent runs), Brevo retry and failure handling, and a walk through most admin and staff endpoints.
+Vitest + supertest + mongodb-memory-server (downloads a MongoDB binary on first run). 39 tests cover: role protection, refresh-token rotation and reuse detection, account lock-out, duplicate-attendance prevention (including concurrent submits), attendance percentage with holidays excluded, the staff edit window, partial payments and overpayment races, reminder rule matching, no duplicate reminders (sequential and concurrent runs), Brevo retry and failure handling, the website enquiry flow, and a walk through most admin and staff endpoints.
 
-## Environment variables (backend)
+Frontend: `cd frontend && npx tsc --noEmit` type-checks the project.
+
+## 4. Environment variables
+
+Set these in `backend/.env` for development, and in the AppSail console for production. `backend/.env.example` lists them all with placeholder values. Never commit real values (`.env` is git-ignored).
 
 | Variable | Purpose |
 | --- | --- |
-| `NODE_ENV`, `PORT` | Mode and port. Server listens on `X_ZOHO_CATALYST_LISTEN_PORT`, else `PORT`, else `9000`, on `0.0.0.0` |
-| `APP_URL` | Public URL of the app. The only CORS origin; used in email links |
-| `APP_TIMEZONE`, `INSTITUTE_NAME` | `Asia/Kolkata`, shown in emails and receipts |
-| `MONGODB_URI` | Atlas connection string (include the database name) |
-| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Two different random strings, 32+ chars (`openssl rand -hex 32`) |
-| `COOKIE_DOMAIN` | Leave `localhost`/blank locally; your domain in production if needed |
-| `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD` | First admin created by `npm run seed` |
-| `B2_KEY_ID`, `B2_APPLICATION_KEY`, `B2_BUCKET`, `B2_REGION`, `B2_ENDPOINT` | Backblaze B2 (S3 compatible) |
-| `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME` | Email (reminders, password reset, credentials, enquiry notifications) |
-| `CONTACT_RECEIVER_EMAIL` | Who receives website enquiry notifications (defaults to the Brevo sender) |
-| `REMINDER_CRON_TIME` | Default daily reminder time `HH:mm` (IST); editable later in Admin → Reminders |
-| `PAYMENT_INSTRUCTIONS` (optional) | Text for the `{payment_instructions}` placeholder |
+| `NODE_ENV`, `PORT` | Mode and port. The server listens on `X_ZOHO_CATALYST_LISTEN_PORT`, else `PORT`, else `9000`, bound to `0.0.0.0` |
+| `APP_URL` | Public URL of the app. The **only** allowed CORS origin and the base of links in emails |
+| `APP_TIMEZONE`, `INSTITUTE_NAME` | `Asia/Kolkata`; the name shown in emails and receipts |
+| `MONGODB_URI` | Atlas connection string, including the database name |
+| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Two different random strings, 32+ characters (`openssl rand -hex 32`) |
+| `COOKIE_DOMAIN` | Leave `localhost` or blank in development; your domain in production only if needed |
+| `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD` | The first admin created by `npm run seed` |
+| `B2_KEY_ID`, `B2_APPLICATION_KEY`, `B2_BUCKET`, `B2_REGION`, `B2_ENDPOINT` | Backblaze B2 |
+| `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME` | Brevo email |
+| `CONTACT_RECEIVER_EMAIL` | Extra recipient for new-enquiry notifications (admins are always notified) |
+| `REMINDER_CRON_TIME` | Default daily reminder time `HH:mm` (IST). Editable later in Admin → Reminders |
+| `PAYMENT_INSTRUCTIONS` (optional) | Text used for `{payment_instructions}` in reminder emails |
 
-Frontend: only `BACKEND_URL` (dev proxy). Never commit `.env` files.
+Frontend: only `BACKEND_URL` (used by the dev proxy; `frontend/.env.example`).
 
-## Service setup
+## 5. Set up the services
 
 ### MongoDB Atlas
 1. Create a free **M0** cluster at cloud.mongodb.com.
-2. Database Access → add a **dedicated user** with role `readWrite` on the `global_edutech` database only.
-3. Network Access → add AppSail's outbound IPs, or `0.0.0.0/0` with a strong password (AppSail IPs are not fixed).
-4. Connect → Drivers → copy the string into `MONGODB_URI`, adding the database name: `mongodb+srv://user:pass@cluster.mongodb.net/global_edutech?retryWrites=true&w=majority`.
+2. Database Access: add a **dedicated user** with the `readWrite` role on the `global_edutech` database only.
+3. Network Access: add AppSail's outbound IPs, or `0.0.0.0/0` together with a strong password (AppSail IPs are not fixed).
+4. Connect → Drivers: copy the string into `MONGODB_URI` and add the database name: `mongodb+srv://USER:PASS@cluster.mongodb.net/global_edutech?retryWrites=true&w=majority`.
 
-### Backblaze B2 (private bucket + application key)
-1. Create a bucket, **Files in Bucket are: Private**.
-2. App Keys → Add a New Application Key, restricted to that bucket, read + write. Copy `keyID` → `B2_KEY_ID` and `applicationKey` → `B2_APPLICATION_KEY` (shown once).
-3. Bucket details show the endpoint, e.g. `s3.us-west-004.backblazeb2.com`: set `B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com` and `B2_REGION=us-west-004`.
-4. **CORS rule** (required for browser uploads). Use the B2 CLI (`b2 bucket update --cors-rules ... <bucket> allPrivate`) or the B2 web console's custom CORS editor with:
+### Backblaze B2 (private bucket, application key, CORS)
+1. Create a bucket and set **Files in Bucket are: Private**.
+2. App Keys → Add a New Application Key, limited to that bucket with read and write access. Copy `keyID` to `B2_KEY_ID` and `applicationKey` to `B2_APPLICATION_KEY` (shown once).
+3. The bucket page shows the endpoint, for example `s3.us-west-004.backblazeb2.com`. Set `B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com` and `B2_REGION=us-west-004`.
+4. **CORS rule** (needed for browser uploads). Apply it with the B2 CLI (`b2 bucket update --cors-rules '<json>' <bucket> allPrivate`) or the bucket's CORS settings:
 
 ```json
 [
   {
     "corsRuleName": "app-uploads",
-    "allowedOrigins": ["https://YOUR-APP-URL"],
+    "allowedOrigins": ["https://YOUR-APP-URL", "http://localhost:5173"],
     "allowedOperations": ["s3_put", "s3_get", "s3_head"],
     "allowedHeaders": ["*"],
     "exposeHeaders": ["ETag"],
@@ -104,77 +155,110 @@ Frontend: only `BACKEND_URL` (dev proxy). Never commit `.env` files.
   }
 ]
 ```
-Use your real `APP_URL` as the origin (add `http://localhost:5173` while developing). Uploads: the server validates type (JPG/PNG/PDF) and size (5 MB) before issuing a 5-minute presigned PUT, then `POST /api/files/confirm` re-checks the real object (size and type) and deletes it if it violates the rules. Downloads are 5-minute presigned GET links, authorised per owner.
+
+How uploads work: the server checks type (JPG, PNG, PDF) and size (max 5 MB) and returns a 5-minute presigned PUT link; the browser uploads straight to B2; then `POST /api/files/confirm` re-checks the real object and deletes it if it breaks the rules. Downloads are 5-minute presigned links, authorised per owner (admin sees everything, staff only their own files and their students'). Key layout: `students/{id}/photo`, `students/{id}/docs/{uuid}`, `staff/{id}/docs/{uuid}`, `staff/{id}/avatar`, `receipts/{paymentId}.pdf`, `exports/{date}/{name}.csv`.
 
 ### Brevo (email)
-1. Create an account at brevo.com → SMTP & API → **API Keys** → generate a v3 key → `BREVO_API_KEY`.
-2. Senders & IP → add and **verify** the sender address → `BREVO_SENDER_EMAIL` (unverified senders are rejected). Free plan is about 300 emails/day; the app caps itself at 280 and queues sends with a short delay. A failed send is retried once.
+1. Create an account at brevo.com. SMTP & API → **API Keys** → generate a v3 key → `BREVO_API_KEY`.
+2. Senders & IP → add and **verify** the sender address → `BREVO_SENDER_EMAIL`. Unverified senders are rejected.
+3. The free plan allows about 300 emails a day. The app stops at 280, queues sends with a short delay and retries a failed send once.
 
-## Deploy to Zoho Catalyst AppSail
+Brevo sends: fee reminders, the admin daily summary, password-reset links, staff login details and new-enquiry notifications.
 
-AppSail storage is **ephemeral**: nothing is ever written to disk, all files go to B2.
+## 6. Deploy to Zoho Catalyst AppSail
+
+AppSail storage is **ephemeral**: the app never writes uploads to disk, everything goes to B2.
 
 ```bash
 npm install -g zcatalyst-cli
 catalyst login
-catalyst init            # in the repo root: pick your project, choose AppSail (Node.js) when asked
-npm run install:all && npm run deploy:build     # builds the static frontend into backend/public, then creates ./appsail-build (with production node_modules)
-catalyst deploy appsail --name global-edutech --build-path "$(pwd)/appsail-build" --stack node22 --command "node src/index.js" -ni
+catalyst init                         # in the repo root; pick your project and choose AppSail (Node.js)
+
+npm run install:all                   # install frontend and backend dependencies
+npm run deploy:build                  # static frontend -> backend/public, then ./appsail-build with production node_modules
+
+catalyst deploy appsail --name global-edutech \
+  --build-path "$(pwd)/appsail-build" --stack node22 --command "node src/index.js" -ni
 ```
-Notes:
-- `--build-path` must be an absolute path. `app-config.json` documents the same settings (`build_path: ./appsail-build`, `stack: node22`, start command `node src/index.js`) for linked deploys, where `predeploy` runs the build for you.
-- **Environment variables:** set them in the AppSail **console** (Service → Configuration → Environment Variables) with the standalone deploy above. If you instead link the service (`catalyst appsail:add`) and deploy with `app-config.json`, the file's `env_variables` replace console values on every deploy, so do not mix the two. Set `NODE_ENV=production`, `APP_URL` (the AppSail URL or your custom domain), all secrets, and `COOKIE_DOMAIN` only if you use a custom domain.
-- Logs: Catalyst console → AppSail → your service → **Logs**, or `catalyst logs`.
-- The app must listen within 10 seconds; it binds `0.0.0.0` on `X_ZOHO_CATALYST_LISTEN_PORT`.
-- Reminders use an in-process cron guarded by a MongoDB lock (`JobLock`) plus a unique index on `ReminderLog`, so several AppSail instances never send duplicates.
+
+- `--build-path` must be an **absolute path**.
+- **Environment variables:** set them in the AppSail **console** (service → Configuration → Environment Variables) and deploy with the standalone command above. If you instead link the service (`catalyst appsail:add`) and deploy using `app-config.json`, the file's `env_variables` replace console values on every deploy, so do not mix the two. Set `NODE_ENV=production`, `APP_URL` (the AppSail URL or your custom domain), the secrets, Mongo, B2 and Brevo values.
+- **Logs:** Catalyst console → AppSail → your service → Logs (or `catalyst logs`).
+- The app must start listening within 10 seconds; it binds `0.0.0.0` on `X_ZOHO_CATALYST_LISTEN_PORT`.
+- **Several instances are safe:** the reminder job takes a MongoDB lock (`JobLock`) and every reminder has a unique `(fee, rule, date)` record, so nothing is sent twice.
+- Update `APP_URL`, the B2 CORS origin and the Brevo sender whenever the public URL changes.
+
+Root scripts: `npm run build` (static frontend into `backend/public`), `npm run bundle` (create `appsail-build`), `npm run deploy:build` (both), `npm start` (run the API, which also serves the built site), `npm test`.
 
 ### Post-deploy checklist
 1. `GET /api/health` returns `ok` with `"db": true`.
-2. Seed the admin: run `npm run seed` once from a machine with the production `MONGODB_URI` and `ADMIN_SEED_*` (creates sample data too; for a clean production start, create the admin and delete the `SEED…` students, or ask me for an admin-only seed flag).
-3. Log in at `/login` and open Settings → System status: everything green.
-4. Create a course (with instalments), a batch, a student; assign staff to the batch.
-5. Log in as staff (change the temporary password), mark attendance.
-6. Admin → Fees → Generate fees, record a payment, download the receipt PDF (verifies B2).
+2. Create the admin: run `npm run seed` once against the production database, or insert an admin user. The seed also creates sample students and staff, so delete the `SEED…` records for a clean start.
+3. Sign in at `/login`; Settings → System status shows MongoDB, B2 and Brevo as configured.
+4. Create a course (with instalments), a batch and a student, and assign staff to the batch.
+5. Sign in as staff (change the temporary password) and mark attendance on a phone.
+6. Admin → Fees → Generate fees, record a payment, open the PDF receipt (checks B2).
 7. Admin → Reminders → **Run daily job now**; check the log table.
-8. Confirm the email in the Brevo dashboard (Transactional → Logs).
-9. Upload a student photo and a document (verifies the B2 CORS rule).
+8. Confirm the email in Brevo → Transactional → Logs.
+9. Upload a student photo and a document (checks the B2 CORS rule).
+10. Submit the Enquire Now form and see it under Admin → Enquiries.
 
-## API list
+## 7. Website enquiries
 
-All responses: `{ success, data, meta? }` or `{ success:false, code, message, details }`. Auth is via httpOnly cookies. `/api` is rate limited; login, forgot-password and reminder triggers are stricter.
+The **Enquire Now** buttons (header, course pages, home sections) open `/enquiry`. Course pages pass the course name (`/enquiry?course=…`) so the program is pre-selected. Submissions are saved to MongoDB and appear in **Admin → Enquiries**, where you can filter by status (New, Contacted, In progress, Enrolled, Closed), call or WhatsApp straight from a row, add notes and export CSV. The admin dashboard shows the number of new enquiries. With Brevo configured, all active admins (and `CONTACT_RECEIVER_EMAIL`) also get an email. The public endpoint is limited to 10 submissions per hour per visitor and every field is validated.
+
+## 8. API overview
+
+All responses are `{ success, data, meta? }` or `{ success:false, code, message, details }`. Lists return `meta: { page, limit, total, totalPages }`. `/api` is rate-limited, with stricter limits on login, password reset, enquiries and reminder triggers.
+
+**Public** `GET /api/health`, `POST /api/submit-form` (enquiry)
 
 **Auth** `POST /api/auth/login | refresh | logout | change-password | forgot-password | reset-password`, `GET /api/auth/me`
 
 **Files** `POST /api/files/upload-url`, `POST /api/files/confirm`, `GET /api/files/download-url?key=`, `DELETE /api/files`
 
-**Admin** (ADMIN only)
-- `GET /api/admin/dashboard`, `GET /api/admin/system/status`
+**Admin** (ADMIN only, prefix `/api/admin`)
+- `GET /dashboard`, `GET /system/status`
+- Enquiries: `GET /enquiries`, `PATCH|DELETE /enquiries/:id`
 - Staff: `GET|POST /staff`, `GET|PATCH|DELETE /staff/:id`, `PATCH /staff/:id/status`, `POST /staff/:id/reset-password`
-- Students: `GET|POST /students`, `GET|PATCH|DELETE /students/:id`, `POST /students/import`
-- Courses/batches: `GET|POST /courses`, `PATCH|DELETE /courses/:id`, `GET|POST /batches`, `PATCH|DELETE /batches/:id`, `POST /batches/:id/assign-staff`, `POST /batches/:id/assign-students`
+- Students: `GET|POST /students`, `GET|PATCH|DELETE /students/:id`, `POST /students/import` (CSV with a per-row error report)
+- Courses and batches: `GET|POST /courses`, `PATCH|DELETE /courses/:id`, `GET|POST /batches`, `PATCH|DELETE /batches/:id`, `POST /batches/:id/assign-staff`, `POST /batches/:id/assign-students`
 - `GET|POST|DELETE /holidays`, `GET|PATCH /settings`, `GET /audit-logs`
 - Attendance oversight: `GET /attendance/staff`, `PATCH /attendance/staff/:id`, `GET /leaves`, `PATCH /leaves/:id`
 - Reports: `GET /reports/attendance?type=student|batch|staff&from&to&format=json|csv`, `GET /reports/low-attendance`
 - Fees: `GET|POST /fee-structures`, `POST /fees/generate`, `GET /fees`, `GET /fees/dashboard`, `GET /fees/:id`, `POST /fees/:id/payments`, `GET /payments`, `GET /payments/:id/receipt`
 - Reminders: `GET|PATCH /reminders/settings`, `POST /reminders/send/:studentFeeId`, `POST /reminders/send-overdue`, `POST /reminders/run`, `GET /reminders/logs`
 
-**Staff** (STAFF only, own data) `GET /api/staff/dashboard | batches | batches/:id/students | profile | attendance/me?month= | leaves | fees` (fees only if enabled in Settings), `PATCH /profile`, `POST /attendance/check-in | check-out`, `POST /leaves`
+**Staff** (STAFF only, own data, prefix `/api/staff`) `GET /dashboard | batches | batches/:id/students | profile | attendance/me?month= | leaves | fees` (fees only when enabled in Settings), `PATCH /profile`, `POST /attendance/check-in | check-out`, `POST /leaves`
 
-**Attendance** (ADMIN + STAFF, staff scoped to assigned batches) `GET|POST /api/attendance/batch/:batchId`, `PATCH /api/attendance/:id`, `GET /api/attendance/student/:studentId?from=&to=`
+**Attendance** (ADMIN and STAFF; staff are limited to their assigned batches) `GET|POST /api/attendance/batch/:batchId`, `PATCH /api/attendance/:id`, `GET /api/attendance/student/:studentId?from=&to=`
 
-**Public** `POST /api/submit-form` (website enquiry form)
+## 9. Business rules worth knowing
 
-## Assumptions and decisions
+- **Attendance:** `(Present + Late) / (Present + Late + Absent)`. Excused days, holidays and non-working days are excluded. Working days default to Mon-Sat (Settings). Marking is blocked on future dates and holidays. Staff can edit a record only within the edit window (default 24 hours), admins always can. Every correction is audit-logged. Saving uses a bulk upsert on a unique `(student, batch, date)` index, so duplicates cannot happen.
+- **Staff check-in:** late if after shift start plus the grace minutes; total hours computed at check-out; under half a shift becomes Half Day.
+- **Leaves:** working days are counted for you. Approving deducts the leave balance (guarded, it cannot go negative) and marks those days On Leave.
+- **Fees:** status is Pending, Partial, Paid or Overdue, worked out automatically. A payment can never exceed the balance, even with simultaneous requests. Generating fees twice never duplicates instalments. Every payment is audit-logged and gets a numbered PDF receipt stored in B2.
+- **Reminders:** D-7, D-3, D-1 (configurable), the due date, then the first overdue email immediately and one every N days up to a maximum (defaults 3 and 5). Paid fees are skipped. Both the student and parent emails receive it. Templates support `{student_name} {parent_name} {amount_due} {due_date} {course} {institute_name} {payment_instructions}`. A pluggable channel interface (`backend/src/services/reminders/channels.js`) lets you add WhatsApp or SMS later.
+- **Deleting:** students, staff, courses and batches that have history cannot be deleted (HTTP 409). Set them to inactive instead.
+- **Security:** every endpoint checks the role on the server, staff cannot reach admin routes, `$` and `.` keys are stripped from input, all input is validated with zod, deactivated accounts are signed out immediately, and nothing secret is ever logged.
 
-- Kept Next.js (not Vite) and the `frontend/`/`backend/` names; production uses a static export so one service can serve everything. Page routing for the portal uses client-side guards; the API enforces every permission on the server.
-- `bcryptjs` (pure JS, same algorithm, cost 12) instead of native `bcrypt`, so AppSail needs no native build. `mongodb-memory-server` runs standalone, so payments use an atomic guarded update instead of a multi-document transaction; this is safe against concurrent overpayment (tested).
-- Staff identifiers in the API are **user ids** (`/admin/staff/:id`, `staff/{userId}/docs/…`).
-- Deleting students, staff, courses and batches that have history returns `409`; deactivate or mark inactive instead.
-- Attendance %: (Present + Late) / (Present + Late + Absent); Excused, holidays and non-working days are excluded. Working days default to Mon–Sat (Settings).
-- Reminder rules: D-7/D-3/D-1 (configurable), D0, then the first overdue email immediately and one every N days up to the max. Failed sends are logged and can be re-sent manually.
-- Daily email caps and the send queue are per process (in memory).
-- Admin routes must run through `requireDb`: `/api/admin/system/status` needs a database and an admin login, so it cannot report on a completely database-less install (the log shows the same warnings at startup).
+## 10. Project notes and decisions
 
-## What to build next
+- Kept Next.js (not Vite) and the `frontend/` and `backend/` folder names.
+- `bcryptjs` (pure JavaScript, same algorithm and cost) instead of native `bcrypt`, so AppSail needs no native build.
+- Payments use an atomic guarded update instead of a multi-document transaction (this also works on a standalone MongoDB). It is tested against concurrent overpayment.
+- Staff identifiers in the API and in storage keys are **user ids**.
+- The daily email caps and the send queue are in memory (per process).
+- `/api/admin/system/status` needs a working database and an admin sign-in, so it cannot report on an install with no database at all (the server log shows the same warnings at startup).
+- The old username/password enquiry admin and the old Vercel serverless entry were removed. Enquiries from the old form that are still in the old Atlas database (`globaledutech`) are not shown in the new Enquiries screen.
+- The Privacy Policy (`/privacy-policy`) and Terms of Service (`/terms-of-service`) were written from how this system actually handles data. Have a lawyer review them, and fill in your real retention periods, refund policy and a named grievance contact.
 
-Parent portal and attendance notifications (SMS/WhatsApp channel plugs into `services/reminders/channels.js`), online payments (Razorpay) with auto receipts, timetable and exam/marks module, bulk CSV export for fees, admin-only production seed flag, 2-factor sign-in for admins, E2E tests (Playwright) for the portal screens.
+## 11. What to build next
+
+- Parent portal with attendance and fee views, and SMS or WhatsApp reminders through the channel interface
+- Online payments (for example Razorpay) with automatic receipts
+- Timetable, exams and marks
+- An admin-only production seed command (no sample data)
+- Two-factor sign-in for admins
+- Playwright end-to-end tests for the portal screens
+- Import of enquiries from the old database

@@ -80,10 +80,14 @@ export const ClockIcon = (p: P) => (
   </Svg>
 )
 
-export const StarIcon = (p: P) => (
-  <Svg {...p}>
-    <path d="M32 8l7.5 15.5 17 2.4-12.3 12 3 17L32 46.5 16.8 54.9l3-17-12.3-12 17-2.4z" fill="url(#hs-gold)" />
-  </Svg>
+// Golden star with a live yellow "hypershade" flowing inside it (CSS gradient, no SVG ids, so it renders the same everywhere)
+export const StarIcon = ({ className = 'h-12 w-12', title }: P) => (
+  <span className={`relative inline-block shrink-0 ${className}`} role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
+    <span className="star-fill absolute inset-0" style={{ clipPath: 'polygon(50.00% 12.50%, 61.72% 36.72%, 88.28% 40.47%, 69.06% 59.22%, 73.75% 85.78%, 50.00% 72.66%, 26.25% 85.78%, 30.94% 59.22%, 11.72% 40.47%, 38.28% 36.72%)' }} />
+    <svg viewBox="0 0 64 64" className="absolute inset-0 h-full w-full" fill="none" stroke={INK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M32 8l7.5 15.5 17 2.4-12.3 12 3 17L32 46.5 16.8 54.9l3-17-12.3-12 17-2.4z" />
+    </svg>
+  </span>
 )
 
 export const CapIcon = (p: P) => (

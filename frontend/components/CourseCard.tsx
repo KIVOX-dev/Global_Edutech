@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
+import { blendStyle } from '@/lib/image-blend'
 
 interface CourseCardProps {
   course: Course
@@ -33,9 +34,10 @@ export default function CourseCard({ course }: CourseCardProps) {
           <img 
             src={course.imageUrl} 
             alt={title}
-            className="w-full h-full object-contain bg-card p-2"
+            className="w-full h-full object-contain bg-white p-2"
+            style={blendStyle(course.imageUrl)}
           />
-          <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground font-medium">
+          <Badge style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 14px 50%)' }} className={`absolute right-0 top-4 rounded-none border-0 py-1.5 pl-6 pr-4 font-bold drop-shadow-md ${category === 'skill' ? 'bg-[#FF7A29] text-white hover:bg-[#FF7A29]' : category === 'teacher' ? 'bg-[#FFD93D] text-[#3b1d7a] hover:bg-[#FFD93D]' : 'bg-purple text-white hover:bg-purple'}`}>
             {categoryLabels[category as keyof typeof categoryLabels]}
           </Badge>
         </div>
