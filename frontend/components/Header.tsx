@@ -68,6 +68,13 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/login"
+              className="rounded-xl border-2 border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label="Login to the staff and admin portal"
+            >
+              Login
+            </Link>
             {/* <ThemeToggle /> */}
             <Button
               variant="enquireNow"
@@ -113,6 +120,14 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                href="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="font-medium text-primary hover:underline"
+                aria-label="Login to the staff and admin portal"
+              >
+                Login
+              </Link>
               <Button
                 variant="enquireNow"
                 className="text-left"

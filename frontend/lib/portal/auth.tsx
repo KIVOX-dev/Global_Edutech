@@ -1,0 +1,64 @@
+'use client'
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { api, ApiError } from './api'
+
+export type PortalUser = { id: string; name: string; email: string; role: 'ADMIN' | 'STAFF'; mustChangePassword: boolean; avatarKey?: string }
+
+type Ctx = {
+  user: PortalUser | null
+  loading: boolean
+  login: (email: string, password: string) => Promise<PortalUser>
+  logout: () => Promise<void>
+  refresh: () => Promise<void>
+}
+
+const AuthContext = createContext<Ctx | null>(null)
+export const homeFor = (u: PortalUser) => (u.mustChangePassword ? '/change-password' : u.role === 'ADMIN' ? '/admin' : '/staff')
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const [user, setUser] = useState<PortalUser | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const refresh = useCallback(async () => {
+    try {
+      const { data } = await api.get<{ user: PortalUser }>('/auth/me')
+      setUser(data.user)
+    } catch (e) {
+      setUser(null)
+      if (!(e instanceof ApiError) || e.status !== 401) console.error(e)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { refresh() }, [refresh])
+  useEffect(() => {
+    const onExpired = () => { setUser(null); router.replace('/login?expired=1') }
+    window.addEventListener('portal:session-expired', onExpired)
+    return () => window.removeEventListener('portal:session-expired', onExpired)
+  }, [router])
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { data } = await api.post<{ user: PortalUser }>('/auth/login', { email, password })
+    setUser(data.user)
+    return data.user
+  }, [])
+
+  const logout = useCallback(async () => {
+    await api.post('/auth/logout').catch(() => {})
+    setUser(null)
+    router.replace('/login')
+  }, [router])
+
+  const value = useMemo(() => ({ user, loading, login, logout, refresh }), [user, loading, login, logout, refresh])
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const c = useContext(AuthContext)
+  if (!c) throw new Error('useAuth must be used inside AuthProvider')
+  return c
+}

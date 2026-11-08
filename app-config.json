@@ -1,0 +1,10 @@
+{
+  "command": "node src/index.js",
+  "build_path": "./appsail-build",
+  "stack": "node22",
+  "memory": 512,
+  "scripts": {
+    "predeploy": "npm run deploy:build"
+  },
+  "catalyst_auth": false
+}
