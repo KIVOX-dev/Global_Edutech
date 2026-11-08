@@ -1,6 +1,8 @@
 'use client'
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
+import { MapPin, Mail, Phone } from 'lucide-react'
+import { BookIcon, CapIcon, ClockIcon, HomeIcon, StarIcon } from '@/components/icons/DuoIcons'
 
 export default function Footer() {
   return (
@@ -46,32 +48,32 @@ export default function Footer() {
               <h4 className="text-xl font-bold mb-6">Our Services</h4>
               <ul className="space-y-3">
                 <li>
-                  <a href="#services" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
-                    <span>🎒</span>
+                  <a href="/#programs" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
+                    <CapIcon className="h-7 w-7" spark={false} />
                     <span>Preschool Program</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#services" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
-                    <span>📘</span>
+                  <a href="/#programs" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
+                    <BookIcon className="h-7 w-7" spark={false} />
                     <span>After-School Programs</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#services" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
-                    <span>🏡</span>
+                  <a href="/#programs" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
+                    <HomeIcon className="h-7 w-7" spark={false} />
                     <span>Home Tuitions</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
-                    <span>📅</span>
+                  <a href="/enquiry" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
+                    <ClockIcon className="h-7 w-7" spark={false} />
                     <span>Free Demo Class</span>
                   </a>
                 </li>
                 <li>
-                  <a href="#testimonials" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
-                    <span>⭐</span>
+                  <a href="/#testimonials" className="text-muted-foreground hover:text-accent transition-colors duration-300 flex items-center space-x-2">
+                    <StarIcon className="h-7 w-7" spark={false} />
                     <span>Success Stories</span>
                   </a>
                 </li>
@@ -83,7 +85,7 @@ export default function Footer() {
               <h4 className="text-xl font-bold mb-6">Contact Us</h4>
               <ul className="space-y-4">
                 <li className="flex items-start space-x-3">
-                  <span className="text-accent mt-1">📍</span>
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-accent" />
                   <div>
                     <p className="text-muted-foreground">Location:</p>
                     <p className="text-sm text-muted-foreground">69, Rajiv Gandhi Nagar, Uppilipalayam,</p>
@@ -91,7 +93,7 @@ export default function Footer() {
                   </div>
                 </li>
                 <li className="flex items-center space-x-3">
-                  <span className="text-accent">📞</span>
+                  <Phone className="h-5 w-5 shrink-0 text-accent" />
                   <div>
                     <a href="tel:+919363042019" className="text-muted-foreground hover:text-accent transition-colors duration-300">
                       +91 93630 42019
@@ -100,7 +102,7 @@ export default function Footer() {
                   </div>
                 </li>
                 <li className="flex items-center space-x-3">
-                  <span className="text-accent">✉️</span>
+                  <Mail className="h-5 w-5 shrink-0 text-accent" />
                   <div>
                     <a href="mailto:globaleducationgv@gmail.com" className="text-muted-foreground hover:text-accent transition-colors duration-300">
                       globaleducationgv@gmail.com

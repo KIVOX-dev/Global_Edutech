@@ -6,7 +6,7 @@ import { fmtDateTime, money } from '@/lib/portal/api'
 import { useData } from '@/lib/portal/hooks'
 
 type Dash = {
-  counts: { students: number; staff: number; courses: number; batches: number; pendingLeaves: number }
+  counts: { students: number; staff: number; courses: number; batches: number; pendingLeaves: number; newEnquiries: number }
   today: { date: string; isWorkingDay: boolean; studentAttendancePercent: number | null; studentsMarked: number; staffPresent: number }
   lowAttendance: { threshold: number; students: { id: string; name: string; admissionNo: string; batch?: string; percentage: number }[] }
   fees: { collectedTotal: number; collectedThisMonth: number; pending: { amount: number; count: number }; overdue: { amount: number; count: number }; dueToday: { amount: number; count: number } }
@@ -25,6 +25,7 @@ export default function AdminDashboard() {
         <StatCard label="Active students" value={d.counts.students} hint={`${d.counts.batches} active batches`} />
         <StatCard label="Staff" value={d.counts.staff} hint={`${d.today.staffPresent} present today`} tone="blue" />
         <StatCard label="Today's attendance" value={d.today.studentAttendancePercent === null ? '—' : `${d.today.studentAttendancePercent}%`} hint={`${d.today.studentsMarked} students marked`} tone="green" />
+        <StatCard label="New enquiries" value={d.counts.newEnquiries} tone="purple" hint="from the website" />
         <StatCard label="Pending leaves" value={d.counts.pendingLeaves} tone="amber" hint="awaiting review" />
         <StatCard label="Collected (month)" value={money(d.fees.collectedThisMonth)} hint={`${money(d.fees.collectedTotal)} all time`} tone="green" />
         <StatCard label="Pending fees" value={money(d.fees.pending.amount)} hint={`${d.fees.pending.count} instalments`} tone="blue" />
@@ -34,7 +35,7 @@ export default function AdminDashboard() {
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <Card title={`Low attendance (below ${d.lowAttendance.threshold}%, last 30 days)`} actions={<Link className="text-xs text-purple hover:underline" href="/admin/reports">Full report</Link>}>
-          {d.lowAttendance.students.length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">No students below the threshold 🎉</p> : (
+          {d.lowAttendance.students.length === 0 ? <p className="py-6 text-center text-sm text-muted-foreground">No students below the threshold</p> : (
             <ul className="divide-y text-sm">
               {d.lowAttendance.students.map((s) => (
                 <li key={s.id} className="flex items-center justify-between py-2">

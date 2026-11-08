@@ -4,9 +4,10 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, BookOpen, Clock, GraduationCap, Home, Phone, Sparkles } from 'lucide-react'
+import { ArrowRight, BookOpen, Check, Clock, GraduationCap, Home, Phone, Sparkles } from 'lucide-react'
 import { courses } from '@/lib/courses-data'
 import HeroCarousel from '@/components/HeroCarousel'
+import { BulbIcon, CapIcon, ChildIcon, IconTile, MicIcon, PuzzleIcon, StarIcon } from '@/components/icons/DuoIcons'
 
 const fade = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } }
 
@@ -49,7 +50,7 @@ export function HomeHero() {
       <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-accent-light/40 blur-3xl" />
       <div className="container-custom relative grid items-center gap-10 py-14 lg:grid-cols-2 lg:py-20">
         <motion.div {...fade}>
-          <p className="mb-4 inline-block rounded-full bg-white/20 px-4 py-1 text-sm font-semibold backdrop-blur">⭐ Trusted by thousands of families</p>
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1 text-sm font-semibold backdrop-blur"><StarIcon className="h-6 w-6" spark={false} /> Trusted by thousands of families</p>
           <h1 className="font-display text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
             Where Young Minds <span className="text-yellow">Love to Learn</span>
           </h1>
@@ -71,7 +72,7 @@ export function HomeHero() {
         </motion.div>
         <motion.div {...fade} className="relative mx-auto w-full max-w-xl">
           <div className="relative h-80 rounded-[2rem] bg-white/20 p-3 ring-4 ring-white/40 backdrop-blur-md md:h-[26rem]"><HeroCarousel /></div>
-          <div aria-hidden className="motion-safe:animate-float absolute -right-3 -top-4 flex h-16 w-16 items-center justify-center rounded-full bg-pink text-2xl shadow-lg">🌟</div>
+          <div aria-hidden className="motion-safe:animate-float absolute -right-3 -top-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg"><StarIcon className="h-11 w-11" spark={false} /></div>
         </motion.div>
       </div>
     </section>
@@ -125,7 +126,7 @@ export function ProgramFinder() {
           </div>
           {result && (
             <p role="status" className="mt-4 rounded-xl bg-purpleLight px-4 py-3 text-center font-medium text-purple">
-              ✨ We suggest <strong>{result.name}</strong>: {result.note}. <a className="underline" href="#contact">Book a free demo</a>
+              <CapIcon className="mr-2 inline h-6 w-6 align-middle" spark={false} />We suggest <strong>{result.name}</strong>: {result.note}. <a className="underline" href="#contact">Book a free demo</a>
             </p>
           )}
         </motion.div>
@@ -181,7 +182,7 @@ export function WhyBest() {
           <ul className="mt-6 space-y-3">
             {WHY.map((w) => (
               <li key={w} className="flex items-start gap-3 text-lg">
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple text-sm text-white">✓</span>{w}
+                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple text-white"><Check className="h-4 w-4" strokeWidth={3} /></span>{w}
               </li>
             ))}
           </ul>
@@ -199,10 +200,10 @@ export function WhyBest() {
 
 /* 7. Stress-free learning (reference: "What is Stress Free School") */
 const PILLARS = [
-  { e: '🧒', t: 'Child-centric methods', d: 'Lessons adapt to how each child learns best.' },
-  { e: '💡', t: 'Concept-based learning', d: 'Understand the why, not just memorise the how.' },
-  { e: '🗣️', t: 'Language mastery', d: 'English, Hindi and Tamil handwriting and speaking.' },
-  { e: '🧩', t: 'Learning through play', d: 'Puzzles, chess, cubes and art keep minds curious.' },
+  { Icon: ChildIcon, t: 'Child-centric methods', d: 'Lessons adapt to how each child learns best.' },
+  { Icon: BulbIcon, t: 'Concept-based learning', d: 'Understand the why, not just memorise the how.' },
+  { Icon: MicIcon, t: 'Language mastery', d: 'English, Hindi and Tamil handwriting and speaking.' },
+  { Icon: PuzzleIcon, t: 'Learning through play', d: 'Puzzles, chess, cubes and art keep minds curious.' },
 ]
 export function StressFree() {
   return (
@@ -212,7 +213,7 @@ export function StressFree() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map((p) => (
             <motion.div key={p.t} {...fade} className="rounded-3xl bg-white/15 p-6 text-center backdrop-blur ring-1 ring-white/30">
-              <div className="text-5xl">{p.e}</div>
+              <IconTile className="h-20 w-20"><p.Icon className="h-14 w-14" /></IconTile>
               <h3 className="mt-3 font-display text-lg font-bold">{p.t}</h3>
               <p className="mt-2 text-sm text-white/90">{p.d}</p>
             </motion.div>
@@ -223,21 +224,27 @@ export function StressFree() {
   )
 }
 
-/* 8. Course icon grid (reference: "20 Exciting Extra Curriculars") built from the real course list */
-const COLORS = ['bg-yellow/40', 'bg-pink/25', 'bg-accent-light/40', 'bg-purple/15']
+/* 8. Core courses: only the main programs (sub-courses like Phonics or Chess live on /courses) */
+const CORE = ['abacus', 'handwriting', 'arts', 'english', 'vedic-maths']
+const ACCENTS = ['border-t-yellow', 'border-t-pink', 'border-t-accent', 'border-t-purple', 'border-t-yellow']
 export function CourseGrid() {
-  const list = courses.filter((c) => c.category !== 'teacher')
+  const list = CORE.map((slug) => courses.find((c) => c.slug === slug)).filter((c): c is (typeof courses)[number] => !!c)
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
-        <Heading kicker="Courses" title={`${list.length} Exciting Courses & Skills`} sub="Pick one or combine several. Tap a course to see what your child will learn." />
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <Heading kicker="Our courses" title="Our Core Courses" sub="Proven programs that build focus, language and confidence. Tap one to see what your child will learn." />
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           {list.map((c, i) => (
-            <Link key={c.slug} href={`/courses/${c.slug}`} className={`group flex flex-col items-center rounded-3xl p-4 text-center shadow-gentle transition hover:-translate-y-1 hover:shadow-lg ${COLORS[i % 4]}`}>
-              <span className="relative mb-3 h-20 w-20 overflow-hidden rounded-2xl bg-white ring-2 ring-white"><Image src={c.imageUrl} alt="" fill className="object-cover" sizes="80px" /></span>
-              <span className="font-display font-bold text-purple">{c.title}</span>
-              <span className="mt-1 text-xs text-foreground/70">{c.details.ageGroup}</span>
-            </Link>
+            <motion.div key={c.slug} {...fade} transition={{ duration: 0.5, delay: i * 0.06 }} className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-1rem)] lg:w-[calc(20%-1.2rem)]">
+              <Link href={`/courses/${c.slug}`} className={`group flex h-full flex-col items-center rounded-3xl border border-t-4 bg-white p-4 text-center shadow-gentle transition hover:-translate-y-1 hover:shadow-xl ${ACCENTS[i % ACCENTS.length]}`}>
+                <span className="relative mb-3 flex h-24 w-full items-center justify-center rounded-2xl bg-purpleLight/60 p-3 sm:h-28">
+                  <Image src={c.imageUrl} alt={`${c.title} logo`} width={160} height={110} className="h-full w-full object-contain transition group-hover:scale-105" />
+                </span>
+                <span className="font-display text-base font-bold leading-snug text-purple sm:text-lg">{c.title}</span>
+                <span className="mt-2 rounded-full bg-yellow/40 px-3 py-0.5 text-xs font-semibold text-purple">{c.details.ageGroup}</span>
+                <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-pink">Learn more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></span>
+              </Link>
+            </motion.div>
           ))}
         </div>
         <div className="mt-8 text-center"><Link href="/courses" className="inline-flex h-12 items-center rounded-xl border-2 border-purple px-7 font-bold text-purple transition hover:bg-purple hover:text-white">View all courses</Link></div>

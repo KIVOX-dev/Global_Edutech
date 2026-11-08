@@ -1,6 +1,6 @@
 'use client'
 
-import EnquiryForm from './EnquiryForm'
+import Link from 'next/link'
 
 export default function ContactSection() {
   return (
@@ -18,12 +18,13 @@ export default function ContactSection() {
 
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-6">
-            {/* Contact Forms */}
-            <div className="bg-grayLight p-8 rounded-2xl shadow-lg">
-              <h3 className="text-2xl font-bold text-primary mb-6">Enquiry Form</h3>
-              <EnquiryForm />
+            {/* Enquiry call-to-action: the form lives on its own page */}
+            <div className="bg-gradient-to-br from-purple to-pink p-8 rounded-2xl shadow-lg text-white flex flex-col justify-center text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-3">Have a question? Send us an enquiry</h3>
+              <p className="mb-6 text-white/90">Share your child's age and the program you like. We will call you back with timings, fees and a free demo class.</p>
+              <Link href="/enquiry" className="mx-auto inline-flex h-14 items-center justify-center rounded-xl bg-yellow px-10 text-lg font-bold text-purple shadow-xl transition hover:scale-105">Enquire Now</Link>
             </div>
-            
+
             {/* Contact Information */}
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-primary mb-6">Get in Touch</h3>

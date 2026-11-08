@@ -55,7 +55,7 @@ export default function StaffDashboard() {
       </div>
 
       <Card title="Attendance to mark today" className="mt-4">
-        {!d.isWorkingDay ? <p className="text-sm text-muted-foreground">Nothing to mark: {d.reason}.</p> : d.pendingAttendance.length === 0 ? <p className="text-sm text-emerald-700">All your batches are marked for today ✓</p> : (
+        {!d.isWorkingDay ? <p className="text-sm text-muted-foreground">Nothing to mark: {d.reason}.</p> : d.pendingAttendance.length === 0 ? <p className="text-sm text-emerald-700">All your batches are marked for today</p> : (
           <ul className="space-y-2">
             {d.pendingAttendance.map((b) => (
               <li key={b.id} className="flex items-center justify-between rounded-xl border px-3 py-2">

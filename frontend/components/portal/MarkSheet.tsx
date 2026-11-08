@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { CheckCheck, Loader2, Lock, Save } from 'lucide-react'
+import { Check, CheckCheck, Clock, Loader2, Lock, Mail, Save, X, type LucideIcon } from 'lucide-react'
 import { api, todayIST } from '@/lib/portal/api'
 import { notifyError, notifyOk, useData } from '@/lib/portal/hooks'
 import { ErrorState, Spinner, btn, cx } from './kit'
@@ -16,11 +16,11 @@ type Roster = {
   students: { id: string; name: string; admissionNo: string; attendance: { id: string; status: Status; locked: boolean } | null }[]
 }
 
-const OPTIONS: { value: Status; short: string; label: string; icon: string; on: string; off: string; card: string }[] = [
-  { value: 'PRESENT', short: 'P', label: 'Present', icon: '✓', on: 'bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/40 scale-[1.03]', off: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100', card: 'border-l-emerald-500 bg-emerald-50/50' },
-  { value: 'ABSENT', short: 'A', label: 'Absent', icon: '✕', on: 'bg-red-500 text-white border-red-600 shadow-md shadow-red-500/40 scale-[1.03]', off: 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100', card: 'border-l-red-500 bg-red-50/50' },
-  { value: 'LATE', short: 'L', label: 'Late', icon: '⏰', on: 'bg-amber-400 text-amber-950 border-amber-500 shadow-md shadow-amber-400/50 scale-[1.03]', off: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100', card: 'border-l-amber-400 bg-amber-50/50' },
-  { value: 'EXCUSED', short: 'E', label: 'Excused', icon: '✉', on: 'bg-sky-500 text-white border-sky-600 shadow-md shadow-sky-500/40 scale-[1.03]', off: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100', card: 'border-l-sky-500 bg-sky-50/50' },
+const OPTIONS: { value: Status; short: string; label: string; Icon: LucideIcon; on: string; off: string; card: string }[] = [
+  { value: 'PRESENT', short: 'P', label: 'Present', Icon: Check, on: 'bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-500/40 scale-[1.03]', off: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100', card: 'border-l-emerald-500 bg-emerald-50/50' },
+  { value: 'ABSENT', short: 'A', label: 'Absent', Icon: X, on: 'bg-red-500 text-white border-red-600 shadow-md shadow-red-500/40 scale-[1.03]', off: 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100', card: 'border-l-red-500 bg-red-50/50' },
+  { value: 'LATE', short: 'L', label: 'Late', Icon: Clock, on: 'bg-amber-400 text-amber-950 border-amber-500 shadow-md shadow-amber-400/50 scale-[1.03]', off: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100', card: 'border-l-amber-400 bg-amber-50/50' },
+  { value: 'EXCUSED', short: 'E', label: 'Excused', Icon: Mail, on: 'bg-sky-500 text-white border-sky-600 shadow-md shadow-sky-500/40 scale-[1.03]', off: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100', card: 'border-l-sky-500 bg-sky-50/50' },
 ]
 
 // Mobile-first attendance sheet: big tap targets, tap a name to flip Present/Absent, sticky save bar
@@ -110,7 +110,7 @@ export default function MarkSheet({ batchId, date }: { batchId: string; date: st
                       onClick={() => set(s.id, o.value)}
                       className={cx('flex h-14 flex-col items-center justify-center rounded-xl border-2 text-sm font-bold leading-tight transition active:scale-95 disabled:opacity-50', current === o.value ? o.on : o.off)}
                     >
-                      <span aria-hidden className="text-base leading-none">{o.icon}</span><span className="text-[11px]">{o.label}</span>
+                      <o.Icon className="h-5 w-5" strokeWidth={2.75} aria-hidden /><span className="text-[11px]">{o.label}</span>
                     </button>
                   ))}
                 </div>
@@ -123,7 +123,7 @@ export default function MarkSheet({ batchId, date }: { batchId: string; date: st
       <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t bg-background/95 p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:bottom-0 lg:left-64">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
-            <span className="mr-2 font-semibold text-emerald-600">✓ {counts.PRESENT}</span><span className="mr-2 font-semibold text-red-600">✕ {counts.ABSENT}</span><span className="mr-2 font-semibold text-amber-600">⏰ {counts.LATE}</span><span className="mr-2 font-semibold text-sky-600">✉ {counts.EXCUSED}</span>{counts.unmarked ? <span>· {counts.unmarked} unmarked</span> : null}
+            <span className="mr-3 inline-flex items-center gap-1 font-semibold text-emerald-600"><Check className="h-4 w-4" />{counts.PRESENT}</span><span className="mr-3 inline-flex items-center gap-1 font-semibold text-red-600"><X className="h-4 w-4" />{counts.ABSENT}</span><span className="mr-3 inline-flex items-center gap-1 font-semibold text-amber-600"><Clock className="h-4 w-4" />{counts.LATE}</span><span className="mr-3 inline-flex items-center gap-1 font-semibold text-sky-600"><Mail className="h-4 w-4" />{counts.EXCUSED}</span>{counts.unmarked ? <span>· {counts.unmarked} unmarked</span> : null}
           </p>
           <div className="grid grid-cols-2 gap-2 sm:flex">
             <button className={btn('outline')} disabled={blocked || saving || data.students.length === 0} onClick={allPresent}><CheckCheck className="h-4 w-4" /> All present</button>

@@ -77,14 +77,12 @@ export default function Header() {
             </Link>
             {/* <ThemeToggle /> */}
             <Button
+              asChild
               variant="enquireNow"
               className="w-auto px-6 py-2"
-              onClick={e => handleNavClick(e, 'contact')}
               aria-label="Enquire Now"
             >
-              <span className="inline-flex items-center gap-2">
-                <span role="img" aria-label="Star">✨</span> Enquire Now
-              </span>
+              <Link href="/enquiry">Enquire Now</Link>
             </Button>
           </nav>
 
@@ -131,15 +129,10 @@ export default function Header() {
               <Button
                 variant="enquireNow"
                 className="text-left"
-                onClick={e => {
-                  handleNavClick(e, 'contact')
-                  setIsMenuOpen(false)
-                }}
+                asChild
                 aria-label="Enquire Now"
               >
-                <span className="inline-flex items-center gap-2">
-                  <span role="img" aria-label="Star">✨</span> Enquire Now
-                </span>
+                <Link href="/enquiry" onClick={() => setIsMenuOpen(false)}>Enquire Now</Link>
               </Button>
               {/* <div className="flex justify-center py-2">
                 <ThemeToggle />

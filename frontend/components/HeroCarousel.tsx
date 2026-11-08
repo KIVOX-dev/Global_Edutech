@@ -124,7 +124,7 @@ export default function HeroCarousel() {
                   className="w-auto text-xs md:text-sm py-1 px-3 h-auto"
                   onClick={() => window.location.href = '#contact'}
                 >
-                  <span role="img" aria-label="Star">✨</span> {slides[currentSlide].cta}
+                  {slides[currentSlide].cta}
                 </Button>
               </div>
             )} */}

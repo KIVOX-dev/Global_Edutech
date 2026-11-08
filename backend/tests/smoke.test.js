@@ -137,3 +137,25 @@ describe('admin and staff flows', () => {
     expect((await admin.get('/api/files/download-url?key=../../etc/passwd')).status).toBe(400);
   });
 });
+
+describe('website enquiries', () => {
+  it('public form saves an enquiry and the admin can manage it', async () => {
+    const { default: request } = await import('supertest');
+    const { app, loginAs: login, makeUser: mk, startDb: start, stopDb: stop, resetDb: reset } = await import('./helpers.js');
+    await start();
+    await reset();
+    await mk('ADMIN', 'admin@t.co');
+    const body = { name: 'Asha', email: 'asha@t.co', phone: '+91 93630 42019', program: 'Pre-School', studentAge: '3-5 years', preferredTime: 'Morning', message: 'Need details', formType: 'Program Enquiry' };
+    const res = await request(app).post('/api/submit-form').send(body);
+    expect(res.status).toBe(201);
+    expect((await request(app).post('/api/submit-form').send({ ...body, email: 'nope' })).status).toBe(400);
+    expect((await request(app).get('/api/admin/enquiries')).status).toBe(401);
+    const admin = await login('admin@t.co');
+    const list = await admin.get('/api/admin/enquiries?status=NEW');
+    expect(list.body.data).toHaveLength(1);
+    const id = list.body.data[0]._id;
+    expect((await admin.patch(`/api/admin/enquiries/${id}`).send({ status: 'CONTACTED', note: 'Called' })).body.data.status).toBe('CONTACTED');
+    expect((await admin.delete(`/api/admin/enquiries/${id}`)).status).toBe(200);
+    await stop();
+  });
+});

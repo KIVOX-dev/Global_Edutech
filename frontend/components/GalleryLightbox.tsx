@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { GalleryImage } from '@/data/gallery'
+import { X } from 'lucide-react'
 
 type Props = {
   images: GalleryImage[]
@@ -31,7 +32,7 @@ export default function GalleryLightbox({ images, initialIndex, onClose }: Props
   return (
     <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
       <button onClick={onClose} aria-label="Close" className="absolute top-4 right-4 text-foreground p-2 rounded-full bg-background/40">
-        ✕
+        <X className="h-5 w-5" />
       </button>
 
       <button onClick={() => setCurrentIndex(i => (i > 0 ? i - 1 : images.length - 1))} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground p-2 rounded-full bg-background/40">

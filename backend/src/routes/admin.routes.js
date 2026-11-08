@@ -9,6 +9,7 @@ import * as acad from '../controllers/admin.academics.controller.js';
 import * as dash from '../controllers/admin.dashboard.controller.js';
 import * as att from '../controllers/attendance.controller.js';
 import * as fees from '../controllers/fees.controller.js';
+import * as enq from '../controllers/enquiries.controller.js';
 import * as rem from '../controllers/reminders.controller.js';
 
 const r = Router();
@@ -75,6 +76,11 @@ r.get('/fees/:id', id, fees.getFee);
 r.post('/fees/:id/payments', id, validate({ body: fees.schemas.payment }), fees.addPayment);
 r.get('/payments', q, fees.listPayments);
 r.get('/payments/:id/receipt', id, fees.receipt);
+
+// website enquiries
+r.get('/enquiries', q, enq.list);
+r.patch('/enquiries/:id', id, validate({ body: enq.schemas.update }), enq.update);
+r.delete('/enquiries/:id', id, enq.remove);
 
 // reminders
 r.get('/reminders/settings', rem.getSettings);

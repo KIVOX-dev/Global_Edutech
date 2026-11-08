@@ -23,4 +23,5 @@ export const loginLimiter = make({
 
 export const authLimiter = make({ windowMs: 15 * 60 * 1000, limit: 30, handler: handler('Too many requests. Try again later.') });
 export const forgotLimiter = make({ windowMs: 60 * 60 * 1000, limit: 5, handler: handler('Too many reset requests. Try again in an hour.') });
+export const enquiryLimiter = make({ windowMs: 60 * 60 * 1000, limit: 10, handler: handler('Too many enquiries from this connection. Please call us instead.') });
 export const reminderTriggerLimiter = make({ windowMs: 60 * 60 * 1000, limit: 20, handler: handler('Reminder trigger limit reached. Try again later.') });
