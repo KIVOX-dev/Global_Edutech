@@ -39,16 +39,8 @@ export default function Header() {
       <div className="container-custom">
         <div className="flex items-center justify-between py-3">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center shadow-md">
-              <img src="/images/logo.png" alt="Global Edutech Logo" className="w-8 h-8" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-display font-bold text-primary tracking-tight">
-                Global Edutech
-              </h1>
-              <p className="text-xs text-foreground font-poppins">Nurturing Young Minds</p>
-            </div>
+          <Link href="/" className="flex items-center" aria-label="Global Edutech home">
+            <img src="/images/logo-banner.png" alt="Global Edutech - Nurturing Young Minds" width={2014} height={438} className="h-11 w-auto sm:h-12 md:h-14" />
           </Link>
 
           {/* Desktop Navigation */}

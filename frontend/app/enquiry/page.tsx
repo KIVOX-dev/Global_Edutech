@@ -22,8 +22,8 @@ export default function EnquiryPage() {
             <p className="mx-auto mt-3 max-w-2xl text-foreground/80 lg:mt-1 lg:text-sm">Tell us about your child and we will call you back with the right program, timings and a free demo class.</p>
           </div>
 
-          <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <div className="order-2 lg:order-1">
+          <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="order-2 min-w-0 lg:order-1">
               <div className="rounded-3xl bg-white p-5 shadow-xl ring-1 ring-purple/10 sm:p-8 lg:p-5">
                 <EnquiryFromQuery />
               </div>
@@ -36,7 +36,7 @@ export default function EnquiryPage() {
                 </Link>
               </div>
             </div>
-            <aside className="relative order-1 lg:order-2 lg:min-h-[30rem]"><LogoMarquee /></aside>
+            <aside className="relative order-1 min-w-0 lg:order-2 lg:min-h-[30rem]"><LogoMarquee /></aside>
           </div>
         </div>
       </section>

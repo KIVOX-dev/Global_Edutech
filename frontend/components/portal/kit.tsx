@@ -347,6 +347,8 @@ export function FormModal({ open, title, fields, initial, submitLabel = 'Save', 
                     ref={i === 0 ? firstRef : undefined}
                     className={inputCls}
                     type={f.type || 'text'}
+                    inputMode={f.type === 'tel' ? 'tel' : f.type === 'email' ? 'email' : f.type === 'number' ? 'decimal' : undefined}
+                    autoCapitalize={f.type === 'email' ? 'none' : undefined}
                     required={f.required}
                     placeholder={f.placeholder}
                     step={f.type === 'number' ? 'any' : undefined}
@@ -360,7 +362,7 @@ export function FormModal({ open, title, fields, initial, submitLabel = 'Save', 
           </label>
         ))}
         {err && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 sm:col-span-2">{err}</p>}
-        <div className="flex flex-col-reverse gap-2 sm:col-span-2 sm:flex-row sm:justify-end">
+        <div className="sticky bottom-0 -mx-5 flex flex-col-reverse gap-2 border-t bg-background px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:static sm:col-span-2 sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:p-0">
           <button type="button" className={btn('ghost')} onClick={onClose} disabled={busy}>Cancel</button>
           <button type="submit" className={btn('primary')} disabled={busy}>{busy && <Loader2 className="h-4 w-4 animate-spin" />}{submitLabel}</button>
         </div>

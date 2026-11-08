@@ -131,6 +131,9 @@ export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFor
           <input
             type="text"
             id="enquiry-name"
+            autoComplete="name"
+            autoCapitalize="words"
+            enterKeyHint="next"
             name="name"
             value={formData.name}
             onChange={handleChange}
@@ -147,6 +150,10 @@ export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFor
           <input
             type="email"
             id="enquiry-email"
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            enterKeyHint="next"
             name="email"
             value={formData.email}
             onChange={handleChange}
@@ -164,6 +171,9 @@ export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFor
           <input
             type="tel"
             id="enquiry-phone"
+            autoComplete="tel"
+            inputMode="tel"
+            enterKeyHint="next"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
@@ -261,7 +271,7 @@ export default function EnquiryForm({ courseTitle, compact = false }: EnquiryFor
       </div>
       
       {/* Submit button - centered */}
-      <div className={`mt-6 lg:mt-4 ${compact ? '' : 'flex justify-center'}`}>
+      <div className={`mt-6 lg:mt-4 max-lg:sticky max-lg:bottom-0 max-lg:z-20 max-lg:-mx-5 max-lg:border-t max-lg:bg-white/95 max-lg:px-5 max-lg:py-3 max-lg:backdrop-blur sm:max-lg:-mx-8 sm:max-lg:px-8 ${compact ? '' : 'flex justify-center'}`}>
         <button
           type="submit"
           disabled={isSubmitting}

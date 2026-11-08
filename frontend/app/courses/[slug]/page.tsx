@@ -3,6 +3,8 @@ import { getCourseBySlug, courses } from '@/lib/courses-data'
 import Image from 'next/image'
 import { blendStyle } from '@/lib/image-blend'
 import Link from 'next/link'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 import LogoMarquee from '@/components/LogoMarquee'
 import { Monitor } from 'lucide-react'
 import { notFound } from 'next/navigation'
@@ -52,32 +54,9 @@ export default function CoursePage({ params }: CoursePageProps) {
   }
   
   return (
-    <main className="pt-24 pb-16">
-      {/* Floating Navigation Buttons */}
-      <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-4">
-        <Link 
-          href="/courses" 
-          className="flex items-center justify-center bg-primary hover:bg-accent text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
-          aria-label="Back to courses"
-          title="Back to Courses"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-          </svg>
-        </Link>
-        
-        <Link 
-          href="/" 
-          className="flex items-center justify-center bg-white border-2 border-primary hover:bg-primary text-primary hover:text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110"
-          aria-label="Back to home"
-          title="Back to Home"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-        </Link>
-      </div>
-
+    <>
+    <Header />
+    <main>
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-purpleLight to-white py-8 md:py-10">
         <div className="container mx-auto px-4">
@@ -143,12 +122,12 @@ export default function CoursePage({ params }: CoursePageProps) {
       <section className="py-8 md:py-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-12">
-            <div className="w-full lg:w-8/12">
+            <div className="w-full min-w-0 lg:w-8/12">
               <h2 className="mb-5 font-display text-3xl font-bold text-black">
                 About This Program
               </h2>
               <div className="max-w-none text-lg leading-relaxed text-foreground/85">
-                <p className="whitespace-pre-line">{longDesc}</p>
+                <p className="whitespace-pre-line">{longDesc.trim().split('\n').map((l) => l.trim()).join('\n')}</p>
               </div>
               
               <h3 className="mb-5 mt-10 font-display text-2xl font-bold text-black">
@@ -189,7 +168,7 @@ export default function CoursePage({ params }: CoursePageProps) {
               )}
             </div>
             
-            <div className="w-full lg:w-4/12">
+            <div className="w-full min-w-0 lg:w-4/12">
               <div className="space-y-5 lg:sticky lg:top-24">
               <div className="rounded-3xl bg-white p-6 text-center shadow-xl ring-1 ring-purple/10">
                 <h3 className="mb-2 font-display text-xl font-bold text-black">Interested in this program?</h3>
@@ -223,5 +202,7 @@ export default function CoursePage({ params }: CoursePageProps) {
         </div>
       </section>
     </main>
+    <Footer />
+    </>
   )
 }
