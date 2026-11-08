@@ -10,6 +10,7 @@ const schema = z.object({
   PORT: str('9000'),
   X_ZOHO_CATALYST_LISTEN_PORT: str(''),
   APP_URL: str('http://localhost:5173'),
+  ALLOWED_ORIGINS: str(''), // extra browser origins allowed to call the API, comma-separated (e.g. a vercel.app address)
   APP_TIMEZONE: str('Asia/Kolkata'),
   INSTITUTE_NAME: str('Global Edutech'),
   MONGODB_URI: str(''),
@@ -34,6 +35,22 @@ const schema = z.object({
   PAYMENT_INSTRUCTIONS: str('Please pay at the institute office or via UPI / bank transfer and share the reference.'),
   STATIC_DIR: str(''),
 });
+
+// APP_URL plus its www / non-www twin, plus anything listed in ALLOWED_ORIGINS (all normalised, no trailing slash)
+export function buildAllowedOrigins(appUrl, extra = '') {
+  const out = new Set();
+  const add = (raw) => {
+    try {
+      const u = new URL(String(raw).trim());
+      out.add(u.origin);
+      if (u.hostname.startsWith('www.')) out.add(`${u.protocol}//${u.hostname.slice(4)}${u.port ? `:${u.port}` : ''}`);
+      else if (u.hostname.includes('.') && !/^\d+\.\d+\.\d+\.\d+$/.test(u.hostname) && u.hostname !== 'localhost') out.add(`${u.protocol}//www.${u.hostname}${u.port ? `:${u.port}` : ''}`);
+    } catch { /* ignore malformed entries */ }
+  };
+  add(appUrl);
+  String(extra || '').split(',').filter((x) => x.trim()).forEach(add);
+  return [...out];
+}
 
 export function loadConfig(env = process.env) {
   const parsed = schema.safeParse(env);
@@ -86,6 +103,7 @@ export function loadConfig(env = process.env) {
     port: Number(e.X_ZOHO_CATALYST_LISTEN_PORT || e.PORT || 9000),
     host: '0.0.0.0',
     appUrl: e.APP_URL.replace(/\/$/, ''),
+    allowedOrigins: buildAllowedOrigins(e.APP_URL, e.ALLOWED_ORIGINS),
     timezone: e.APP_TIMEZONE,
     instituteName: e.INSTITUTE_NAME,
     paymentInstructions: e.PAYMENT_INSTRUCTIONS,

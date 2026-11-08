@@ -77,6 +77,7 @@ export function errorHandler(err, req, res, next) {
     status = 400; code = 'INVALID_JSON'; message = 'Malformed JSON body';
   } else if (err?.message === 'CORS_NOT_ALLOWED') {
     status = 403; code = 'CORS_NOT_ALLOWED'; message = 'Origin not allowed';
+    logger.warn({ origin: req.headers.origin, allowed: config.allowedOrigins }, 'Request blocked by CORS: set APP_URL (or ALLOWED_ORIGINS) to this origin');
   }
 
   if (status === 500) logger.error({ err, reqId: req.id, path: req.path }, 'Unhandled error');

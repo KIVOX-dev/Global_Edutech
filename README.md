@@ -114,10 +114,10 @@ The website deliberately has **no login or sign-up link**. Staff and admins go s
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `ADMIN_SEED_EMAIL` (default `admin@example.com`) | `ADMIN_SEED_PASSWORD` (this project's local `.env` uses `Admin@2026`) |
+| Admin | `ADMIN_SEED_EMAIL` (this project's `.env` uses `globaleducationgv@gmail.com`) | `ADMIN_SEED_PASSWORD` (this project's local `.env` uses `Admin@2026`) |
 | Staff | `priya.staff@example.com` (also `rahul.staff@…`, `anita.staff@…`) | `Staff@12345` |
 
-The seed creates 1 admin, 3 staff, 2 courses, 2 batches, 20 students, a week of attendance and fees that are paid, partial, pending and overdue. **Change the admin password in any real environment.** Staff created from the admin panel get a one-time temporary password and must change it at first sign-in.
+The seed creates 1 admin, 3 staff, 2 courses, 2 batches, 20 students, a week of attendance and fees that are paid, partial, pending and overdue. `npm run seed:admin` (in `backend/`) creates only the admin account, with no sample data: use it for production. **Change the admin password in any real environment.** Staff created from the admin panel get a one-time temporary password and must change it at first sign-in.
 
 ### Placeholder mode
 

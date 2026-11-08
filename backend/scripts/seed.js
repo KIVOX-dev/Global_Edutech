@@ -36,6 +36,13 @@ async function main() {
   await getSettings();
   await getReminderSettings();
 
+  // npm run seed:admin creates only the admin account and default settings (no sample students, staff or fees)
+  if (process.argv.includes('--admin-only')) {
+    console.log('Admin-only seed complete.');
+    console.log(`Admin login : ${adminEmail}`);
+    return;
+  }
+
   // --- staff
   const staffDefs = [
     { name: 'Priya Sharma', email: 'priya.staff@example.com', designation: 'Senior Teacher', employeeId: 'EMP-001' },

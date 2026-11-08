@@ -49,7 +49,7 @@ export function createApp() {
     crossOriginEmbedderPolicy: false,
   }));
   app.use(cors({
-    origin: (origin, cb) => (!origin || origin === config.appUrl ? cb(null, true) : cb(new Error('CORS_NOT_ALLOWED'))),
+    origin: (origin, cb) => (!origin || config.allowedOrigins.includes(origin) ? cb(null, true) : cb(new Error('CORS_NOT_ALLOWED'))),
     credentials: true,
   }));
   app.use(cookieParser());
