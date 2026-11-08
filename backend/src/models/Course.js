@@ -10,6 +10,9 @@ const courseSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   code: { type: String, required: true, unique: true, uppercase: true, trim: true },
   durationMonths: { type: Number, default: 12, min: 1 },
+  startDate: String,
+  endDate: String,
+  classDays: { type: [Number], default: [] },
   totalFee: { type: Number, default: 0, min: 0 },
   installments: { type: [installmentSchema], default: [] },
 }, { timestamps: true });

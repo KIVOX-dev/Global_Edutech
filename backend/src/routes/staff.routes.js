@@ -12,8 +12,6 @@ r.get('/batches', c.myBatches);
 r.get('/batches/:id/students', validate({ params: idParams }), c.batchStudents);
 r.get('/profile', c.getProfile);
 r.patch('/profile', validate({ body: c.schemas.profile }), c.updateProfile);
-r.post('/attendance/check-in', c.checkIn);
-r.post('/attendance/check-out', c.checkOut);
 r.get('/attendance/me', validate({ query: c.schemas.month }), c.myAttendance);
 r.post('/leaves', validate({ body: c.schemas.leave }), c.createLeave);
 r.get('/leaves', validate({ query: pagingQuery }), c.myLeaves);

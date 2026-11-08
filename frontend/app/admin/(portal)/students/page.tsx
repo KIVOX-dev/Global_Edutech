@@ -42,8 +42,6 @@ export default function StudentsPage() {
   const fields: Field[] = useMemo(() => [
     { name: 'name', label: 'Student name', required: true, half: true },
     { name: 'admissionNo', label: 'Admission no.', half: true, help: 'Leave blank to auto-generate' },
-    { name: 'phone', label: 'Phone', type: 'tel', half: true },
-    { name: 'email', label: 'Email', type: 'email', half: true },
     { name: 'parentName', label: 'Parent name', half: true },
     { name: 'parentPhone', label: 'Parent phone', type: 'tel', half: true },
     { name: 'parentEmail', label: 'Parent email', type: 'email', help: 'Fee reminders are also sent here' },

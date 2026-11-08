@@ -1,5 +1,6 @@
 import { StaffAttendance, LeaveRequest } from '../models/Attendance.js';
 import StaffProfile from '../models/StaffProfile.js';
+import User from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
 import { todayStr, now, toHHmm, minutesOf, eachDate, monthRange } from '../utils/dates.js';
 import { dayStatus, loadCalendar } from './attendance.service.js';
@@ -16,44 +17,39 @@ async function profileOf(userId) {
   return p;
 }
 
-export async function checkIn(req) {
-  const user = req.user;
-  const date = todayStr();
-  const status = await dayStatus(date);
-  if (!status.isWorkingDay) throw new ApiError(400, 'NON_WORKING_DAY', `Check-in not needed: ${status.reason}`);
-  const profile = await profileOf(user._id);
-  const settings = await getSettings();
-  const at = now().toDate();
-  const late = isLate(at, profile.shiftStart, settings.staffLateGraceMinutes);
-
-  const existing = await StaffAttendance.findOne({ staff: user._id, date });
-  if (existing?.status === 'ON_LEAVE') throw ApiError.conflict('You are on approved leave today');
-  if (existing?.checkIn) throw ApiError.conflict('Already checked in today');
-
-  // Unique (staff, date) index guarantees a single row even with concurrent taps
-  const rec = await StaffAttendance.findOneAndUpdate(
-    { staff: user._id, date },
-    { $set: { checkIn: at, status: late ? 'LATE' : 'PRESENT' } },
-    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
-  );
-  await audit(req, { action: 'STAFF_CHECK_IN', entity: 'StaffAttendance', entityId: rec._id, after: rec });
-  return rec;
+// Staff attendance is recorded by the admin only (no self check-in)
+export async function staffRoster(date) {
+  const staff = await User.find({ role: 'STAFF', isActive: true }).select('name email').sort({ name: 1 }).lean();
+  const recs = await StaffAttendance.find({ date, staff: { $in: staff.map((u) => u._id) } }).lean();
+  const by = new Map(recs.map((r) => [String(r.staff), r]));
+  const day = await dayStatus(date);
+  return {
+    date, isWorkingDay: day.isWorkingDay, reason: day.reason,
+    staff: staff.map((u) => ({ id: u._id, name: u.name, email: u.email, status: by.get(String(u._id))?.status || null, note: by.get(String(u._id))?.note || '' })),
+  };
 }
 
-export async function checkOut(req) {
-  const user = req.user;
-  const date = todayStr();
-  const rec = await StaffAttendance.findOne({ staff: user._id, date });
-  if (!rec?.checkIn) throw ApiError.badRequest('You have not checked in today');
-  if (rec.checkOut) throw ApiError.conflict('Already checked out today');
-  const profile = await profileOf(user._id);
-  rec.checkOut = now().toDate();
-  rec.totalMinutes = minutesBetween(rec.checkIn, rec.checkOut);
-  const shiftMinutes = minutesOf(profile.shiftEnd) - minutesOf(profile.shiftStart);
-  if (shiftMinutes > 0 && rec.totalMinutes < shiftMinutes / 2) rec.status = 'HALF_DAY';
-  await rec.save();
-  await audit(req, { action: 'STAFF_CHECK_OUT', entity: 'StaffAttendance', entityId: rec._id, after: rec });
-  return rec;
+export async function markStaff(req, { date, entries, markAllPresent }) {
+  if (date > todayStr()) throw ApiError.badRequest('Cannot mark attendance for a future date');
+  const day = await dayStatus(date);
+  if (!day.isWorkingDay) throw new ApiError(400, 'NON_WORKING_DAY', `Not a working day: ${day.reason}`);
+  const active = await User.find({ role: 'STAFF', isActive: true }).select('_id').lean();
+  const ok = new Set(active.map((u) => String(u._id)));
+  const chosen = new Map();
+  if (markAllPresent) {
+    const existing = new Set((await StaffAttendance.find({ date }).select('staff').lean()).map((r) => String(r.staff)));
+    for (const id of ok) if (!existing.has(id)) chosen.set(id, { status: 'PRESENT' });
+  }
+  for (const e of entries || []) {
+    if (!ok.has(String(e.staffId))) throw ApiError.badRequest('One or more staff members are invalid or inactive');
+    chosen.set(String(e.staffId), { status: e.status, note: e.note });
+  }
+  const ops = [...chosen].map(([staff, v]) => ({
+    updateOne: { filter: { staff, date }, update: { $set: { status: v.status, ...(v.note !== undefined && { note: v.note }) } }, upsert: true },
+  }));
+  if (ops.length) await StaffAttendance.bulkWrite(ops, { ordered: false });
+  await audit(req, { action: 'ADMIN_MARK_STAFF_ATTENDANCE', entity: 'StaffAttendance', after: { date, saved: ops.length } });
+  return { date, saved: ops.length };
 }
 
 export async function monthView(userId, ym) {
@@ -71,7 +67,7 @@ export async function monthView(userId, ym) {
     else if (r?.status === 'LATE') { summary.late += 1; summary.present += 1; }
     else if (r?.status === 'HALF_DAY') summary.halfDay += 1;
     else if (r?.status === 'ON_LEAVE') summary.onLeave += 1;
-    else if (r?.status === 'ABSENT' || (!r && d < today && cal.isWorkingDay(d))) summary.absent += 1;
+    else if (r?.status === 'ABSENT') summary.absent += 1;
     summary.totalMinutes += r?.totalMinutes || 0;
   }
   return { month: ym, from, to, records, summary, holidays: [...cal.holidayMap.values()] };

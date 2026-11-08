@@ -1,11 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
-import { LogIn, LogOut } from 'lucide-react'
 import { Card, ErrorState, PageHeader, Spinner, StatCard, StatusBadge, btn } from '@/components/portal/kit'
-import { api, fmtDate, fmtTime } from '@/lib/portal/api'
-import { notifyError, notifyOk, useData } from '@/lib/portal/hooks'
+import { fmtDate } from '@/lib/portal/api'
+import { useData } from '@/lib/portal/hooks'
 import { useAuth } from '@/lib/portal/auth'
 import { Donut, TrendChart, TrendPoint } from '@/components/portal/Charts'
 
@@ -20,32 +18,19 @@ type Dash = {
 export default function StaffDashboard() {
   const { user } = useAuth()
   const { data: d, loading, error, reload } = useData<Dash>('/staff/dashboard')
-  const [busy, setBusy] = useState(false)
 
   if (loading) return <div className="flex justify-center py-20"><Spinner className="h-8 w-8" /></div>
   if (error || !d) return <ErrorState message={error || 'Could not load the dashboard'} onRetry={reload} />
 
-  const act = async (path: string, msg: string) => {
-    setBusy(true)
-    try { await api.post(path); notifyOk(msg); reload() } catch (e) { notifyError(e) } finally { setBusy(false) }
-  }
   const t = d.todayAttendance
 
   return (
     <>
       <PageHeader title={`Hello, ${user?.name.split(' ')[0] || ''}`} subtitle={`${fmtDate(d.date)}${d.shift ? ` · shift ${d.shift.start}–${d.shift.end}` : ''}`} />
 
-      <Card title="Today's attendance">
-        {!d.isWorkingDay ? <p className="text-sm text-muted-foreground">{d.reason}. No check-in needed today.</p> : (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="text-sm">
-              {t ? <p><StatusBadge value={t.status} /> <span className="ml-2">In {fmtTime(t.checkIn)}{t.checkOut ? ` · Out ${fmtTime(t.checkOut)} · ${((t.totalMinutes || 0) / 60).toFixed(1)} h` : ''}</span></p> : <p className="text-muted-foreground">You have not checked in yet.</p>}
-            </div>
-            <div className="flex gap-2">
-              <button className={btn('success', 'lg')} disabled={busy || !!t?.checkIn || t?.status === 'ON_LEAVE'} onClick={() => act('/staff/attendance/check-in', 'Checked in')}><LogIn className="h-5 w-5" /> Check in</button>
-              <button className={btn('outline', 'lg')} disabled={busy || !t?.checkIn || !!t?.checkOut} onClick={() => act('/staff/attendance/check-out', 'Checked out')}><LogOut className="h-5 w-5" /> Check out</button>
-            </div>
-          </div>
+      <Card title="My attendance today">
+        {!d.isWorkingDay ? <p className="text-sm text-muted-foreground">{d.reason}. No attendance today.</p> : (
+          <p className="text-sm">{t ? <StatusBadge value={t.status} /> : <span className="text-muted-foreground">Not marked yet. Your administrator records staff attendance.</span>}</p>
         )}
       </Card>
 

@@ -255,7 +255,7 @@ export function Modal({ open, title, onClose, children, wide }: { open: boolean;
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true" aria-label={title}>
-      <div className={cx('max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl bg-background p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-xl sm:rounded-2xl sm:pb-5', wide ? 'sm:max-w-3xl' : 'sm:max-w-lg')}>
+      <div className={cx('max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl bg-background p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-xl sm:rounded-2xl sm:pb-5', wide ? 'sm:max-w-3xl lg:max-w-5xl' : 'sm:max-w-lg')}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold">{title}</h2>
           <button className="rounded-lg p-1 hover:bg-muted" onClick={onClose} aria-label="Close"><X className="h-5 w-5" /></button>
@@ -326,10 +326,10 @@ export function FormModal({ open, title, fields, initial, submitLabel = 'Save', 
           setErr(null)
           try { await onSubmit(values); onClose() } catch (x) { setErr(errorMessage(x)) } finally { setBusy(false) }
         }}
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+        className={cx('grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2', wide && 'lg:grid-cols-3')}
       >
         {fields.map((f, i) => (
-          <label key={f.name} className={cx('flex flex-col gap-1 text-sm', !f.half && 'sm:col-span-2', f.type === 'checkbox' && 'flex-row items-center gap-2')}>
+          <label key={f.name} className={cx('flex flex-col gap-1 text-sm', !f.half && (wide ? 'sm:col-span-2 lg:col-span-3' : 'sm:col-span-2'), f.type === 'checkbox' && 'flex-row items-center gap-2')}>
             {f.type === 'checkbox' ? (
               <>
                 <input type="checkbox" className="h-4 w-4 accent-purple" checked={Boolean(values[f.name])} onChange={(e) => setValues((s) => ({ ...s, [f.name]: e.target.checked }))} />
@@ -365,8 +365,8 @@ export function FormModal({ open, title, fields, initial, submitLabel = 'Save', 
             )}
           </label>
         ))}
-        {err && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 sm:col-span-2">{err}</p>}
-        <div className="sticky bottom-0 -mx-5 flex flex-col-reverse gap-2 border-t bg-background px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:static sm:col-span-2 sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:p-0">
+        {err && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 sm:col-span-2 lg:col-span-full">{err}</p>}
+        <div className="sticky bottom-0 -mx-5 flex flex-col-reverse gap-2 border-t bg-background px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:static sm:col-span-2 lg:col-span-full sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:p-0">
           <button type="button" className={btn('ghost')} onClick={onClose} disabled={busy}>Cancel</button>
           <button type="submit" className={btn('primary')} disabled={busy}>{busy && <Loader2 className="h-4 w-4 animate-spin" />}{submitLabel}</button>
         </div>

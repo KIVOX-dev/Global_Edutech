@@ -54,7 +54,7 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={submit} className="space-y-3 sm:space-y-4">
       <label className="block text-sm font-medium">Email
         <input className={`${inputCls} mt-1`} type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </label>

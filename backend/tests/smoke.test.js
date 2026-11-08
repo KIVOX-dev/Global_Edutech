@@ -57,12 +57,7 @@ describe('admin and staff flows', () => {
     expect(mark.saved).toBe(3);
     okRes(await staffAgent.get('/api/staff/batches'));
     okRes(await staffAgent.get(`/api/staff/batches/${ids.batch}/students`));
-    const ci = await staffAgent.post('/api/staff/attendance/check-in');
-    expect([201, 400]).toContain(ci.status); // 400 on a weekly off day
-    if (ci.status === 201) {
-      expect((await staffAgent.post('/api/staff/attendance/check-in')).status).toBe(409);
-      okRes(await staffAgent.post('/api/staff/attendance/check-out'));
-    }
+    expect((await staffAgent.post('/api/staff/attendance/check-in')).status).toBe(404); // admin marks staff attendance
     okRes(await staffAgent.get('/api/staff/attendance/me'));
     const from = addDays(todayStr(), 3);
     const leave = okRes(await staffAgent.post('/api/staff/leaves').send({ type: 'CASUAL', fromDate: from, toDate: addDays(from, 1), reason: 'Family' }), 201);

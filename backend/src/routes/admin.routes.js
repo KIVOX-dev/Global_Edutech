@@ -62,6 +62,8 @@ r.get('/audit-logs', q, acad.listAudit);
 
 // attendance oversight, leaves, reports
 r.get('/attendance/staff', q, att.listStaffAttendance);
+r.get('/attendance/staff-roster', att.staffRoster);
+r.post('/attendance/staff-mark', validate({ body: att.schemas.staffMark }), att.markStaff);
 r.patch('/attendance/staff/:id', id, validate({ body: att.schemas.staffEdit }), att.editStaffAttendance);
 r.get('/leaves', q, att.listLeaves);
 r.patch('/leaves/:id', id, validate({ body: att.schemas.leaveReview }), att.reviewLeave);

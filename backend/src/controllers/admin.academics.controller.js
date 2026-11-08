@@ -16,9 +16,14 @@ import { rescheduleReminders } from '../jobs/scheduler.js';
 const installment = z.object({ label: reqText(60), amount: money, dueOffsetDays: z.coerce.number().int().min(0).max(3650).default(0) });
 const courseBody = {
   name: reqText(120), code: reqText(20), durationMonths: z.coerce.number().int().min(1).max(120).optional(),
+  startDate: dateStr.optional().or(z.literal(null)), endDate: dateStr.optional().or(z.literal(null)),
+  classDays: z.array(z.number().int().min(0).max(6)).max(7).optional(),
   totalFee: money.optional(), installments: z.array(installment).max(24).optional(),
 };
-export const courseSchemas = { create: z.object(courseBody), update: z.object(courseBody).partial() };
+export const courseSchemas = {
+  create: z.object(courseBody).refine((v) => !v.startDate || !v.endDate || v.endDate >= v.startDate, 'End date is before start date'),
+  update: z.object(courseBody).partial().refine((v) => !v.startDate || !v.endDate || v.endDate >= v.startDate, 'End date is before start date'),
+};
 
 export const listCourses = asyncHandler(async (req, res) => {
   const f = req.query.search ? { $or: [{ name: new RegExp(escapeRegex(req.query.search), 'i') }, { code: new RegExp(escapeRegex(req.query.search), 'i') }] } : {};

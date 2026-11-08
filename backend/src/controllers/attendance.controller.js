@@ -22,6 +22,11 @@ export const schemas = {
   }),
   edit: z.object({ status: status.optional(), note: text(300).optional() }).refine((v) => v.status || v.note !== undefined, 'Nothing to update'),
   range: z.object({ from: dateStr.optional(), to: dateStr.optional() }).passthrough(),
+  staffMark: z.object({
+    date: dateStr,
+    markAllPresent: z.boolean().optional(),
+    entries: z.array(z.object({ staffId: objectId, status: z.enum(['PRESENT', 'LATE', 'ABSENT', 'ON_LEAVE', 'HALF_DAY']), note: text(300).optional() })).max(200).default([]),
+  }),
   staffEdit: z.object({
     status: z.enum(['PRESENT', 'LATE', 'ABSENT', 'ON_LEAVE', 'HALF_DAY']).optional(),
     checkIn: z.coerce.date().optional(), checkOut: z.coerce.date().optional(), note: text(300).optional(),
@@ -50,6 +55,8 @@ export const listStaffAttendance = asyncHandler(async (req, res) => {
   await paginate(res, StaffAttendance, f, { limit: 100, ...req.query }, { sort: { date: -1 }, populate: { path: 'staff', select: 'name email' } });
 });
 
+export const staffRoster = asyncHandler(async (req, res) => ok(res, await staffAtt.staffRoster(req.query.date || todayStr())));
+export const markStaff = asyncHandler(async (req, res) => ok(res, await staffAtt.markStaff(req, req.body)));
 export const editStaffAttendance = asyncHandler(async (req, res) => ok(res, await staffAtt.adminEditStaffAttendance(req, req.params.id, req.body)));
 
 export const listLeaves = asyncHandler(async (req, res) => {

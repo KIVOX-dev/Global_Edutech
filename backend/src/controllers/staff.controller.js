@@ -91,8 +91,6 @@ export const updateProfile = asyncHandler(async (req, res) => {
   ok(res, { id: user._id, name: user.name, phone: user.phone });
 });
 
-export const checkIn = asyncHandler(async (req, res) => created(res, await staffAtt.checkIn(req)));
-export const checkOut = asyncHandler(async (req, res) => ok(res, await staffAtt.checkOut(req)));
 export const myAttendance = asyncHandler(async (req, res) => ok(res, await staffAtt.monthView(req.user._id, req.query.month || todayStr().slice(0, 7))));
 
 export const createLeave = asyncHandler(async (req, res) => created(res, await staffAtt.createLeave(req, req.body)));

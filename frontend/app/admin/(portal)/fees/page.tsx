@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BellRing, IndianRupee, Plus, Wand2 } from 'lucide-react'
+import { BellRing, IndianRupee, Wand2 } from 'lucide-react'
 import { Card, Column, DataTable, Field, FilterSelect, FormModal, Modal, PageHeader, SearchBox, StatCard, StatusBadge, btn, clean, inputCls } from '@/components/portal/kit'
 import { api, fmtDate, money, todayIST } from '@/lib/portal/api'
 import { notifyError, notifyOk, useData, useDebounced, useList } from '@/lib/portal/hooks'
@@ -159,36 +159,43 @@ function GenerateModal({ onClose, onDone }: { onClose: () => void; onDone: () =>
   )
 }
 
-type Structure = { _id: string; name: string; course?: { name: string }; totalAmount: number; installments: { label: string; amount: number; dueOffsetDays: number }[]; isActive: boolean }
+type CourseFee = {
+  _id: string; name: string; code: string; durationMonths: number; startDate?: string; endDate?: string; classDays?: number[]
+  totalFee: number; installments: { label: string; amount: number; dueOffsetDays: number }[]
+}
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+// Every course added under Courses & Batches shows up here with the same details; the fee plan is edited here
 function Structures() {
   const [page, setPage] = useState(1)
-  const { rows, meta, loading, error, reload } = useList<Structure>('/admin/fee-structures', { page, limit: 15 })
-  const courses = useCourseOptions()
-  const [open, setOpen] = useState(false)
-  const fields: Field[] = [
-    { name: 'name', label: 'Structure name', required: true, half: true },
-    { name: 'course', label: 'Course', type: 'select', options: courses, required: true, half: true },
-    { name: 'installments', label: 'Instalments', type: 'textarea', required: true, help: 'One per line: label, amount, due-offset-days. Saving also updates the course default used by “Generate fees”.' },
+  const { rows, meta, loading, error, reload } = useList<CourseFee>('/admin/courses', { page, limit: 15 })
+  const [edit, setEdit] = useState<CourseFee | null>(null)
+  const columns: Column<CourseFee>[] = [
+    { key: 'name', header: 'Course', sortable: true, render: (c) => <span className="font-medium">{c.name} <span className="text-xs text-muted-foreground">({c.code})</span></span> },
+    { key: 'duration', header: 'Duration', render: (c) => (c.startDate && c.endDate ? `${fmtDate(c.startDate)} to ${fmtDate(c.endDate)}` : `${c.durationMonths} months`) },
+    { key: 'days', header: 'Class days', mobileHidden: true, render: (c) => (c.classDays?.length ? [...c.classDays].sort().map((d) => DAY_NAMES[d]).join(' ') : '-') },
+    { key: 'totalFee', header: 'Total fee', sortable: true, render: (c) => (c.totalFee ? money(c.totalFee) : <span className="text-muted-foreground">Not set</span>) },
+    { key: 'installments', header: 'Instalments', render: (c) => (c.installments.length ? c.installments.map((i) => `${i.label}: ${money(i.amount)}`).join(' · ') : <span className="text-muted-foreground">None</span>) },
+    { key: 'a', header: '', className: 'text-right whitespace-nowrap', render: (c) => <button className={btn('outline', 'sm')} onClick={() => setEdit(c)}>Edit fees</button> },
   ]
-  const columns: Column<Structure>[] = [
-    { key: 'name', header: 'Name', sortable: true },
-    { key: 'course', header: 'Course', value: (s) => s.course?.name, render: (s) => s.course?.name },
-    { key: 'totalAmount', header: 'Total', sortable: true, render: (s) => money(s.totalAmount) },
-    { key: 'installments', header: 'Instalments', render: (s) => s.installments.map((i) => `${i.label}: ${money(i.amount)}`).join(' · ') },
-  ]
+  const text = (c: CourseFee | null) => (c?.installments || []).map((i) => `${i.label}, ${i.amount}, ${i.dueOffsetDays}`).join('\n')
   return (
-    <Card actions={<button className={btn('primary', 'sm')} onClick={() => setOpen(true)}><Plus className="h-4 w-4" /> New structure</button>}>
-      <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} emptyTitle="No fee structures" />
-      <FormModal open={open} title="New fee structure" fields={fields} onClose={() => setOpen(false)} onSubmit={async (v) => {
-        const installments = String(v.installments).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
-          const [label, amount, off] = l.split(',').map((p) => p.trim())
-          if (!label || Number.isNaN(Number(amount))) throw new Error(`Invalid line: "${l}"`)
-          return { label, amount: Number(amount), dueOffsetDays: Number(off || 0) }
-        })
-        await api.post('/admin/fee-structures', { name: v.name, course: v.course, installments })
-        notifyOk('Fee structure saved')
-        reload()
-      }} />
+    <Card>
+      <p className="mb-3 text-sm text-muted-foreground">Courses come from Courses &amp; Batches. Add or change a course there; set its fee plan here.</p>
+      <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} emptyTitle="No courses yet" emptyHint="Add a course under Courses & Batches and it appears here." />
+      <FormModal open={!!edit} title={`Fee plan: ${edit?.name || ''}`} submitLabel="Save fee plan"
+        fields={[{ name: 'installments', label: 'Instalments', type: 'textarea', required: true, help: 'One per line: label, amount, due-offset-days (days after the fee start date). Example: Instalment 1, 6000, 0. The total is the sum.' }]}
+        initial={{ installments: text(edit) }} onClose={() => setEdit(null)}
+        onSubmit={async (v) => {
+          const installments = String(v.installments).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
+            const [label, amount, off] = l.split(',').map((x) => x.trim())
+            if (!label || Number.isNaN(Number(amount))) throw new Error(`Invalid line: "${l}"`)
+            return { label, amount: Number(amount), dueOffsetDays: Number(off || 0) }
+          })
+          await api.patch(`/admin/courses/${edit!._id}`, { installments, totalFee: installments.reduce((a, i) => a + i.amount, 0) })
+          notifyOk('Fee plan saved')
+          reload()
+        }} />
     </Card>
   )
 }

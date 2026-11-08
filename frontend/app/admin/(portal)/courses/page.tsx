@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { Pencil, Plus, Trash2, UserPlus, Users } from 'lucide-react'
-import { Card, Column, ConfirmDialog, DataTable, Field, FormModal, Modal, PageHeader, SearchBox, StatusBadge, btn, clean } from '@/components/portal/kit'
-import { api, money } from '@/lib/portal/api'
+import { Card, Column, ConfirmDialog, DataTable, Field, FormModal, Modal, PageHeader, SearchBox, StatusBadge, btn, clean, inputCls } from '@/components/portal/kit'
+import { api, errorMessage, fmtDate, money } from '@/lib/portal/api'
+import FancySelect from '@/components/forms/FancySelect'
 import { notifyError, notifyOk, useDebounced, useList } from '@/lib/portal/hooks'
 import { useCourseOptions, useStaffOptions } from '@/lib/portal/options'
 
 type Installment = { label: string; amount: number; dueOffsetDays: number }
-type Course = { _id: string; name: string; code: string; durationMonths: number; totalFee: number; installments: Installment[] }
+type Course = { _id: string; name: string; code: string; durationMonths: number; startDate?: string; endDate?: string; classDays?: number[]; totalFee: number; installments: Installment[] }
 type Batch = { _id: string; name: string; course?: { _id: string; name: string }; startDate?: string; endDate?: string; timings?: string; isActive: boolean; staff: { _id: string; name: string }[]; studentCount: number }
 
 const instToText = (i: Installment[] = []) => i.map((x) => `${x.label}, ${x.amount}, ${x.dueOffsetDays}`).join('\n')
@@ -43,27 +44,11 @@ function Courses() {
   const [edit, setEdit] = useState<Course | 'new' | null>(null)
   const [del, setDel] = useState<Course | null>(null)
 
-  const fields: Field[] = [
-    { name: 'name', label: 'Course name', required: true, half: true },
-    { name: 'code', label: 'Code', required: true, half: true, help: 'Short unique code, e.g. ABV' },
-    { name: 'durationMonths', label: 'Duration (months)', type: 'number', half: true },
-    { name: 'totalFee', label: 'Total fee (₹)', type: 'number', half: true },
-    { name: 'installments', label: 'Instalments', type: 'textarea', help: 'One per line: label, amount, due-offset-days (days after the fee start date). Example: Instalment 1, 6000, 0' },
-  ]
-  const save = async (v: Record<string, string | boolean>) => {
-    const { installments, ...rest } = v
-    const body: Record<string, unknown> = clean(rest, ['durationMonths', 'totalFee'])
-    body.installments = textToInst(String(installments || ''))
-    if (edit === 'new') await api.post('/admin/courses', body)
-    else if (edit) await api.patch(`/admin/courses/${edit._id}`, body)
-    notifyOk('Course saved')
-    reload()
-  }
-
   const columns: Column<Course>[] = [
     { key: 'code', header: 'Code', sortable: true },
     { key: 'name', header: 'Course', sortable: true, render: (c) => <span className="font-medium">{c.name}</span> },
-    { key: 'durationMonths', header: 'Months', mobileHidden: true },
+    { key: 'durationMonths', header: 'Duration', mobileHidden: true, render: (c) => (c.startDate && c.endDate ? `${fmtDate(c.startDate)} to ${fmtDate(c.endDate)}` : `${c.durationMonths} mo`) },
+    { key: 'classDays', header: 'Days', mobileHidden: true, render: (c) => (c.classDays?.length ? [...c.classDays].sort().map((d) => DAYS[d]).join(' ') : '-') },
     { key: 'totalFee', header: 'Total fee', value: (c) => c.totalFee, render: (c) => money(c.totalFee) },
     { key: 'installments', header: 'Instalments', mobileHidden: true, render: (c) => c.installments.length },
     {
@@ -79,7 +64,7 @@ function Courses() {
     <Card actions={<button className={btn('primary', 'sm')} onClick={() => setEdit('new')}><Plus className="h-4 w-4" /> Add course</button>}>
       <div className="mb-3"><SearchBox value={search} onChange={(v) => { setSearch(v); setPage(1) }} placeholder="Search courses…" /></div>
       <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="courses" emptyTitle="No courses yet" />
-      <FormModal open={!!edit} title={edit === 'new' ? 'Add course' : 'Edit course'} wide fields={fields} initial={edit && edit !== 'new' ? { ...edit, installments: instToText(edit.installments) } : undefined} onSubmit={save} onClose={() => setEdit(null)} />
+      {edit && <CourseModal course={edit === 'new' ? null : edit} onClose={() => setEdit(null)} onSaved={() => { setEdit(null); reload() }} />}
       <ConfirmDialog open={!!del} title="Delete course" message={`Delete ${del?.name}? Courses used by students, batches or fees cannot be deleted.`} onClose={() => setDel(null)}
         onConfirm={async () => { try { await api.del(`/admin/courses/${del!._id}`); notifyOk('Course deleted'); setDel(null); reload() } catch (e) { notifyError(e); setDel(null) } }} />
     </Card>
@@ -96,23 +81,6 @@ function Batches() {
   const [del, setDel] = useState<Batch | null>(null)
   const [staffFor, setStaffFor] = useState<Batch | null>(null)
   const [studentsFor, setStudentsFor] = useState<Batch | null>(null)
-
-  const fields: Field[] = [
-    { name: 'name', label: 'Batch name', required: true, half: true },
-    { name: 'course', label: 'Course', type: 'select', options: courses, required: true, half: true },
-    { name: 'startDate', label: 'Start date', type: 'date', half: true },
-    { name: 'endDate', label: 'End date', type: 'date', half: true },
-    { name: 'timings', label: 'Timings', placeholder: '9:00 - 10:30', half: true },
-    { name: 'isActive', label: 'Active', type: 'checkbox', half: true },
-  ]
-  const save = async (v: Record<string, string | boolean>) => {
-    const body = clean(v)
-    body.isActive = Boolean(v.isActive)
-    if (edit === 'new') await api.post('/admin/batches', body)
-    else if (edit) await api.patch(`/admin/batches/${edit._id}`, body)
-    notifyOk('Batch saved')
-    reload()
-  }
 
   const columns: Column<Batch>[] = [
     { key: 'name', header: 'Batch', sortable: true, render: (b) => <span className="font-medium">{b.name}</span> },
@@ -136,7 +104,7 @@ function Batches() {
     <Card actions={<button className={btn('primary', 'sm')} onClick={() => setEdit('new')}><Plus className="h-4 w-4" /> Add batch</button>}>
       <div className="mb-3"><SearchBox value={search} onChange={(v) => { setSearch(v); setPage(1) }} placeholder="Search batches…" /></div>
       <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="batches" emptyTitle="No batches yet" />
-      <FormModal open={!!edit} title={edit === 'new' ? 'Add batch' : 'Edit batch'} fields={fields} initial={edit && edit !== 'new' ? { ...edit, course: edit.course?._id } : { isActive: true }} onSubmit={save} onClose={() => setEdit(null)} />
+      {edit && <BatchModal batch={edit === 'new' ? null : edit} courses={courses} onClose={() => setEdit(null)} onSaved={() => { setEdit(null); reload() }} />}
       <ConfirmDialog open={!!del} title="Delete batch" message={`Delete ${del?.name}? Batches with attendance records cannot be deleted; mark them inactive.`} onClose={() => setDel(null)}
         onConfirm={async () => { try { await api.del(`/admin/batches/${del!._id}`); notifyOk('Batch deleted'); setDel(null); reload() } catch (e) { notifyError(e); setDel(null) } }} />
       {staffFor && <AssignStaff batch={staffFor} onClose={() => { setStaffFor(null); reload() }} />}
@@ -203,6 +171,186 @@ function AssignStudents({ batch, onClose }: { batch: Batch; onClose: () => void 
           try { await api.post(`/admin/batches/${batch._id}/assign-students`, { studentIds: Array.from(sel), mode }); notifyOk(mode === 'add' ? 'Students added' : 'Students removed'); onClose() } catch (e) { notifyError(e) } finally { setBusy(false) }
         }}>{mode === 'add' ? 'Add' : 'Remove'} {sel.size || ''}</button>
       </div>
+    </Modal>
+  )
+}
+
+const toggle = (set: Set<string>, id: string) => { const n = new Set(set); if (n.has(id)) n.delete(id); else n.add(id); return n }
+
+// One form for the batch details, its staff (who will see it under "My batches") and its students
+function BatchModal({ batch, courses, onClose, onSaved }: { batch: Batch | null; courses: { value: string; label: string }[]; onClose: () => void; onSaved: () => void }) {
+  const [v, setV] = useState({ name: batch?.name || '', course: batch?.course?._id || '', startDate: (batch as any)?.startDate || '', endDate: (batch as any)?.endDate || '', timings: batch?.timings || '', isActive: batch ? batch.isActive : true })
+  const set = (k: string, val: string | boolean) => setV((x) => ({ ...x, [k]: val }))
+  const staffOpts = useStaffOptions()
+  const [staffQ, setStaffQ] = useState('')
+  const [staffSel, setStaffSel] = useState<Set<string>>(new Set((batch?.staff || []).map((s) => s._id)))
+  const [stuQ, setStuQ] = useState('')
+  const q = useDebounced(stuQ)
+  const { rows, loading } = useList<StudentRow>('/admin/students', { limit: 50, search: q, status: 'ACTIVE' })
+  const [stuSel, setStuSel] = useState<Set<string>>(new Set())
+  const [stuNames, setStuNames] = useState<Record<string, string>>({})
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const students = rows.filter((s) => s.batch?._id !== batch?._id)
+  const staffShown = staffOpts.filter((o) => o.label.toLowerCase().includes(staffQ.trim().toLowerCase()))
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!v.name.trim() || !v.course) { setErr('Batch name and course are required'); return }
+    setBusy(true); setErr('')
+    try {
+      const body = clean({ name: v.name, course: v.course, startDate: v.startDate, endDate: v.endDate, timings: v.timings }) as Record<string, unknown>
+      body.isActive = v.isActive
+      const { data } = batch ? await api.patch<{ _id: string }>(`/admin/batches/${batch._id}`, body) : await api.post<{ _id: string }>('/admin/batches', body)
+      await api.post(`/admin/batches/${data._id}/assign-staff`, { staffIds: Array.from(staffSel) })
+      if (stuSel.size) await api.post(`/admin/batches/${data._id}/assign-students`, { studentIds: Array.from(stuSel), mode: 'add' })
+      notifyOk('Batch saved', `${staffSel.size} staff, ${stuSel.size} student(s) assigned`)
+      onSaved()
+    } catch (e2) { setErr(errorMessage(e2)); setBusy(false) }
+  }
+
+  return (
+    <Modal open title={batch ? 'Edit batch' : 'Add batch'} onClose={onClose} wide>
+      <form onSubmit={save} className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Batch name <span className="text-red-600">*</span></span>
+            <input className={inputCls} value={v.name} onChange={(e) => set('name', e.target.value)} required /></label>
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Course <span className="text-red-600">*</span></span>
+            <FancySelect id="batch-course" label="Course" className={inputCls} value={v.course} onChange={(x) => set('course', x)} options={[{ value: '', label: 'Select…' }, ...courses]} required /></label>
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Start date</span><input type="date" className={inputCls} value={v.startDate} onChange={(e) => set('startDate', e.target.value)} /></label>
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">End date</span><input type="date" className={inputCls} value={v.endDate} onChange={(e) => set('endDate', e.target.value)} /></label>
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Timings</span><input className={inputCls} placeholder="9:00 - 10:30" value={v.timings} onChange={(e) => set('timings', e.target.value)} /></label>
+          <label className="flex items-center gap-2 text-sm sm:pt-6"><input type="checkbox" className="h-4 w-4 accent-purple" checked={v.isActive} onChange={(e) => set('isActive', e.target.checked)} /> Active</label>
+        </div>
+
+        <section>
+          <h3 className="mb-1 text-sm font-semibold">Assign staff <span className="font-normal text-muted-foreground">({staffSel.size} selected). The batch appears under My batches in their login</span></h3>
+          <SearchBox value={staffQ} onChange={setStaffQ} placeholder="Search staff…" />
+          <ul className="mt-2 max-h-40 divide-y overflow-y-auto rounded-xl border">
+            {staffShown.map((o) => (
+              <li key={o.value}><label className="flex min-h-11 cursor-pointer items-center gap-3 px-3 hover:bg-muted/50">
+                <input type="checkbox" className="h-4 w-4 accent-purple" checked={staffSel.has(o.value)} onChange={() => setStaffSel((s) => toggle(s, o.value))} />{o.label}
+              </label></li>
+            ))}
+            {staffShown.length === 0 && <li className="py-4 text-center text-sm text-muted-foreground">{staffOpts.length ? 'No match.' : 'Add staff first.'}</li>}
+          </ul>
+        </section>
+
+        <section>
+          <h3 className="mb-1 text-sm font-semibold">Add students <span className="font-normal text-muted-foreground">({stuSel.size} selected)</span></h3>
+          <SearchBox value={stuQ} onChange={setStuQ} placeholder="Search by name, admission no or phone…" />
+          {stuSel.size > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {Array.from(stuSel).map((id) => (
+                <button key={id} type="button" onClick={() => setStuSel((s) => toggle(s, id))} className="rounded-full bg-purple/10 px-2.5 py-1 text-xs font-semibold text-purple">{stuNames[id] || 'Student'} ×</button>
+              ))}
+            </div>
+          )}
+          <ul className="mt-2 max-h-56 divide-y overflow-y-auto rounded-xl border">
+            {loading && <li className="py-4 text-center text-sm text-muted-foreground">Loading…</li>}
+            {students.map((s) => (
+              <li key={s._id}><label className="flex min-h-11 cursor-pointer items-center gap-3 px-3 hover:bg-muted/50">
+                <input type="checkbox" className="h-4 w-4 accent-purple" checked={stuSel.has(s._id)} onChange={() => { setStuNames((n) => ({ ...n, [s._id]: s.name })); setStuSel((x) => toggle(x, s._id)) }} />
+                <span className="min-w-0">{s.name} <span className="text-xs text-muted-foreground">{s.admissionNo}{s.batch ? ` · now in ${s.batch.name}` : ''}</span></span>
+              </label></li>
+            ))}
+            {!loading && students.length === 0 && <li className="py-4 text-center text-sm text-muted-foreground">No students to show.</li>}
+          </ul>
+          <p className="mt-1 text-xs text-muted-foreground">A student belongs to one batch; adding moves them here.</p>
+        </section>
+
+        {err && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
+        <div className="sticky bottom-0 -mx-5 flex flex-col-reverse gap-2 border-t bg-background px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:p-0">
+          <button type="button" className={btn('ghost')} onClick={onClose}>Cancel</button>
+          <button className={btn('primary')} disabled={busy}>{busy ? 'Saving…' : 'Save batch'}</button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]
+
+// Whole months between two dates, rounded up (e.g. 1 Jun to 15 Aug = 3)
+const monthsBetween = (a: string, b: string) => Math.max(1, Math.ceil((new Date(`${b}T00:00:00Z`).getTime() - new Date(`${a}T00:00:00Z`).getTime()) / 86400000 / 30.4375))
+
+// Course details with a calendar for the duration and the weekdays classes run on
+function CourseModal({ course, onClose, onSaved }: { course: Course | null; onClose: () => void; onSaved: () => void }) {
+  const [v, setV] = useState({ name: course?.name || '', code: course?.code || '', startDate: course?.startDate || '', endDate: course?.endDate || '', totalFee: course?.totalFee ? String(course.totalFee) : '', installments: instToText(course?.installments) })
+  const [days, setDays] = useState<Set<number>>(new Set(course?.classDays || [1, 2, 3, 4, 5]))
+  const [months, setMonths] = useState(course?.durationMonths ? String(course.durationMonths) : '')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const set = (k: string, val: string) => setV((x) => ({ ...x, [k]: val }))
+  const auto = v.startDate && v.endDate && v.endDate >= v.startDate ? monthsBetween(v.startDate, v.endDate) : null
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setBusy(true); setErr('')
+    try {
+      const body: Record<string, unknown> = { name: v.name.trim(), code: v.code.trim(), classDays: Array.from(days).sort() }
+      if (v.startDate) body.startDate = v.startDate
+      if (v.endDate) body.endDate = v.endDate
+      const dur = auto ?? (Number(months) || undefined)
+      if (dur) body.durationMonths = dur
+      if (v.totalFee !== '') body.totalFee = Number(v.totalFee)
+      body.installments = textToInst(v.installments)
+      if (course) await api.patch(`/admin/courses/${course._id}`, body)
+      else await api.post('/admin/courses', body)
+      notifyOk('Course saved')
+      onSaved()
+    } catch (e2) { setErr(errorMessage(e2)); setBusy(false) }
+  }
+
+  return (
+    <Modal open title={course ? 'Edit course' : 'Add course'} onClose={onClose} wide>
+      <form onSubmit={save} className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Course name <span className="text-red-600">*</span></span>
+            <input className={inputCls} value={v.name} onChange={(e) => set('name', e.target.value)} required /></label>
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Code <span className="text-red-600">*</span></span>
+            <input className={inputCls} value={v.code} onChange={(e) => set('code', e.target.value)} required />
+            <span className="text-xs text-muted-foreground">Short unique code, e.g. ABV</span></label>
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Starts on</span>
+            <input type="date" className={inputCls} value={v.startDate} onChange={(e) => set('startDate', e.target.value)} /></label>
+          <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Ends on</span>
+            <input type="date" className={inputCls} value={v.endDate} min={v.startDate || undefined} onChange={(e) => set('endDate', e.target.value)} /></label>
+        </div>
+
+        <div className="text-sm">
+          {auto !== null ? (
+            <p className="rounded-lg bg-purple/5 px-3 py-2 text-purple">Duration: <b>{auto} month{auto === 1 ? '' : 's'}</b>, worked out from the dates.</p>
+          ) : (
+            <label className="flex flex-col gap-1 sm:w-1/2"><span className="font-medium">Duration (months)</span>
+              <input type="number" min={1} className={inputCls} value={months} onChange={(e) => setMonths(e.target.value)} />
+              <span className="text-xs text-muted-foreground">Or pick the start and end dates above.</span></label>
+          )}
+        </div>
+
+        <fieldset>
+          <legend className="mb-1.5 text-sm font-medium">Class days</legend>
+          <div className="flex flex-wrap gap-1.5">
+            {DAY_ORDER.map((d) => {
+              const on = days.has(d)
+              return <button key={d} type="button" aria-pressed={on} onClick={() => setDays((s) => { const n = new Set(s); if (n.has(d)) n.delete(d); else n.add(d); return n })}
+                className={`min-h-10 min-w-[3.25rem] rounded-full border px-3 text-sm font-semibold transition ${on ? 'border-purple bg-purple text-white' : 'border-purple/20 bg-purple/5 text-purple'}`}>{DAYS[d]}</button>
+            })}
+          </div>
+        </fieldset>
+
+        <label className="flex flex-col gap-1 text-sm sm:w-1/2"><span className="font-medium">Total fee (₹)</span>
+          <input type="number" min={0} className={inputCls} value={v.totalFee} onChange={(e) => set('totalFee', e.target.value)} /></label>
+        <label className="flex flex-col gap-1 text-sm"><span className="font-medium">Instalments</span>
+          <textarea className={`${inputCls} h-24 py-2`} value={v.installments} onChange={(e) => set('installments', e.target.value)} />
+          <span className="text-xs text-muted-foreground">One per line: label, amount, due-offset-days (days after the fee start date). Example: Instalment 1, 6000, 0</span></label>
+
+        {err && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{err}</p>}
+        <div className="sticky bottom-0 -mx-5 flex flex-col-reverse gap-2 border-t bg-background px-5 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:p-0">
+          <button type="button" className={btn('ghost')} onClick={onClose}>Cancel</button>
+          <button className={btn('primary')} disabled={busy}>{busy ? 'Saving…' : 'Save course'}</button>
+        </div>
+      </form>
     </Modal>
   )
 }

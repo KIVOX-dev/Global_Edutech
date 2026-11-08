@@ -54,11 +54,11 @@ export default function GoogleSignIn({ onCredential, disabled }: { onCredential:
   if (!clientId || failed) return null
   return (
     <div className={disabled ? 'pointer-events-none opacity-60' : undefined} aria-busy={!ready}>
-      <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
+      <div className="my-3 flex sm:my-5 items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
         <span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" />
       </div>
       <div ref={box} className="flex min-h-[44px] w-full justify-center" />
-      <p className="mt-2 text-center text-xs text-muted-foreground">Use the Google account that your administrator added.</p>
+      <p className="mt-2 hidden text-center text-xs sm:block text-muted-foreground">Use the Google account that your administrator added.</p>
     </div>
   )
 }

@@ -9,7 +9,7 @@ const NAV: NavItem[] = [
   { href: '/admin/students', label: 'Students', icon: GraduationCap },
   { href: '/admin/staff', label: 'Staff', icon: UserCog },
   { href: '/admin/courses', label: 'Courses & Batches', icon: BookOpen },
-  { href: '/admin/attendance', label: 'Attendance', icon: CalendarCheck },
+  { href: '/admin/attendance', label: 'Attendance', primary: true, short: 'Attend', icon: CalendarCheck },
   { href: '/admin/leaves', label: 'Leaves', icon: CalendarOff },
   { href: '/admin/fees', label: 'Fees', primary: true, icon: CreditCard },
   { href: '/admin/payments', label: 'Payments', icon: Receipt },
