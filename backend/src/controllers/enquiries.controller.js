@@ -24,6 +24,19 @@ export const schemas = {
     message: reqText(2000),
     formType: text(40).optional(),
   }),
+  // Added by the admin for phone calls, walk-ins and WhatsApp messages: only name and phone are required
+  create: z.object({
+    name: reqText(120),
+    phone: z.string().trim().min(6).max(20).transform((v) => v.replace(/[^\d+\-\s()]/g, '')),
+    email: z.preprocess((v) => (v === '' ? undefined : v), email.optional()),
+    program: text(80).optional(),
+    studentAge: text(40).optional(),
+    preferredTime: text(60).optional(),
+    mode: z.preprocess((v) => (v === '' ? undefined : v), z.enum(['Online', 'Offline']).optional()),
+    message: text(2000).optional(),
+    source: z.enum(['Phone call', 'Walk-in', 'WhatsApp', 'Other']).default('Walk-in'),
+    status: z.enum(['NEW', 'CONTACTED', 'IN_PROGRESS', 'ENROLLED', 'CLOSED']).default('NEW'),
+  }),
   reply: z.object({ subject: reqText(150), body: z.string().trim().min(5).max(3000) }),
   update: z.object({
     status: z.enum(['NEW', 'CONTACTED', 'IN_PROGRESS', 'ENROLLED', 'CLOSED']).optional(),
@@ -57,6 +70,13 @@ export const submit = asyncHandler(async (req, res) => {
     .catch((err) => logger.warn({ err: err.message }, 'Enquiry notification email failed'));
 });
 
+export const create = asyncHandler(async (req, res) => {
+  const { source, ...rest } = req.body;
+  const e = await Enquiry.create({ ...rest, formType: source, handledBy: req.user._id });
+  await audit(req, { action: 'CREATE_ENQUIRY', entity: 'Enquiry', entityId: e._id, after: e });
+  res.status(201).json({ success: true, data: e });
+});
+
 export const list = asyncHandler(async (req, res) => {
   const f = {};
   if (req.query.status) f.status = req.query.status;
@@ -84,6 +104,7 @@ export const sendReply = asyncHandler(async (req, res) => {
   const e = await Enquiry.findById(req.params.id);
   if (!e) throw ApiError.notFound('Enquiry not found');
   if (!emailService.isConfigured()) throw ApiError.unavailable('Email is not configured (set BREVO_API_KEY and BREVO_SENDER_EMAIL)');
+  if (!e.email) throw ApiError.badRequest('This enquiry has no email address. Use Call or WhatsApp instead.');
   const { subject, body } = req.body;
   const inner = body.split(/\r?\n\r?\n/).map((p) => `<p style="margin:0 0 14px">${escapeHtml(p).replace(/\r?\n/g, '<br/>')}</p>`).join('');
   let result;

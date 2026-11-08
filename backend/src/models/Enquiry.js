@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const schema = new mongoose.Schema({
   name: { type: String, required: true, trim: true, maxlength: 120 },
-  email: { type: String, required: true, lowercase: true, trim: true },
+  email: { type: String, lowercase: true, trim: true }, // optional for enquiries the admin adds by hand (phone or walk-in)
   phone: { type: String, required: true, trim: true },
   program: { type: String, trim: true },
   studentAge: { type: String, trim: true },

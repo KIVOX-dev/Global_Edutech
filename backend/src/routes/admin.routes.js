@@ -83,6 +83,7 @@ r.get('/payments/:id/receipt', id, fees.receipt);
 
 // website enquiries
 r.get('/enquiries', q, enq.list);
+r.post('/enquiries', validate({ body: enq.schemas.create }), enq.create);
 r.patch('/enquiries/:id', id, validate({ body: enq.schemas.update }), enq.update);
 r.delete('/enquiries/:id', id, enq.remove);
 r.post('/enquiries/:id/send-reply', replySendLimiter, id, validate({ body: enq.schemas.reply }), enq.sendReply);

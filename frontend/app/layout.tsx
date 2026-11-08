@@ -19,10 +19,21 @@ export const metadata = {
   title: 'Global Edutech - One Destination for Preschool, After-School Programs & Home Tuitions',
   description: 'Global Edutech nurtures young minds through a blend of traditional and tech-powered education — from playschool to personalized tutoring at your doorstep.',
   keywords: 'preschool, after-school programs, home tuition, education, kids learning, Montessori, Vedic Maths, phonics',
+  manifest: '/manifest.webmanifest',
+  applicationName: 'Global Edutech',
+  appleWebApp: { capable: true, title: 'Global Edutech', statusBarStyle: 'default' },
   icons: {
-    icon: '/images/globaleducation.png',
-    apple: '/images/globaleducation.png',
-    shortcut: '/images/globaleducation.png',
+    icon: [
+      { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/favicon-48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icons/apple-touch-icon-167.png', sizes: '167x167', type: 'image/png' },
+    ],
+    shortcut: '/icons/favicon.ico',
   },
   openGraph: {
     title: 'Global Edutech - Quality Education for Every Child',

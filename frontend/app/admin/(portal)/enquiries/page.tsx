@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, Loader2, Mail, MessageCircle, Pencil, Phone, Send, Sparkles, StickyNote, Trash2 } from 'lucide-react'
-import { Card, Column, ConfirmDialog, DataTable, FilterSelect, FormModal, Modal, PageHeader, SearchBox, StatusBadge, btn, inputCls } from '@/components/portal/kit'
+import { Check, Copy, Loader2, Mail, MessageCircle, Pencil, Phone, Plus, Send, Sparkles, StickyNote, Trash2 } from 'lucide-react'
+import { Card, Column, ConfirmDialog, DataTable, FilterSelect, FormModal, Modal, PageHeader, SearchBox, StatusBadge, btn, clean, inputCls } from '@/components/portal/kit'
 import { api, fmtDateTime } from '@/lib/portal/api'
 import { notifyError, notifyOk, useDebounced, useList } from '@/lib/portal/hooks'
 
@@ -17,6 +17,7 @@ const STATUSES = ['NEW', 'CONTACTED', 'IN_PROGRESS', 'ENROLLED', 'CLOSED'] as co
 const digits = (p: string) => p.replace(/[^\d]/g, '')
 
 export default function EnquiriesPage() {
+  const [adding, setAdding] = useState(false)
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(1)
@@ -72,7 +73,8 @@ export default function EnquiriesPage() {
 
   return (
     <>
-      <PageHeader title="Website enquiries" subtitle="Every enquiry from the Enquire Now form lands here" />
+      <PageHeader title="Enquiries" subtitle="Website enquiries land here. Add phone calls and walk-ins yourself"
+        actions={<button className={btn('primary')} onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add enquiry</button>} />
       <Card>
         <div className="mb-3 flex flex-wrap gap-2">
           <SearchBox value={search} onChange={(v) => { setSearch(v); setPage(1) }} placeholder="Name, phone, program…" />
@@ -81,6 +83,20 @@ export default function EnquiriesPage() {
         <DataTable columns={columns} rows={rows} meta={meta} loading={loading} error={error} onRetry={reload} onPage={setPage} exportName="enquiries" renderCard={(e) => <EnquiryCard e={e} onStatus={(s) => setState(e, s)} onReply={() => setReply(e)} onNote={() => setNote(e)} onDelete={() => setDel(e)} />} emptyTitle="No enquiries yet" emptyHint="They appear here as soon as someone submits the form." />
       </Card>
       {reply && <ReplyModal enquiry={reply} onClose={() => setReply(null)} onSent={reload} />}
+      <FormModal open={adding} title="Add enquiry" wide submitLabel="Save enquiry" onClose={() => setAdding(false)}
+        fields={[
+          { name: 'name', label: 'Parent / contact name', required: true, half: true },
+          { name: 'phone', label: 'Phone', type: 'tel', required: true, half: true },
+          { name: 'email', label: 'Email', type: 'email', half: true, help: 'Optional. Needed only to email a reply' },
+          { name: 'source', label: 'How did they reach you?', type: 'select', half: true, options: ['Phone call', 'Walk-in', 'WhatsApp', 'Other'].map((v) => ({ value: v, label: v })) },
+          { name: 'program', label: 'Program', half: true, placeholder: 'e.g. Handwriting' },
+          { name: 'studentAge', label: 'Child age', half: true, placeholder: 'e.g. 3-5 years' },
+          { name: 'mode', label: 'Class mode', type: 'select', half: true, options: [{ value: 'Online', label: 'Online' }, { value: 'Offline', label: 'Offline' }] },
+          { name: 'preferredTime', label: 'Preferred time', half: true, placeholder: 'Morning (9am - 12pm)' },
+          { name: 'message', label: 'Notes', type: 'textarea', placeholder: 'What did they ask about?' },
+        ]}
+        initial={{ source: 'Walk-in' }}
+        onSubmit={async (v) => { await api.post('/admin/enquiries', clean(v)); notifyOk('Enquiry added'); reload() }} />
       <FormModal open={!!note} title={`Follow-up note: ${note?.name}`} fields={[{ name: 'note', label: 'Note', type: 'textarea', placeholder: 'Called, will visit on Saturday…' }]} initial={note || undefined}
         onSubmit={async (v) => { await api.patch(`/admin/enquiries/${note!._id}`, { note: String(v.note || '') }); notifyOk('Note saved'); reload() }} onClose={() => setNote(null)} />
       <ConfirmDialog open={!!del} title="Delete enquiry" message={`Delete the enquiry from ${del?.name}?`} onClose={() => setDel(null)}
@@ -137,7 +153,7 @@ function ReplyModal({ enquiry, onClose, onSent }: { enquiry: Enquiry; onClose: (
     <Modal open title={`Reply to ${enquiry.name}`} onClose={onClose} wide>
       <div className="grid gap-3 sm:grid-cols-3">
         <select className={inputCls} value={channel} onChange={(e) => setChannel(e.target.value as 'whatsapp' | 'email')} aria-label="Channel">
-          <option value="whatsapp">WhatsApp message</option><option value="email">Email</option>
+          <option value="whatsapp">WhatsApp message</option>{enquiry.email && <option value="email">Email</option>}
         </select>
         <select className={inputCls} value={language} onChange={(e) => setLanguage(e.target.value)} aria-label="Language">
           {LANGS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
@@ -214,7 +230,7 @@ function EnquiryCard({ e, onStatus, onReply, onNote, onDelete }: { e: Enquiry; o
 
       <div className="space-y-1.5 text-sm">
         <a href={`tel:${e.phone}`} className="flex min-h-9 items-center gap-2 font-medium text-foreground"><Phone className="h-4 w-4 shrink-0 text-purple" />{e.phone}</a>
-        <a href={`mailto:${e.email}`} className="flex min-h-9 items-center gap-2 break-all text-foreground/80"><Mail className="h-4 w-4 shrink-0 text-purple" />{e.email}</a>
+        {e.email && <a href={`mailto:${e.email}`} className="flex min-h-9 items-center gap-2 break-all text-foreground/80"><Mail className="h-4 w-4 shrink-0 text-purple" />{e.email}</a>}
       </div>
 
       {details.length > 0 && <p className="rounded-xl bg-muted/60 px-3 py-2 text-xs leading-relaxed text-foreground/80">{details.join('  ·  ')}</p>}
