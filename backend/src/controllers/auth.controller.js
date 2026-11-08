@@ -9,6 +9,7 @@ import { email, password } from '../validators/common.js';
 import {
   signAccessToken, signRefreshToken, verifyRefreshToken, setAuthCookies, clearAuthCookies, sha256, randomToken, REFRESH_COOKIE,
 } from '../services/token.service.js';
+import { verifyGoogleIdToken } from '../services/google.service.js';
 import { emailService } from '../services/email/email.service.js';
 import { passwordResetMessage } from '../services/email/templates.js';
 import { audit } from '../services/audit.service.js';
@@ -22,6 +23,7 @@ export const schemas = {
   login: z.object({ email, password: z.string().min(1).max(128) }),
   change: z.object({ currentPassword: z.string().min(1).max(128), newPassword: password }),
   forgot: z.object({ email }),
+  google: z.object({ credential: z.string().min(100).max(4096) }),
   reset: z.object({ email, token: z.string().min(20).max(200), newPassword: password }),
 };
 
@@ -62,6 +64,28 @@ export const login = asyncHandler(async (req, res) => {
   await startSession(res, user);
   req.user = user;
   await audit(req, { action: 'LOGIN', entity: 'User', entityId: user._id });
+  ok(res, { user: publicUser(user) });
+});
+
+// Public: lets the login page know whether to show the Google button (the client id is not a secret)
+export const authConfig = asyncHandler(async (req, res) => ok(res, { googleClientId: config.services.google ? config.google.clientId : null }));
+
+/**
+ * Sign in with Google. Only for accounts an admin already created: the verified Google email must match an
+ * active user. Nothing is ever created here, and a Google account that is not registered gets a clear refusal.
+ */
+export const googleLogin = asyncHandler(async (req, res) => {
+  const g = await verifyGoogleIdToken(req.body.credential);
+  if (!g.email || !g.emailVerified) throw ApiError.unauthorized('Your Google email is not verified');
+  const user = await User.findOne({ email: g.email, isActive: true });
+  if (!user) throw new ApiError(403, 'GOOGLE_NOT_REGISTERED', 'This Google account is not registered here. Ask the administrator to add your email first.');
+  if (user.googleSub && user.googleSub !== g.sub) throw new ApiError(403, 'GOOGLE_MISMATCH', 'This account is linked to a different Google account.');
+  // A verified Google identity replaces the temporary-password step
+  await User.updateOne({ _id: user._id }, { googleSub: g.sub, lastLoginAt: new Date(), failedLogins: 0, mustChangePassword: false, $unset: { lockUntil: 1 } });
+  user.mustChangePassword = false;
+  await startSession(res, user);
+  req.user = user;
+  await audit(req, { action: 'LOGIN_GOOGLE', entity: 'User', entityId: user._id });
   ok(res, { user: publicUser(user) });
 });
 

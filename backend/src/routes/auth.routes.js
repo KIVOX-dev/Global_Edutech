@@ -6,6 +6,8 @@ import { loginLimiter, authLimiter, forgotLimiter } from '../middleware/rateLimi
 
 const r = Router();
 r.post('/login', loginLimiter, validate({ body: c.schemas.login }), c.login);
+r.get('/config', c.authConfig);
+r.post('/google', authLimiter, validate({ body: c.schemas.google }), c.googleLogin);
 r.post('/refresh', authLimiter, c.refresh);
 r.post('/logout', c.logout);
 r.get('/me', authenticate, c.me);

@@ -5,12 +5,13 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import AuthFrame from '@/components/portal/AuthFrame'
+import GoogleSignIn from '@/components/portal/GoogleSignIn'
 import { btn, inputCls } from '@/components/portal/kit'
 import { homeFor, useAuth } from '@/lib/portal/auth'
 import { errorMessage } from '@/lib/portal/api'
 
 function LoginForm() {
-  const { user, loading, login } = useAuth()
+  const { user, loading, login, googleLogin } = useAuth()
   const router = useRouter()
   const params = useSearchParams()
   const [email, setEmail] = useState('')
@@ -23,15 +24,29 @@ function LoginForm() {
     if (!loading && user) router.replace(homeFor(user))
   }, [user, loading, router])
 
+  const goHome = (u: Awaited<ReturnType<typeof login>>) => {
+    const next = params.get('next')
+    const allowed = next && next.startsWith(u.role === 'ADMIN' ? '/admin' : '/staff')
+    router.replace(u.mustChangePassword ? '/change-password' : allowed ? next! : homeFor(u))
+  }
+
+  const onGoogle = async (credential: string) => {
+    setBusy(true)
+    setError(null)
+    try {
+      goHome(await googleLogin(credential))
+    } catch (err) {
+      setError(errorMessage(err))
+      setBusy(false)
+    }
+  }
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setBusy(true)
     setError(null)
     try {
-      const u = await login(email.trim(), password)
-      const next = params.get('next')
-      const allowed = next && next.startsWith(u.role === 'ADMIN' ? '/admin' : '/staff')
-      router.replace(u.mustChangePassword ? '/change-password' : allowed ? next! : homeFor(u))
+      goHome(await login(email.trim(), password))
     } catch (err) {
       setError(errorMessage(err))
       setBusy(false)
@@ -49,6 +64,7 @@ function LoginForm() {
       {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <button className={`${btn('primary', 'lg')} w-full`} disabled={busy}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Sign in</button>
       <p className="text-center text-sm"><Link href="/forgot-password" className="text-purple hover:underline">Forgot password?</Link></p>
+      <GoogleSignIn onCredential={onGoogle} disabled={busy} />
     </form>
   )
 }

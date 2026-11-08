@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   mustChangePassword: { type: Boolean, default: false },
   lastLoginAt: Date,
   avatarKey: String,
+  googleSub: { type: String, index: true, sparse: true }, // linked Google account id (set at first Google sign-in)
   // Security bookkeeping (never returned by the API)
   failedLogins: { type: Number, default: 0, select: false },
   lockUntil: { type: Date, select: false },

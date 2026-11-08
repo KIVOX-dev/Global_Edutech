@@ -10,6 +10,7 @@ type Ctx = {
   user: PortalUser | null
   loading: boolean
   login: (email: string, password: string) => Promise<PortalUser>
+  googleLogin: (credential: string) => Promise<PortalUser>
   logout: () => Promise<void>
   refresh: () => Promise<void>
 }
@@ -50,13 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data.user
   }, [])
 
+  const googleLogin = useCallback(async (credential: string) => {
+    const { data } = await api.post<{ user: PortalUser }>('/auth/google', { credential })
+    setUser(data.user)
+    return data.user
+  }, [])
+
   const logout = useCallback(async () => {
     await api.post('/auth/logout').catch(() => {})
     setUser(null)
     router.replace('/login')
   }, [router])
 
-  const value = useMemo(() => ({ user, loading, login, logout, refresh }), [user, loading, login, logout, refresh])
+  const value = useMemo(() => ({ user, loading, login, googleLogin, logout, refresh }), [user, loading, login, googleLogin, logout, refresh])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

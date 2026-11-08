@@ -27,6 +27,7 @@ const schema = z.object({
   BREVO_API_KEY: str(''),
   BREVO_SENDER_EMAIL: str(''),
   BREVO_SENDER_NAME: str(''),
+  GOOGLE_CLIENT_ID: str(''), // OAuth web client id for "Sign in with Google" (public value, optional)
   GROQ_API_KEY: str(''), // one key, or several separated by commas (used as automatic fallbacks)
   GROQ_MODEL: str('llama-3.3-70b-versatile'),
   GROQ_FALLBACK_MODELS: str('llama-3.1-8b-instant'), // tried in order when the main model is rate limited
@@ -72,12 +73,14 @@ export function loadConfig(env = process.env) {
   };
   const groqKeys = e.GROQ_API_KEY.split(',').map((k) => k.trim()).filter((k) => k && !isPlaceholder(k));
   services.groq = groqKeys.length > 0;
+  services.google = !isPlaceholder(e.GOOGLE_CLIENT_ID) && /\.apps\.googleusercontent\.com$/.test(e.GOOGLE_CLIENT_ID.trim());
   services.email = services.brevo;
 
   const problems = [];
   if (!services.mongodb) problems.push('MONGODB_URI (database features disabled)');
   if (!services.jwt) problems.push('JWT_ACCESS_SECRET / JWT_REFRESH_SECRET (using insecure dev secrets)');
   if (!services.b2) problems.push('B2_* (file uploads, receipts and CSV exports disabled)');
+  if (!services.google) problems.push('GOOGLE_CLIENT_ID (optional: "Sign in with Google" button hidden)');
   if (!services.groq) problems.push('GROQ_API_KEY (optional: AI features use built-in fallbacks)');
   if (!services.brevo) problems.push('BREVO_* (email disabled: no reminders, reset links or credentials emails)');
 
@@ -115,6 +118,7 @@ export function loadConfig(env = process.env) {
     cookieDomain,
     seed: { email: e.ADMIN_SEED_EMAIL, password: e.ADMIN_SEED_PASSWORD },
     b2: { keyId: e.B2_KEY_ID, appKey: e.B2_APPLICATION_KEY, bucket: e.B2_BUCKET, region: e.B2_REGION, endpoint: e.B2_ENDPOINT },
+    google: { clientId: e.GOOGLE_CLIENT_ID.trim() },
     groq: {
       keys: groqKeys,
       models: [e.GROQ_MODEL, ...e.GROQ_FALLBACK_MODELS.split(',').map((m) => m.trim()).filter(Boolean)].filter((m, i, a) => m && a.indexOf(m) === i),

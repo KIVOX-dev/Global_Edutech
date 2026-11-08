@@ -105,15 +105,21 @@ export default function RemindersPage() {
         </div>
       </Card>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      {/* Raw HTML templates are tucked away: most admins never need them */}
+      <details className="group mt-4 rounded-2xl border bg-card p-4 shadow-gentle">
+        <summary className="cursor-pointer list-none font-display text-sm font-semibold text-foreground/80 marker:hidden">
+          <span className="inline-flex items-center gap-2">Advanced: edit the email wording (HTML) <span className="text-xs font-normal text-muted-foreground group-open:hidden">(hidden)</span></span>
+        </summary>
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
         {([['beforeDue', 'Before due date'], ['dueToday', 'Due today'], ['overdue', 'Overdue']] as const).map(([k, title]) => (
           <Card key={k} title={`Template: ${title}`}>
             <label className="block text-sm font-medium">Subject<input className={`${inputCls} mt-1`} value={form.templates[k].subject} onChange={(e) => setTpl(k, 'subject', e.target.value)} /></label>
             <label className="mt-3 block text-sm font-medium">Body (HTML)<textarea className="mt-1 h-44 w-full rounded-lg border p-2 font-mono text-xs" value={form.templates[k].html} onChange={(e) => setTpl(k, 'html', e.target.value)} /></label>
           </Card>
         ))}
-      </div>
-      <p className="mt-2 text-xs text-muted-foreground">Placeholders: <code>{PLACEHOLDERS}</code>. Values are HTML-escaped automatically. Save to apply.</p>
+        </div>
+      <p className="mt-3 text-xs text-muted-foreground">Placeholders: <code>{PLACEHOLDERS}</code>. Values are HTML-escaped automatically. Save to apply.</p>
+      </details>
 
       <Card title="Reminder log" className="mt-4">
         <div className="mb-3 flex flex-wrap gap-2">

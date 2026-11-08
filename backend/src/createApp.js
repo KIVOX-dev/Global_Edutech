@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
+import mongoose from 'mongoose';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -34,12 +35,12 @@ export function createApp() {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", 'https://maps.googleapis.com'], // Next static export uses inline bootstrap scripts
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https://maps.googleapis.com', 'https://accounts.google.com'], // Next static export uses inline bootstrap scripts
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://accounts.google.com'],
         fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-        connectSrc: ["'self'", ...b2Wildcard], // browser uploads go straight to B2 with presigned URLs
-        frameSrc: ["'self'", 'https://www.google.com', 'https://maps.google.com'],
+        connectSrc: ["'self'", 'https://accounts.google.com', ...b2Wildcard], // browser uploads go straight to B2 with presigned URLs
+        frameSrc: ["'self'", 'https://www.google.com', 'https://maps.google.com', 'https://accounts.google.com'],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
@@ -58,7 +59,7 @@ export function createApp() {
 
   app.get('/api/health', (req, res) => res.json({
     success: true, status: 'ok',
-    data: { status: 'ok', uptime: Math.round(process.uptime()), db: dbReady(), time: new Date().toISOString() },
+    data: { status: 'ok', uptime: Math.round(process.uptime()), db: dbReady(), dbName: dbReady() ? mongoose.connection.name : null, time: new Date().toISOString() },
   }));
 
   app.use('/api', apiLimiter);

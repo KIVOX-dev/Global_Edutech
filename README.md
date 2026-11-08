@@ -158,6 +158,7 @@ Set these in `backend/.env` for development, and in the AppSail console for prod
 | `B2_KEY_ID`, `B2_APPLICATION_KEY`, `B2_BUCKET`, `B2_REGION`, `B2_ENDPOINT` | Backblaze B2 |
 | `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME` | Brevo email |
 | `CONTACT_RECEIVER_EMAIL` | Extra recipient for new-enquiry notifications (admins are always notified) |
+| `GOOGLE_CLIENT_ID` | Optional. OAuth web client id (ends in `.apps.googleusercontent.com`) that turns on the "Continue with Google" button on the login page |
 | `GROQ_API_KEY` | Optional AI key from console.groq.com. Several keys may be comma-separated: they are used as automatic fallbacks |
 | `GROQ_MODEL`, `GROQ_FALLBACK_MODELS` | Main model and comma-separated backup models, tried in order when one is rate limited or retired |
 | `GROQ_DAILY_LIMIT` | Our own cap on AI calls per day (default 400), so a free tier is never exhausted |
@@ -251,6 +252,16 @@ Docker deploys ignore `app-config.json`: set the environment variables in the Ap
 8. Confirm the email in Brevo → Transactional → Logs.
 9. Upload a student photo and a document (checks the B2 CORS rule).
 10. Submit the Enquire Now form and see it under Admin → Enquiries.
+
+## 6a. Sign in with Google (optional)
+
+Admins and staff can use a "Continue with Google" button on `/login`. It only lets in people who already have an account: the verified Google email must match an active user an administrator created, nothing is ever created from Google, and a Google account that is not registered is refused. The first Google sign-in links that Google account to the user; a different Google account with the same email is then refused. Signing in with Google also clears a staff member's temporary-password step.
+
+Setup (Google Cloud Console):
+1. Create or pick a project at console.cloud.google.com, then **APIs & Services → OAuth consent screen**: user type External, app name Global Edutech, your support email, then publish the app (otherwise only listed test users can sign in).
+2. **Credentials → Create credentials → OAuth client ID → Web application**.
+3. **Authorized JavaScript origins**: add `https://www.globaledutech.co.in`, `https://globaledutech.co.in`, your `https://…vercel.app` address if you use it, and `http://localhost:5173` for local work. No redirect URI is needed.
+4. Copy the client id into `GOOGLE_CLIENT_ID` (backend `.env` and the AppSail console) and restart. Until it is set, the button stays hidden.
 
 ## 6b. AI features (optional, Groq)
 
