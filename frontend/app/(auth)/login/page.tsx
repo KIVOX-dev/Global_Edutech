@@ -26,7 +26,7 @@ function LoginForm() {
 
   const goHome = (u: Awaited<ReturnType<typeof login>>) => {
     const next = params.get('next')
-    const allowed = next && next.startsWith(u.role === 'ADMIN' ? '/admin' : '/staff')
+    const allowed = next && next.startsWith(u.role === 'ADMIN' ? '/admin' : u.role === 'PARENT' ? '/parent' : '/staff')
     router.replace(u.mustChangePassword ? '/change-password' : allowed ? next! : homeFor(u))
   }
 
@@ -71,7 +71,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <AuthFrame title="Welcome back" subtitle="Sign in to the admin panel or staff portal.">
+    <AuthFrame title="Welcome back" subtitle="Sign in to the admin panel, staff or parent portal.">
       <LoginForm />
     </AuthFrame>
   )

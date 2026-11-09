@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { FileUp, FolderOpen, Pencil, Plus, Trash2 } from 'lucide-react'
+import { FileUp, FolderOpen, KeyRound, Pencil, Plus, Trash2 } from 'lucide-react'
 import {
   ConfirmDialog, DataTable, Field, FilterSelect, FormModal, Modal, PageHeader, SearchBox, StatusBadge, btn, clean, Column, Card,
 } from '@/components/portal/kit'
@@ -32,6 +32,15 @@ export default function StudentsPage() {
   const [del, setDel] = useState<Student | null>(null)
   const [docs, setDocs] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
+  const [login, setLogin] = useState<{ email: string; password?: string; created: boolean; children: number } | null>(null)
+
+  // Creates the parent's portal login from the parent email on the admission record
+  const parentLogin = async (s: Student) => {
+    try {
+      const { data } = await api.post<{ email: string; temporaryPassword?: string; created: boolean; children: number }>(`/admin/students/${s._id}/parent-login`)
+      setLogin({ email: data.email, password: data.temporaryPassword, created: data.created, children: data.children })
+    } catch (e) { notifyError(e) }
+  }
 
   const feeFields: Field[] = edit === 'new' ? [
     { name: 'totalFee', label: 'Total fee (Rs.)', type: 'number', half: true, help: 'Optional. Creates the fee for this student now' },
@@ -62,6 +71,7 @@ export default function StudentsPage() {
       key: 'actions', header: '', className: 'text-right whitespace-nowrap',
       render: (s) => (
         <div className="flex justify-end gap-1">
+          <button className={btn('ghost', 'sm')} title="Parent login" onClick={() => parentLogin(s)}><KeyRound className="h-4 w-4" /></button>
           <button className={btn('ghost', 'sm')} title="Photo & documents" onClick={() => setDocs(s._id)}><FolderOpen className="h-4 w-4" /></button>
           <button className={btn('ghost', 'sm')} title="Edit" onClick={() => setEdit(s)}><Pencil className="h-4 w-4" /></button>
           <button className={btn('ghost', 'sm')} title="Delete" onClick={() => setDel(s)}><Trash2 className="h-4 w-4 text-red-600" /></button>
@@ -111,6 +121,18 @@ export default function StudentsPage() {
       </Card>
 
       <FormModal open={!!edit} title={edit === 'new' ? 'Add student' : 'Edit student'} wide fields={fields} initial={edit && edit !== 'new' ? { ...edit, course: edit.course?._id, batch: edit.batch?._id } : { status: 'ACTIVE', frequency: 'MONTHLY' }} onSubmit={save} onClose={() => setEdit(null)} />
+      <Modal open={!!login} title="Parent login" onClose={() => setLogin(null)}>
+        {login?.created ? (
+          <div className="space-y-3 text-sm">
+            <p>Parent login created. We also emailed these details to the parent.</p>
+            <p className="rounded-xl bg-muted/60 p-3">Email: <b>{login.email}</b><br />Temporary password: <b className="select-all">{login.password}</b></p>
+            <p className="text-muted-foreground">They sign in at the normal login page and must choose a new password. Students with this parent email ({login.children} now) all appear under this one login.</p>
+          </div>
+        ) : (
+          <p className="text-sm">A parent login already exists for <b>{login?.email}</b> and shows {login?.children} student(s). The parent can use "Forgot password" on the login page to get a new password.</p>
+        )}
+        <div className="mt-4 flex justify-end"><button className={btn('primary')} onClick={() => setLogin(null)}>Done</button></div>
+      </Modal>
       <ConfirmDialog
         open={!!del} title="Delete student" message={`Delete ${del?.name}? Students with attendance or fee records cannot be deleted; set them to Inactive instead.`}
         onClose={() => setDel(null)}

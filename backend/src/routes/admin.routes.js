@@ -35,6 +35,7 @@ r.post('/staff/:id/reset-password', id, people.resetStaffPassword);
 r.get('/students', q, people.listStudents);
 r.post('/students', validate({ body: people.studentSchemas.create }), people.createStudent);
 r.post('/students/import', validate({ body: people.importSchema }), people.importStudents);
+r.post('/students/:id/parent-login', id, people.createParentLogin);
 r.get('/students/:id', id, people.getStudent);
 r.patch('/students/:id', id, validate({ body: people.studentSchemas.update }), people.updateStudent);
 r.delete('/students/:id', id, people.deleteStudent);

@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useRouter } from 'next/navigation'
 import { api, ApiError } from './api'
 
-export type PortalUser = { id: string; name: string; email: string; role: 'ADMIN' | 'STAFF'; mustChangePassword: boolean; avatarKey?: string }
+export type PortalUser = { id: string; name: string; email: string; role: 'ADMIN' | 'STAFF' | 'PARENT'; mustChangePassword: boolean; avatarKey?: string }
 
 type Ctx = {
   user: PortalUser | null
@@ -16,7 +16,7 @@ type Ctx = {
 }
 
 const AuthContext = createContext<Ctx | null>(null)
-export const homeFor = (u: PortalUser) => (u.mustChangePassword ? '/change-password' : u.role === 'ADMIN' ? '/admin' : '/staff')
+export const homeFor = (u: PortalUser) => (u.mustChangePassword ? '/change-password' : u.role === 'ADMIN' ? '/admin' : u.role === 'PARENT' ? '/parent' : '/staff')
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()

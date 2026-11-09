@@ -1,0 +1,172 @@
+[debug] [2026-11-09T06:41:28.526Z] : 
+[debug] [2026-11-09T06:41:28.530Z] : ----------------------------------------------------------------------
+[debug] [2026-11-09T06:41:28.531Z] : Command:      C:\Program Files\nodejs\node.exe C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\bin\catalyst.js config:list
+[debug] [2026-11-09T06:41:28.532Z] : CLI Version:  1.29.1
+[debug] [2026-11-09T06:41:28.532Z] : Platform:     win32
+[debug] [2026-11-09T06:41:28.532Z] : Node Version: v24.18.0
+[debug] [2026-11-09T06:41:28.533Z] : Time:         Mon Nov 09 2026 12:11:28 GMT+0530 (India Standard Time)
+[debug] [2026-11-09T06:41:28.540Z] : ----------------------------------------------------------------------
+[debug] [2026-11-09T06:41:28.540Z] : 
+[info] [2026-11-09T06:41:46.195Z] : node12.bin=
+node14.bin=
+node16.bin=
+node18.bin=
+node20.bin=
+node22.bin=
+node24.bin=
+python3_9.bin=
+python3_10.bin=
+python3_11.bin=
+python3_12.bin=
+python3_13.bin=
+java8.bin=
+java11.bin=
+java17.bin=
+java21.bin=
+java25.bin=
+javac.disable_warnings=
+serve.container=
+functions_shell.prompt=
+[debug] [2026-11-09T06:41:46.196Z] : NO ERRORS REGISTERED
+[debug] [2026-11-09T06:41:46.198Z] : EXEC ENDED with event: config:list, message: success
+[debug] [2026-11-09T06:41:46.198Z] : TOTAL DURATION OF COMMAND EXEC : 109
+[error] [2026-11-09T06:41:46.205Z] : uncaughtException: EPIPE: broken pipe, write
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20)
+[error] [2026-11-09T06:41:46.209Z] : ✖ An unexpected error has occurred.
+[debug] [2026-11-09T06:41:46.210Z] : Error Stack: CatalystError: An unexpected error has occurred.
+    at exports.default (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\errorOut.js:20:17)
+    at process.<anonymous> (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\bin\catalyst.js:158:28)
+    at process.emit (node:events:521:24)
+    at process._fatalException (node:internal/process/execution:159:25)
+[debug] [2026-11-09T06:41:46.211Z] : Original Error: Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[debug] [2026-11-09T06:41:46.211Z] : Error Status: 500
+[info] [2026-11-09T06:41:46.212Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[error] [2026-11-09T06:41:46.214Z] : uncaughtException: EPIPE: broken pipe, write
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20)
+[error] [2026-11-09T06:41:46.216Z] : ✖ An unexpected error has occurred.
+[debug] [2026-11-09T06:41:46.216Z] : Error Stack: CatalystError: An unexpected error has occurred.
+    at exports.default (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\errorOut.js:20:17)
+    at process.<anonymous> (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\bin\catalyst.js:158:28)
+    at process.emit (node:events:521:24)
+    at process._fatalException (node:internal/process/execution:159:25)
+[debug] [2026-11-09T06:41:46.216Z] : Original Error: Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[debug] [2026-11-09T06:41:46.217Z] : Error Status: 500
+[info] [2026-11-09T06:41:46.218Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[error] [2026-11-09T06:41:46.221Z] : uncaughtException: EPIPE: broken pipe, write
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20)
+[error] [2026-11-09T06:41:46.223Z] : ✖ An unexpected error has occurred.
+[debug] [2026-11-09T06:41:46.224Z] : Error Stack: CatalystError: An unexpected error has occurred.
+    at exports.default (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\errorOut.js:20:17)
+    at process.<anonymous> (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\bin\catalyst.js:158:28)
+    at process.emit (node:events:521:24)
+    at process._fatalException (node:internal/process/execution:159:25)
+[debug] [2026-11-09T06:41:46.225Z] : Original Error: Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[debug] [2026-11-09T06:41:46.225Z] : Error Status: 500
+[info] [2026-11-09T06:41:46.226Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance
+[error] [2026-11-09T06:41:46.230Z] : uncaughtException: EPIPE: broken pipe, write
+Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20)
+[error] [2026-11-09T06:41:46.233Z] : ✖ An unexpected error has occurred.
+[debug] [2026-11-09T06:41:46.233Z] : Error Stack: CatalystError: An unexpected error has occurred.
+    at exports.default (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\errorOut.js:20:17)
+    at process.<anonymous> (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\lib\bin\catalyst.js:158:28)
+    at process.emit (node:events:521:24)
+    at process._fatalException (node:internal/process/execution:159:25)
+[debug] [2026-11-09T06:41:46.236Z] : Original Error: Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:75:18)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Console.log (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston\lib\winston\transports\console.js:87:23)
+    at Console._write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\winston-transport\modern.js:103:17)
+    at doWrite (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:390:139)
+    at writeOrBuffer (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:381:5)
+    at Writable.write (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_writable.js:302:11)
+    at DerivedLogger.ondata (C:\Users\07kav\AppData\Roaming\npm\node_modules\zcatalyst-cli\node_modules\readable-stream\lib\_stream_readable.js:629:20) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[debug] [2026-11-09T06:41:46.236Z] : Error Status: 500
+[info] [2026-11-09T06:41:46.236Z] : Kindly contact Catalyst support [support@zohocatalyst.com] if you need any further assistance

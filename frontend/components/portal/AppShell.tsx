@@ -10,7 +10,7 @@ import { Spinner, cx } from './kit'
 
 export type NavItem = { href: string; label: string; icon: React.ComponentType<{ className?: string }>; primary?: boolean; short?: string }
 
-function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[]; children: React.ReactNode }) {
+function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF' | 'PARENT'; nav: NavItem[]; children: React.ReactNode }) {
   const { user, loading, logout } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -36,7 +36,7 @@ function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[
         <Link href="/" aria-label="Global Edutech website" className="block rounded-2xl bg-white p-2 shadow-md">
           <img src="/images/logo-banner.png" alt="Global Edutech" width={2014} height={438} className="h-10 w-full object-contain" />
         </Link>
-        <p className="mt-2 px-1 text-[11px] uppercase tracking-wider text-white/75">{role === 'ADMIN' ? 'Admin panel' : 'Staff portal'}</p>
+        <p className="mt-2 px-1 text-[11px] uppercase tracking-wider text-white/75">{role === 'ADMIN' ? 'Admin panel' : role === 'PARENT' ? 'Parent portal' : 'Staff portal'}</p>
       </div>
       <ul className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
         {nav.map((n) => (
@@ -71,7 +71,7 @@ function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[
       <div className="lg:pl-64">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur lg:hidden">
           <img src="/images/logo.png" alt="" className="h-8 w-8" />
-          <span className="flex-1 truncate font-display font-bold text-purple">{role === 'ADMIN' ? 'Admin' : 'Staff'} · {user.name.split(' ')[0]}</span>
+          <span className="flex-1 truncate font-display font-bold text-purple">{role === 'ADMIN' ? 'Admin' : role === 'PARENT' ? 'Parent' : 'Staff'} · {user.name.split(' ')[0]}</span>
           <button onClick={logout} className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-muted" aria-label="Sign out"><LogOut className="h-5 w-5" /></button>
         </header>
         <main className="mx-auto w-full max-w-7xl p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-6 lg:pb-6">{children}</main>
@@ -101,6 +101,6 @@ function Shell({ role, nav, children }: { role: 'ADMIN' | 'STAFF'; nav: NavItem[
   )
 }
 
-export default function AppShell(props: { role: 'ADMIN' | 'STAFF'; nav: NavItem[]; children: React.ReactNode }) {
+export default function AppShell(props: { role: 'ADMIN' | 'STAFF' | 'PARENT'; nav: NavItem[]; children: React.ReactNode }) {
   return <AuthProvider><Shell {...props} /></AuthProvider>
 }

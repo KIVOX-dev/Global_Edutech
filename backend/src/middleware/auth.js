@@ -24,6 +24,7 @@ export const authorize = (...roles) => (req, res, next) => {
 
 export const adminOnly = [authenticate, authorize('ADMIN')];
 export const staffOnly = [authenticate, authorize('STAFF')];
+export const parentOnly = [authenticate, authorize('PARENT')];
 
 // Blocks everything except password change while a temporary password is in use
 export function enforcePasswordChange(req, res, next) {

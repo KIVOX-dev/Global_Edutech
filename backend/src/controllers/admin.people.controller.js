@@ -210,6 +210,22 @@ export const getStudent = asyncHandler(async (req, res) => {
   ok(res, s);
 });
 
+// Creates (or reports) the parent portal login for a student: the login email is the student's parent email,
+// and every student with that parent email shows up under the one login.
+export const createParentLogin = asyncHandler(async (req, res) => {
+  const s = await Student.findById(req.params.id);
+  if (!s) throw ApiError.notFound('Student not found');
+  if (!s.parentEmail) throw ApiError.badRequest('Add the parent email to this student first');
+  const existing = await User.findOne({ email: s.parentEmail });
+  if (existing && existing.role !== 'PARENT') throw ApiError.conflict('This email already belongs to a staff or admin account. Use a different parent email.');
+  if (existing) return ok(res, { created: false, email: existing.email, children: await Student.countDocuments({ parentEmail: existing.email }) });
+  const pw = tempPassword();
+  const user = await User.create({ name: s.parentName || `Parent of ${s.name}`, email: s.parentEmail, phone: s.parentPhone, role: 'PARENT', passwordHash: await hashPassword(pw), mustChangePassword: true });
+  await audit(req, { action: 'CREATE_PARENT_LOGIN', entity: 'User', entityId: user._id, after: { email: user.email, student: s.admissionNo } });
+  mailCredentials(user, pw, `A parent login has been created for you at ${config.instituteName}, so you can follow ${s.name}'s attendance, course and fees.`);
+  created(res, { created: true, email: user.email, temporaryPassword: pw, children: await Student.countDocuments({ parentEmail: user.email }) });
+});
+
 export const createStudent = asyncHandler(async (req, res) => {
   await checkRefs(req.body);
   const body = { ...req.body, course: req.body.course || undefined, batch: req.body.batch || undefined };

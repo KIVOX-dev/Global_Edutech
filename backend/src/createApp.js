@@ -16,6 +16,7 @@ import publicRoutes from './routes/public.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import staffRoutes from './routes/staff.routes.js';
+import parentRoutes from './routes/parent.routes.js';
 import attendanceRoutes from './routes/attendance.routes.js';
 import filesRoutes from './routes/files.routes.js';
 
@@ -71,6 +72,7 @@ export function createApp() {
   app.use('/api/auth', requireDb, authRoutes);
   app.use('/api/admin', requireDb, adminRoutes);
   app.use('/api/staff', requireDb, staffRoutes);
+  app.use('/api/parent', requireDb, parentRoutes);
   app.use('/api/attendance', requireDb, attendanceRoutes);
   app.use('/api/files', requireDb, filesRoutes);
   app.use('/api', notFoundApi);
